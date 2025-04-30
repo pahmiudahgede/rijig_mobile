@@ -1,89 +1,162 @@
 import 'dart:convert';
+import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 import 'package:flutter_dotenv/flutter_dotenv.dart';
 
 class ApiService {
-  final String baseUrl;
+  final String baseUrl = dotenv.get('BASE_URL');
+  final String apiKey = dotenv.get('API_KEY');
 
-  ApiService({this.baseUrl = ''});
-
-  static String get apiUrl => dotenv.env['BASE_URL'] ?? '';
+  static const Map<String, String> _headers = {
+    'Content-Type': 'application/json',
+  };
 
   Future<Map<String, dynamic>> get(String endpoint) async {
-    final url = Uri.parse('$apiUrl/$endpoint');
-
     try {
-      final response = await http.get(url);
+      final url = Uri.parse('$baseUrl$endpoint');
+      final response = await http.get(
+        url,
+        headers: {..._headers, 'API_KEY': apiKey},
+      );
 
-      if (response.statusCode == 200) {
-        return json.decode(response.body);
-      } else {
-        throw Exception('Failed to load data');
-      }
+      return _processResponse(response);
     } catch (e) {
-      rethrow;
+      throw NetworkException(
+        'Failed to connect to the server. Please check your internet connection.',
+      );
     }
   }
 
-  Future<Map<String, dynamic>> post(
-    String endpoint,
-    Map<String, dynamic> data,
-  ) async {
-    final url = Uri.parse('$apiUrl/$endpoint');
-
+  Future<Map<String, dynamic>> post(String endpoint, Map<String, dynamic> body) async {
     try {
+      final url = Uri.parse('$baseUrl$endpoint');
+      
+      // Debugging URL dan Body Request
+      debugPrint('Request URL: $url');
+      debugPrint('Request Body: ${jsonEncode(body)}');
+      debugPrint('API_KEY: $apiKey');
+
       final response = await http.post(
         url,
-        headers: {'Content-Type': 'application/json'},
-        body: json.encode(data),
+        headers: {
+          ..._headers, // Menggunakan _headers untuk Content-Type
+          'x-api-key': apiKey, // Pastikan API_KEY dimasukkan dengan benar di sini
+        },
+        body: jsonEncode(body),
       );
 
-      if (response.statusCode == 201) {
-        return json.decode(response.body);
-      } else {
-        throw Exception('Failed to submit data');
-      }
+      debugPrint('Response: ${response.body}');  // Debugging Response
+
+      return _processResponse(response);
     } catch (e) {
-      rethrow;
+      debugPrint('Error during API request: $e');
+      throw NetworkException(
+        'Failed to connect to the server. Please check your internet connection.',
+      );
     }
   }
 
   Future<Map<String, dynamic>> put(
     String endpoint,
-    Map<String, dynamic> data,
+    Map<String, dynamic> body,
   ) async {
-    final url = Uri.parse('$apiUrl/$endpoint');
-
     try {
+      final url = Uri.parse('$baseUrl$endpoint');
       final response = await http.put(
         url,
-        headers: {'Content-Type': 'application/json'},
-        body: json.encode(data),
+        headers: {..._headers, 'API_KEY': apiKey},
+        body: jsonEncode(body),
       );
 
-      if (response.statusCode == 200) {
-        return json.decode(response.body);
-      } else {
-        throw Exception('Failed to update data');
-      }
+      return _processResponse(response);
     } catch (e) {
-      rethrow;
+      throw NetworkException(
+        'Failed to connect to the server. Please check your internet connection.',
+      );
+    }
+  }
+
+  Future<Map<String, dynamic>> patch(
+    String endpoint,
+    Map<String, dynamic> body,
+  ) async {
+    try {
+      final url = Uri.parse('$baseUrl$endpoint');
+      final response = await http.patch(
+        url,
+        headers: {..._headers, 'API_KEY': apiKey},
+        body: jsonEncode(body),
+      );
+
+      return _processResponse(response);
+    } catch (e) {
+      throw NetworkException(
+        'Failed to connect to the server. Please check your internet connection.',
+      );
     }
   }
 
   Future<Map<String, dynamic>> delete(String endpoint) async {
-    final url = Uri.parse('$apiUrl/$endpoint');
-
     try {
-      final response = await http.delete(url);
+      final url = Uri.parse('$baseUrl$endpoint');
+      final response = await http.delete(
+        url,
+        headers: {..._headers, 'API_KEY': apiKey},
+      );
 
-      if (response.statusCode == 200) {
-        return json.decode(response.body);
-      } else {
-        throw Exception('Failed to delete data');
-      }
+      return _processResponse(response);
     } catch (e) {
-      rethrow;
+      throw NetworkException(
+        'Failed to connect to the server. Please check your internet connection.',
+      );
     }
   }
+
+  Map<String, dynamic> _processResponse(http.Response response) {
+    switch (response.statusCode) {
+      case 200:
+        return jsonDecode(response.body);
+      case 400:
+        throw BadRequestException(
+          'Bad request. The server could not process your request.',
+        );
+      case 401:
+        throw UnauthorizedException(
+          'Unauthorized. Please check your credentials.',
+        );
+      case 404:
+        throw NotFoundException(
+          'Not found. The requested resource could not be found.',
+        );
+      case 500:
+        throw ServerException('Internal server error. Please try again later.');
+      default:
+        throw Exception('Failed with status code: ${response.statusCode}');
+    }
+  }
+}
+
+class NetworkException implements Exception {
+  final String message;
+  NetworkException(this.message);
+}
+
+class BadRequestException implements Exception {
+  final String message;
+  BadRequestException(this.message);
+}
+
+class UnauthorizedException implements Exception {
+  final String message;
+  UnauthorizedException(this.message);
+}
+
+class NotFoundException implements Exception {
+  final String message;
+  NotFoundException(this.message);
+}
+
+class ServerException implements Exception {
+  final String message;
+  ServerException(this.message);
 }

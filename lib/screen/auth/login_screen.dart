@@ -1,81 +1,60 @@
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
 import 'package:rijig_mobile/core/router.dart';
+import 'package:rijig_mobile/viewmodel/auth_vmod.dart';
 
 class LoginScreen extends StatelessWidget {
-  final _formKey = GlobalKey<FormState>();
+  final _phoneController = TextEditingController();
+
   LoginScreen({super.key});
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: Colors.white,
-      body: SafeArea(
-        child: LayoutBuilder(
-          builder: (context, constraints) {
-            return SingleChildScrollView(
-              padding: const EdgeInsets.symmetric(horizontal: 16.0),
-              child: Column(
-                children: [
-                  SizedBox(height: constraints.maxHeight * 0.1),
-                  Text("Halo, Rijig"),
-                  SizedBox(height: constraints.maxHeight * 0.1),
-                  Text(
-                    "Masukkan Nomor Whatsapp",
-                    style: Theme.of(context).textTheme.headlineSmall!.copyWith(
-                      fontWeight: FontWeight.bold,
-                    ),
-                  ),
-                  SizedBox(height: constraints.maxHeight * 0.05),
-                  Form(
-                    key: _formKey,
-                    child: Column(
-                      children: [
-                        TextFormField(
-                          decoration: const InputDecoration(
-                            hintText: 'Phone',
-                            filled: true,
-                            fillColor: Color(0xFFF5FCF9),
-                            contentPadding: EdgeInsets.symmetric(
-                              horizontal: 16.0 * 1.5,
-                              vertical: 16.0,
-                            ),
-                            border: OutlineInputBorder(
-                              borderSide: BorderSide.none,
-                              borderRadius: BorderRadius.all(
-                                Radius.circular(50),
-                              ),
-                            ),
-                          ),
-                          keyboardType: TextInputType.phone,
-                          onSaved: (phone) {},
-                        ),
-                        Padding(
-                          padding: const EdgeInsets.symmetric(vertical: 16.0),
-                        ),
+      appBar: AppBar(title: Text('Login')),
+      body: Padding(
+        padding: const EdgeInsets.all(16.0),
+        child: Consumer<UserViewModel>(
+          builder: (context, userVM, child) {
+            if (userVM.authModel?.status == 200) {
+              Future.delayed(Duration.zero, () {
+                router.go('/verif-otp', extra: _phoneController.text);
+              });
+            }
 
-                        ElevatedButton(
-                          onPressed: () {
-                            debugPrint("klik send otp");
-                            router.push("/verif-otp");
-                          },
-                          style: ElevatedButton.styleFrom(
-                            elevation: 0,
-                            backgroundColor: const Color(0xFF00BF6D),
-                            foregroundColor: Colors.white,
-                            minimumSize: const Size(double.infinity, 48),
-                            shape: const RoundedRectangleBorder(
-                              borderRadius: BorderRadius.all(
-                                Radius.circular(16),
-                              ),
-                            ),
-                          ),
-                          child: const Text("send otp"),
-                        ),
-                      ],
+            return Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                TextField(
+                  controller: _phoneController,
+                  keyboardType: TextInputType.phone,
+                  decoration: InputDecoration(
+                    labelText: 'Phone Number',
+                    errorText: userVM.errorMessage,
+                  ),
+                ),
+                SizedBox(height: 20),
+                userVM.isLoading
+                    ? CircularProgressIndicator()
+                    : ElevatedButton(
+                      onPressed: () {
+                        if (_phoneController.text.isNotEmpty) {
+                          userVM.login(_phoneController.text);
+                        }
+                      },
+                      child: Text('Send OTP'),
+                    ),
+                if (userVM.authModel != null)
+                  Text(
+                    userVM.authModel!.message,
+                    style: TextStyle(
+                      color:
+                          userVM.authModel!.status == 200
+                              ? Colors.green
+                              : Colors.red,
                     ),
                   ),
-                ],
-              ),
+              ],
             );
           },
         ),

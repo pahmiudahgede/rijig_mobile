@@ -8,15 +8,19 @@ environment:
   sdk: ^3.7.2
 
 dependencies:
+  concentric_transition: ^1.0.3
   cupertino_icons: ^1.0.8
   flutter:
     sdk: flutter
   flutter_dotenv: ^5.2.1
   flutter_screenutil: ^5.9.3
+  flutter_svg: ^2.1.0
   gap: ^3.0.1
   go_router: ^15.1.1
   google_fonts: ^6.0.0
   http: ^1.3.0
+  iconsax_flutter: ^1.0.0
+  intl: ^0.20.2
   provider: ^6.1.4
   shared_preferences: ^2.3.3
 
@@ -29,3 +33,4 @@ flutter:
   uses-material-design: true
   assets:
     - server/.env.dev
+    - assets/image/
