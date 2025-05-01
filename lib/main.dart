@@ -12,10 +12,9 @@ void main() async {
   await dotenv.load(fileName: "server/.env.dev");
   HttpOverrides.global = MyHttpOverrides();
   WidgetsFlutterBinding.ensureInitialized();
-  await initializeDateFormatting(
-    'id_ID',
-    null,
-  ).then((_) => runApp(const MyApp()));
+  await initializeDateFormatting('id_ID', null).then((_) {
+    runApp(const MyApp());
+  });
 }
 
 class MyApp extends StatelessWidget {
@@ -23,16 +22,17 @@ class MyApp extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return ScreenUtilInit(
-      designSize: const Size(375, 812),
-      builder:
-          (_, child) => ChangeNotifierProvider(
-            create: (_) => UserViewModel(),
-            child: MaterialApp.router(
-              debugShowCheckedModeBanner: false,
-              routerConfig: router,
-            ),
-          ),
+    return ChangeNotifierProvider(
+      create: (_) => AuthViewModel(),
+      child: ScreenUtilInit(
+        designSize: const Size(375, 812),
+        builder: (_, child) {
+          return MaterialApp.router(
+            debugShowCheckedModeBanner: false,
+            routerConfig: router,
+          );
+        },
+      ),
     );
   }
 }

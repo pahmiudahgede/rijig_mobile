@@ -1,10 +1,9 @@
 import 'package:flutter/material.dart';
-import 'package:rijig_mobile/core/api_services.dart';
 import 'package:rijig_mobile/model/auth_model.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
-class UserViewModel extends ChangeNotifier {
-  final ApiService _apiService = ApiService();
+class AuthViewModel extends ChangeNotifier {
+  final AuthService _authService = AuthService();
   bool isLoading = false;
   String? errorMessage;
   AuthModel? authModel;
@@ -15,22 +14,13 @@ class UserViewModel extends ChangeNotifier {
       errorMessage = null;
       notifyListeners();
 
-      var response = await _apiService.post('/authmasyarakat/auth', {
-        'phone': phone,
-      });
+      authModel = await _authService.login(phone);
 
-      authModel = AuthModel.fromJson(response);
-
-      if (authModel?.status == 200) {
-      } else {
+      if (authModel?.status != 200) {
         errorMessage = authModel?.message ?? 'Failed to send OTP';
       }
     } catch (e) {
-      if (e is NetworkException) {
-        errorMessage = e.message;
-      } else {
-        errorMessage = 'Something went wrong. Please try again later.';
-      }
+      errorMessage = 'Error: $e';
     } finally {
       isLoading = false;
       notifyListeners();
@@ -43,28 +33,21 @@ class UserViewModel extends ChangeNotifier {
       errorMessage = null;
       notifyListeners();
 
-      var response = await _apiService.post('/authmasyarakat/verify-otp', {
-        'phone': phone,
-        'otp': otp,
-      });
+      var response = await _authService.verifyOtp(phone, otp);
 
-      if (response['meta']['status'] == 200) {
+      if (response['meta'] != null && response['meta']['status'] == 200) {
         SharedPreferences prefs = await SharedPreferences.getInstance();
         await prefs.setString('token', response['data']['token']);
         await prefs.setString('user_id', response['data']['user_id']);
         await prefs.setString('user_role', response['data']['user_role']);
         await prefs.setBool('isLoggedIn', true);
 
-        debugPrint("berhasil login");
+        authModel = AuthModel.fromJson(response['data']);
       } else {
-        errorMessage = response['meta']['message'] ?? 'Failed to verify OTP';
+        errorMessage = response['meta']?['message'] ?? 'Failed to verify OTP';
       }
     } catch (e) {
-      if (e is NetworkException) {
-        errorMessage = e.message;
-      } else {
-        errorMessage = 'Something went wrong. Please try again later.';
-      }
+      errorMessage = 'Error: $e';
     } finally {
       isLoading = false;
       notifyListeners();
