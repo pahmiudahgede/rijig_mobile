@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:rijig_mobile/widget/appbar.dart';
 
 class RequestPickScreen extends StatelessWidget {
   const RequestPickScreen({super.key});
@@ -6,7 +7,7 @@ class RequestPickScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: Text("Request Pickup")),
+      appBar: CustomAppBar(judul: "Pilih Sampah"),
       body: Center(
         child: ElevatedButton(
           onPressed: () {

@@ -53,6 +53,7 @@ class UserViewModel extends ChangeNotifier {
         await prefs.setString('token', response['data']['token']);
         await prefs.setString('user_id', response['data']['user_id']);
         await prefs.setString('user_role', response['data']['user_role']);
+        await prefs.setBool('isLoggedIn', true);
 
         debugPrint("berhasil login");
       } else {

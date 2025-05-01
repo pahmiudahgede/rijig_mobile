@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
-
-import 'section_title.dart';
+import 'package:gap/gap.dart';
 
 class SpecialOffers extends StatelessWidget {
   const SpecialOffers({super.key});
@@ -11,11 +10,25 @@ class SpecialOffers extends StatelessWidget {
       children: [
         Padding(
           padding: const EdgeInsets.symmetric(horizontal: 20),
-          child: SectionTitle(
-            title: "Special for you",
-            // press: () {},
+          child: Row(
+            mainAxisAlignment: MainAxisAlignment.start,
+            children: [
+              Text(
+                "Important!",
+                style: const TextStyle(
+                  fontSize: 16,
+                  fontWeight: FontWeight.w600,
+                  color: Colors.black,
+                ),
+              ),
+            ],
           ),
+          // child: SectionTitle(
+          //   title: "Special for you",
+          //   // press: () {},
+          // ),
         ),
+        const Gap(15),
         SingleChildScrollView(
           scrollDirection: Axis.horizontal,
           child: Row(

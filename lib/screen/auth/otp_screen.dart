@@ -46,7 +46,7 @@ class VerifotpScreen extends StatelessWidget {
 
                       if (userVM.authModel?.status == 200) {
                         debugPrint("routing ke halaman home");
-                        router.go('/home');
+                        router.go('/navigasi');
                       }
                     }
                   },

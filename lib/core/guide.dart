@@ -3,15 +3,15 @@ import 'package:google_fonts/google_fonts.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 
 // =====================color schema=====================
-Color whiteColor = const Color(0xffF0F1EA);
-Color blackNavyColor = const Color(0xff101010);
-Color primaryColor = const Color(0xff018558);
-Color secondaryColor = const Color(0xffBDE902);
-Color tersierColor = const Color(0xffFEF031);
-Color redColor = const Color(0xffFF4438);
-Color blueColor = const Color(0xff00B5FF);
-Color greyColor = const Color(0xffCBD4E6);
-Color greyAbsolutColor = const Color(0xff5C707A);
+Color whiteColor = Color(0xffF0F1EA);
+Color blackNavyColor = Color(0xff101010);
+Color primaryColor = Color(0xff018558);
+Color secondaryColor = Color(0xffBDE902);
+Color tersierColor = Color(0xffFEF031);
+Color redColor = Color(0xffFF4438);
+Color blueColor = Color(0xff00B5FF);
+Color greyColor = Color(0xffCBD4E6);
+Color greyAbsolutColor = Color(0xff5C707A);
 
 // =====================font weight=====================
 FontWeight light = FontWeight.w300;
@@ -24,23 +24,29 @@ FontWeight superBold = FontWeight.w900;
 
 // =====================text behavior=====================
 class Tulisan {
-  static TextStyle heading = GoogleFonts.spaceGrotesk(
-    fontSize: 24.sp,
-    fontWeight: bold,
-    color: blackNavyColor,
-  );
+  static TextStyle heading({Color? color}) {
+    return GoogleFonts.spaceGrotesk(
+      fontSize: 24.sp,
+      fontWeight: FontWeight.bold,
+      color: color ?? blackNavyColor,
+    );
+  }
 
-  static TextStyle body = GoogleFonts.spaceMono(
-    fontSize: 16.sp,
-    fontWeight: regular,
-    color: blackNavyColor,
-  );
+  static TextStyle body({Color? color}) {
+    return GoogleFonts.spaceMono(
+      fontSize: 16.sp,
+      fontWeight: FontWeight.w400,
+      color: color ?? blackNavyColor,
+    );
+  }
 
-  static TextStyle subheading = GoogleFonts.spaceGrotesk(
-    fontSize: 18.sp,
-    fontWeight: medium,
-    color: blackNavyColor,
-  );
+  static TextStyle subheading({Color? color}) {
+    return GoogleFonts.spaceGrotesk(
+      fontSize: 18.sp,
+      fontWeight: FontWeight.w500,
+      color: color ?? blackNavyColor,
+    );
+  }
 }
 
 // =====================padding custom=====================
@@ -68,7 +74,11 @@ class PaddingCustom {
     double bottom = 0.0,
   }) {
     return EdgeInsets.only(
-        left: left.sp, top: top.sp, right: right.sp, bottom: bottom.sp);
+      left: left.sp,
+      top: top.sp,
+      right: right.sp,
+      bottom: bottom.sp,
+    );
   }
 }
 

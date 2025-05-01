@@ -1,15 +1,14 @@
 import 'package:flutter/material.dart';
 import 'package:rijig_mobile/core/guide.dart';
 import 'package:rijig_mobile/core/router.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 class SplashScreen extends StatelessWidget {
   const SplashScreen({super.key});
 
   @override
   Widget build(BuildContext context) {
-    Future.delayed(Duration(seconds: 3), () {
-      router.go('/onboarding');
-    });
+    _checkLoginStatus(context);
 
     return Scaffold(
       backgroundColor: whiteColor,
@@ -21,7 +20,6 @@ class SplashScreen extends StatelessWidget {
             right: 0,
             child: Image.asset('assets/image/Go_Ride.png', height: 200),
           ),
-
           Align(
             alignment: Alignment.center,
             child: Padding(
@@ -31,7 +29,7 @@ class SplashScreen extends StatelessWidget {
                 style: TextStyle(
                   fontSize: 36,
                   fontWeight: FontWeight.bold,
-                  color: primaryColor,
+                  color: Colors.blue,
                   fontFamily: 'Roboto',
                 ),
               ),
@@ -40,5 +38,18 @@ class SplashScreen extends StatelessWidget {
         ],
       ),
     );
+  }
+
+  Future<void> _checkLoginStatus(BuildContext context) async {
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    bool isLoggedIn = prefs.getBool('isLoggedIn') ?? false;
+
+    await Future.delayed(Duration(seconds: 3));
+
+    if (isLoggedIn) {
+      router.go('/navigasi');
+    } else {
+      router.go('/onboarding');
+    }
   }
 }

@@ -1,5 +1,7 @@
 import 'package:concentric_transition/concentric_transition.dart';
 import 'package:flutter/material.dart';
+import 'package:rijig_mobile/core/guide.dart';
+import 'package:rijig_mobile/core/router.dart';
 
 final pages = [
   const PageData(
@@ -22,8 +24,26 @@ final pages = [
   ),
 ];
 
-class OnboardongPageScreen extends StatelessWidget {
-  const OnboardongPageScreen({super.key});
+class OnboardingPageScreen extends StatefulWidget {
+  const OnboardingPageScreen({super.key});
+
+  @override
+  OnboardingPageScreenState createState() => OnboardingPageScreenState();
+}
+
+class OnboardingPageScreenState extends State<OnboardingPageScreen> {
+  final PageController _controller = PageController();
+  int _currentIndex = 0;
+
+  @override
+  void initState() {
+    super.initState();
+    _controller.addListener(() {
+      setState(() {
+        _currentIndex = _controller.page!.round();
+      });
+    });
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -31,24 +51,35 @@ class OnboardongPageScreen extends StatelessWidget {
     return Scaffold(
       body: ConcentricPageView(
         colors: pages.map((p) => p.bgColor).toList(),
+        pageController: _controller,
         radius: screenWidth * 0.1,
-        nextButtonBuilder:
-            (context) => Padding(
-              padding: const EdgeInsets.only(left: 3), // visual center
-              child: Icon(Icons.navigate_next, size: screenWidth * 0.08),
-            ),
-        // enable itemcount to disable infinite scroll
-        // itemCount: pages.length,
-        // opacityFactor: 2.0,
+        nextButtonBuilder: (context) {
+          if (_currentIndex == pages.length - 1) {
+            return InkWell(
+              onTap: () => router.go('/login'),
+              child: Center(
+                child: Text(
+                  "Go to Login",
+                  style: TextStyle(
+                    fontSize: screenWidth * 0.04,
+                    color: whiteColor,
+                  ),
+                  // textAlign: TextAlign.center,
+                ),
+              ),
+            );
+          }
+          return Padding(
+            padding: const EdgeInsets.only(left: 3),
+            child: Icon(Icons.navigate_next, size: screenWidth * 0.08),
+          );
+        },
+        itemCount: pages.length,
         scaleFactor: 2,
         duration: Duration(milliseconds: 500),
-        // verticalPosition: 0.7,
-        // direction: Axis.vertical,
-        // itemCount: pages.length,
-        // physics: NeverScrollableScrollPhysics(),
         itemBuilder: (index) {
-          final page = pages[index % pages.length];
-          return SafeArea(child: _Page(page: page));
+          final page = pages[index];
+          return SafeArea(child: _Page(page: page, index: index));
         },
       ),
     );
@@ -71,12 +102,14 @@ class PageData {
 
 class _Page extends StatelessWidget {
   final PageData page;
+  final int index;
 
-  const _Page({required this.page});
+  const _Page({required this.page, required this.index});
 
   @override
   Widget build(BuildContext context) {
     final screenHeight = MediaQuery.of(context).size.height;
+
     return Column(
       mainAxisAlignment: MainAxisAlignment.center,
       children: [
