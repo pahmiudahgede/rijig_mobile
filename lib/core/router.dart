@@ -19,17 +19,21 @@ final router = GoRouter(
     ),
     GoRoute(path: '/login', builder: (context, state) => LoginScreen()),
     GoRoute(
-      path: '/navigasi',
-      builder: (context, state) {
-        dynamic data = state.extra;
-        return NavigationPage(data: data);
-      },
-    ),
-    GoRoute(
       path: '/verif-otp',
       builder: (context, state) {
         final phone = state.extra as String?;
         return VerifotpScreen(phone: phone!);
+      },
+    ),
+    GoRoute(
+      path: '/inputpin',
+      builder: (context, state) => OnboardingPageScreen(),
+    ),
+    GoRoute(
+      path: '/navigasi',
+      builder: (context, state) {
+        dynamic data = state.extra;
+        return NavigationPage(data: data);
       },
     ),
     GoRoute(path: '/home', builder: (context, state) => HomeScreen()),

@@ -1,12 +1,15 @@
 import 'package:flutter/material.dart';
+import 'package:rijig_mobile/model/response_model.dart';
 import 'package:rijig_mobile/model/auth_model.dart';
+import 'package:flutter_secure_storage/flutter_secure_storage.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 class AuthViewModel extends ChangeNotifier {
-  final AuthService _authService = AuthService();
+  final AuthModel _authModel = AuthModel();
+  final FlutterSecureStorage _secureStorage = FlutterSecureStorage();
   bool isLoading = false;
   String? errorMessage;
-  AuthModel? authModel;
+  ResponseModel? authModel;
 
   Future<void> login(String phone) async {
     try {
@@ -14,10 +17,15 @@ class AuthViewModel extends ChangeNotifier {
       errorMessage = null;
       notifyListeners();
 
-      authModel = await _authService.login(phone);
+      final response = await _authModel.login(phone);
 
-      if (authModel?.status != 200) {
-        errorMessage = authModel?.message ?? 'Failed to send OTP';
+      if (response != null && response.status == 200) {
+        SharedPreferences prefs = await SharedPreferences.getInstance();
+        await prefs.setBool('isLoggedIn', false);
+
+        authModel = response;
+      } else {
+        errorMessage = response?.message ?? 'Failed to send OTP';
       }
     } catch (e) {
       errorMessage = 'Error: $e';
@@ -33,18 +41,28 @@ class AuthViewModel extends ChangeNotifier {
       errorMessage = null;
       notifyListeners();
 
-      var response = await _authService.verifyOtp(phone, otp);
+      var response = await _authModel.verifyOtp(phone, otp);
 
-      if (response['meta'] != null && response['meta']['status'] == 200) {
+      if (response != null && response.status == 200) {
+        await _secureStorage.write(
+          key: 'token',
+          value: response.data?['token'],
+        );
+        await _secureStorage.write(
+          key: 'user_id',
+          value: response.data?['user_id'],
+        );
+        await _secureStorage.write(
+          key: 'user_role',
+          value: response.data?['user_role'],
+        );
+
         SharedPreferences prefs = await SharedPreferences.getInstance();
-        await prefs.setString('token', response['data']['token']);
-        await prefs.setString('user_id', response['data']['user_id']);
-        await prefs.setString('user_role', response['data']['user_role']);
         await prefs.setBool('isLoggedIn', true);
 
-        authModel = AuthModel.fromJson(response['data']);
+        authModel = response;
       } else {
-        errorMessage = response['meta']?['message'] ?? 'Failed to verify OTP';
+        errorMessage = response?.message ?? 'Failed to verify OTP';
       }
     } catch (e) {
       errorMessage = 'Error: $e';
@@ -52,5 +70,32 @@ class AuthViewModel extends ChangeNotifier {
       isLoading = false;
       notifyListeners();
     }
+  }
+
+  Future<String?> getAuthToken() async {
+    return await _secureStorage.read(key: 'token');
+  }
+
+  Future<String?> getUserId() async {
+    return await _secureStorage.read(key: 'user_id');
+  }
+
+  Future<String?> getUserRole() async {
+    return await _secureStorage.read(key: 'user_role');
+  }
+
+  Future<void> logout() async {
+    await _secureStorage.delete(key: 'token');
+    await _secureStorage.delete(key: 'user_id');
+    await _secureStorage.delete(key: 'user_role');
+
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    await prefs.remove('isLoggedIn');
+    notifyListeners();
+  }
+
+  Future<bool> isUserLoggedIn() async {
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    return prefs.getBool('isLoggedIn') ?? false;
   }
 }
