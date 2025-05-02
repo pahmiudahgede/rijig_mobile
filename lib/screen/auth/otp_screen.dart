@@ -58,11 +58,26 @@ class _VerifotpScreenState extends State<VerifotpScreen> {
                 horizontal: double.infinity,
                 vertical: 50,
                 onTap: () {
+                  // if (_otpController.text.isNotEmpty) {
+                  //   viewModel.verifyOtp(widget.phone, _otpController.text).then(
+                  //     (_) {
+                  //       if (viewModel.errorMessage == null) {
+                  //         router.go('/navigasi');
+                  //       } else {
+                  //         debugPrint(viewModel.errorMessage ?? '');
+                  //       }
+                  //     },
+                  //   );
+                  // }
                   if (_otpController.text.isNotEmpty) {
                     viewModel.verifyOtp(widget.phone, _otpController.text).then(
                       (_) {
                         if (viewModel.errorMessage == null) {
-                          router.go('/navigasi');
+                          if (viewModel.pinExists == false) {
+                            router.go('/setpin');
+                          } else {
+                            router.go('/verifpin');
+                          }
                         } else {
                           debugPrint(viewModel.errorMessage ?? '');
                         }

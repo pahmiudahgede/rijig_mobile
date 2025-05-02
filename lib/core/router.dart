@@ -5,8 +5,10 @@ import 'package:rijig_mobile/screen/app/cart/cart_screen.dart';
 import 'package:rijig_mobile/screen/app/home/home_screen.dart';
 import 'package:rijig_mobile/screen/app/profil/profil_screen.dart';
 import 'package:rijig_mobile/screen/app/requestpick/requestpickup_screen.dart';
+import 'package:rijig_mobile/screen/auth/inputpin_screen.dart';
 import 'package:rijig_mobile/screen/auth/login_screen.dart';
 import 'package:rijig_mobile/screen/auth/otp_screen.dart';
+import 'package:rijig_mobile/screen/auth/verifpin_screen.dart';
 import 'package:rijig_mobile/screen/launch/onboardingpage_screen.dart';
 import 'package:rijig_mobile/screen/launch/splash_screen.dart';
 
@@ -25,10 +27,8 @@ final router = GoRouter(
         return VerifotpScreen(phone: phone!);
       },
     ),
-    GoRoute(
-      path: '/inputpin',
-      builder: (context, state) => OnboardingPageScreen(),
-    ),
+    GoRoute(path: '/setpin', builder: (context, state) => UserPinScreen()),
+    GoRoute(path: '/verifpin', builder: (context, state) => VerifPinScreen()),
     GoRoute(
       path: '/navigasi',
       builder: (context, state) {

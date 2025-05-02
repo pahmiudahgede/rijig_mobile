@@ -1,15 +1,19 @@
 import 'package:flutter/material.dart';
+import 'package:rijig_mobile/core/getinfodevice.dart';
 import 'package:rijig_mobile/model/response_model.dart';
 import 'package:rijig_mobile/model/auth_model.dart';
 import 'package:flutter_secure_storage/flutter_secure_storage.dart';
+import 'package:rijig_mobile/model/userpin_model.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 class AuthViewModel extends ChangeNotifier {
   final AuthModel _authModel = AuthModel();
+  final PinModel _pinModel = PinModel();
   final FlutterSecureStorage _secureStorage = FlutterSecureStorage();
   bool isLoading = false;
   String? errorMessage;
   ResponseModel? authModel;
+  bool? pinExists;
 
   Future<void> login(String phone) async {
     try {
@@ -22,7 +26,6 @@ class AuthViewModel extends ChangeNotifier {
       if (response != null && response.status == 200) {
         SharedPreferences prefs = await SharedPreferences.getInstance();
         await prefs.setBool('isLoggedIn', false);
-
         authModel = response;
       } else {
         errorMessage = response?.message ?? 'Failed to send OTP';
@@ -41,7 +44,9 @@ class AuthViewModel extends ChangeNotifier {
       errorMessage = null;
       notifyListeners();
 
-      var response = await _authModel.verifyOtp(phone, otp);
+      String deviceId = await getDeviceId();
+
+      var response = await _authModel.verifyOtp(phone, otp, deviceId);
 
       if (response != null && response.status == 200) {
         await _secureStorage.write(
@@ -59,8 +64,10 @@ class AuthViewModel extends ChangeNotifier {
 
         SharedPreferences prefs = await SharedPreferences.getInstance();
         await prefs.setBool('isLoggedIn', true);
+        pinExists = await _pinModel.checkPinStatus();
 
         authModel = response;
+        notifyListeners();
       } else {
         errorMessage = response?.message ?? 'Failed to verify OTP';
       }

@@ -15,11 +15,16 @@ class AuthModel {
     }
   }
 
-  Future<ResponseModel?> verifyOtp(String phone, String otp) async {
+  Future<ResponseModel?> verifyOtp(
+    String phone,
+    String otp,
+    String deviceId,
+  ) async {
     try {
       var response = await _apiService.post('/authmasyarakat/verify-otp', {
         'phone': phone,
         'otp': otp,
+        'device_id': deviceId,
       });
       return ResponseModel.fromJson(response);
     } catch (e) {

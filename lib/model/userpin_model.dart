@@ -1,25 +1,34 @@
 import 'package:rijig_mobile/core/api_services.dart';
-import 'package:rijig_mobile/model/response_model.dart';
 
-class AuthService {
+class PinModel {
   final ApiService _apiService = ApiService();
 
-  Future<ResponseModel?> cekPinStatus(String userid) async {
+  Future<bool> checkPinStatus() async {
     try {
       var response = await _apiService.get('/cek-pin-status');
-      return ResponseModel.fromJson(response);
+      if (response['meta']['status'] == 200) {
+        return true;
+      } else {
+        return false;
+      }
     } catch (e) {
       rethrow;
     }
   }
 
-  Future<Map<String, dynamic>> verifyOtp(String phone, String otp) async {
+  Future<bool> setPin(String userPin) async {
     try {
-      var response = await _apiService.post('/authmasyarakat/verify-otp', {
-        'phone': phone,
-        'otp': otp,
-      });
-      return response;
+      var response = await _apiService.post('/set-pin', {'userpin': userPin});
+      return response['meta']['status'] == 201;
+    } catch (e) {
+      rethrow;
+    }
+  }
+
+  Future<bool> verifyPin(String userPin) async {
+    try {
+      var response = await _apiService.post('/verif-pin', {'userpin': userPin});
+      return response['meta']['status'] == 200;
     } catch (e) {
       rethrow;
     }

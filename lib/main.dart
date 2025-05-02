@@ -7,6 +7,7 @@ import 'package:intl/date_symbol_data_local.dart';
 import 'package:provider/provider.dart';
 import 'package:rijig_mobile/core/router.dart';
 import 'package:rijig_mobile/viewmodel/auth_vmod.dart';
+import 'package:rijig_mobile/viewmodel/userpin_vmod.dart';  // Import PinViewModel
 
 void main() async {
   await dotenv.load(fileName: "server/.env.dev");
@@ -24,14 +25,17 @@ class MyApp extends StatelessWidget {
   Widget build(BuildContext context) {
     return ChangeNotifierProvider(
       create: (_) => AuthViewModel(),
-      child: ScreenUtilInit(
-        designSize: const Size(375, 812),
-        builder: (_, child) {
-          return MaterialApp.router(
-            debugShowCheckedModeBanner: false,
-            routerConfig: router,
-          );
-        },
+      child: ChangeNotifierProvider(
+        create: (_) => PinViewModel(),  // Tambahkan PinViewModel
+        child: ScreenUtilInit(
+          designSize: const Size(375, 812),
+          builder: (_, child) {
+            return MaterialApp.router(
+              debugShowCheckedModeBanner: false,
+              routerConfig: router,
+            );
+          },
+        ),
       ),
     );
   }
