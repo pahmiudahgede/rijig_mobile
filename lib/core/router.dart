@@ -27,7 +27,7 @@ final router = GoRouter(
         return VerifotpScreen(phone: phone!);
       },
     ),
-    GoRoute(path: '/setpin', builder: (context, state) => UserPinScreen()),
+    GoRoute(path: '/setpin', builder: (context, state) => SetPinScreen()),
     GoRoute(path: '/verifpin', builder: (context, state) => VerifPinScreen()),
     GoRoute(
       path: '/navigasi',

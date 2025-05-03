@@ -2,29 +2,57 @@ import 'package:flutter/material.dart';
 import 'package:rijig_mobile/model/userpin_model.dart';
 
 class PinViewModel extends ChangeNotifier {
-  final PinModel _pinService = PinModel();
+  final PinModel _pinModel = PinModel();
+  bool? pinExists;
 
-  Future<bool> checkPinStatus() async {
+  Future<void> checkPinStatus(String userId) async {
     try {
-      return await _pinService.checkPinStatus();
+      var response = await _pinModel.checkPinStatus(userId);
+
+      if (response?.status == 200) {
+        pinExists = true;
+      } else {
+        pinExists = false;
+      }
+      notifyListeners();
     } catch (e) {
-      throw Exception('Error checking PIN status: $e');
+      debugPrint('Error checking pin status: $e');
+      pinExists = false;
+      notifyListeners();
     }
   }
 
-  Future<bool> setPin(String userPin) async {
+  Future<void> createPin(String pin) async {
     try {
-      return await _pinService.setPin(userPin);
+      var response = await _pinModel.setPin(pin);
+
+      if (response?.status == 201) {
+        pinExists = true;
+      } else {
+        pinExists = false;
+      }
+      notifyListeners();
     } catch (e) {
-      throw Exception('Error setting PIN: $e');
+      debugPrint('Error creating pin: $e');
+      pinExists = false;
+      notifyListeners();
     }
   }
 
-  Future<bool> verifyPin(String userPin) async {
+  Future<void> verifyPin(String pin) async {
     try {
-      return await _pinService.verifyPin(userPin);
+      var response = await _pinModel.verifyPin(pin);
+
+      if (response?.status == 200) {
+        pinExists = true;
+      } else {
+        pinExists = false;
+      }
+      notifyListeners();
     } catch (e) {
-      throw Exception('Error verifying PIN: $e');
+      debugPrint('Error verifying pin: $e');
+      pinExists = false;
+      notifyListeners();
     }
   }
 }

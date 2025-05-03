@@ -64,7 +64,16 @@ class AuthViewModel extends ChangeNotifier {
 
         SharedPreferences prefs = await SharedPreferences.getInstance();
         await prefs.setBool('isLoggedIn', true);
-        pinExists = await _pinModel.checkPinStatus();
+
+        var pinStatusResponse = await _pinModel.checkPinStatus(
+          response.data?['user_id'],
+        );
+
+        if (pinStatusResponse?.status == 200) {
+          pinExists = true;
+        } else {
+          pinExists = false;
+        }
 
         authModel = response;
         notifyListeners();

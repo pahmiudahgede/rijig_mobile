@@ -7,72 +7,52 @@ class VerifPinScreen extends StatefulWidget {
   const VerifPinScreen({super.key});
 
   @override
-  State<VerifPinScreen> createState() => _VerifPinScreenState();
+  VerifPinScreenState createState() => VerifPinScreenState();
 }
 
-class _VerifPinScreenState extends State<VerifPinScreen> {
-  final TextEditingController _pinController = TextEditingController();
-  final _formKey = GlobalKey<FormState>();
-  String errorMessage = '';
+class VerifPinScreenState extends State<VerifPinScreen> {
+  final _pinController = TextEditingController();
 
   @override
   Widget build(BuildContext context) {
     final pinViewModel = Provider.of<PinViewModel>(context);
 
     return Scaffold(
-      appBar: AppBar(title: const Text("Verifikasi PIN")),
-      body: SafeArea(
-        child: Padding(
-          padding: const EdgeInsets.all(16.0),
-          child: Form(
-            key: _formKey,
-            child: Column(
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: [
-                TextFormField(
-                  controller: _pinController,
-                  decoration: const InputDecoration(labelText: 'Masukkan PIN'),
-                  obscureText: true,
-                  maxLength: 6,
-                  keyboardType: TextInputType.number,
-                  validator: (value) {
-                    if (value == null || value.isEmpty) {
-                      return 'PIN harus diisi';
-                    } else if (value.length != 6) {
-                      return 'PIN harus 6 digit';
-                    }
-                    return null;
-                  },
-                ),
-                const SizedBox(height: 20),
-                ElevatedButton(
-                  onPressed: () async {
-                    if (_formKey.currentState?.validate() ?? false) {
-                      final pin = _pinController.text;
-
-                      bool pinVerified = await pinViewModel.verifyPin(pin);
-                      if (pinVerified) {
-                        router.go('/navigasi');
-                      } else {
-                        setState(() {
-                          errorMessage = 'PIN yang Anda masukkan salah';
-                        });
-                      }
-                    }
-                  },
-                  child: const Text('Kirim'),
-                ),
-                if (errorMessage.isNotEmpty)
-                  Padding(
-                    padding: const EdgeInsets.only(top: 20),
-                    child: Text(
-                      errorMessage,
-                      style: const TextStyle(color: Colors.red),
-                    ),
-                  ),
-              ],
+      appBar: AppBar(title: Text("Verifikasi PIN")),
+      body: Padding(
+        padding: const EdgeInsets.all(16.0),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Text(
+              "Masukkan PIN yang sudah dibuat",
+              style: TextStyle(fontSize: 18),
             ),
-          ),
+            SizedBox(height: 20),
+            TextField(
+              controller: _pinController,
+              decoration: InputDecoration(labelText: "PIN"),
+              keyboardType: TextInputType.number,
+              obscureText: true,
+            ),
+            SizedBox(height: 20),
+            ElevatedButton(
+              onPressed: () async {
+                // String userId = 'user_id_here';
+                String pin = _pinController.text;
+
+                await pinViewModel.verifyPin(pin);
+                if (pinViewModel.pinExists == true) {
+                  router.go('/navigasi');
+                } else {
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    SnackBar(content: Text('PIN yang anda masukkan salah')),
+                  );
+                }
+              },
+              child: Text("Verifikasi PIN"),
+            ),
+          ],
         ),
       ),
     );

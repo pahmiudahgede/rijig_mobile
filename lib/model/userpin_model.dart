@@ -1,34 +1,31 @@
 import 'package:rijig_mobile/core/api_services.dart';
+import 'package:rijig_mobile/model/response_model.dart';
 
 class PinModel {
   final ApiService _apiService = ApiService();
 
-  Future<bool> checkPinStatus() async {
+  Future<ResponseModel?> checkPinStatus(String userId) async {
     try {
       var response = await _apiService.get('/cek-pin-status');
-      if (response['meta']['status'] == 200) {
-        return true;
-      } else {
-        return false;
-      }
+      return ResponseModel.fromJson(response);
     } catch (e) {
       rethrow;
     }
   }
 
-  Future<bool> setPin(String userPin) async {
+  Future<ResponseModel?> setPin(String pin) async {
     try {
-      var response = await _apiService.post('/set-pin', {'userpin': userPin});
-      return response['meta']['status'] == 201;
+      var response = await _apiService.post('/set-pin', {'userpin': pin});
+      return ResponseModel.fromJson(response);
     } catch (e) {
       rethrow;
     }
   }
 
-  Future<bool> verifyPin(String userPin) async {
+  Future<ResponseModel?> verifyPin(String pin) async {
     try {
-      var response = await _apiService.post('/verif-pin', {'userpin': userPin});
-      return response['meta']['status'] == 200;
+      var response = await _apiService.post('/verif-pin', {'userpin': pin});
+      return ResponseModel.fromJson(response);
     } catch (e) {
       rethrow;
     }

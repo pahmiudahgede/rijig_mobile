@@ -3,6 +3,7 @@ import 'package:pin_code_fields/pin_code_fields.dart';
 import 'package:provider/provider.dart';
 import 'package:rijig_mobile/core/router.dart';
 import 'package:rijig_mobile/viewmodel/auth_vmod.dart';
+import 'package:rijig_mobile/viewmodel/userpin_vmod.dart';
 import 'package:rijig_mobile/widget/buttoncard.dart';
 
 class VerifotpScreen extends StatefulWidget {
@@ -19,7 +20,9 @@ class _VerifotpScreenState extends State<VerifotpScreen> {
 
   @override
   Widget build(BuildContext context) {
-    final viewModel = Provider.of<AuthViewModel>(context);
+    
+     final authViewModel = Provider.of<AuthViewModel>(context);
+    final pinViewModel = Provider.of<PinViewModel>(context);
     return Scaffold(
       body: SafeArea(
         child: Padding(
@@ -58,34 +61,42 @@ class _VerifotpScreenState extends State<VerifotpScreen> {
                 horizontal: double.infinity,
                 vertical: 50,
                 onTap: () {
-                  // if (_otpController.text.isNotEmpty) {
-                  //   viewModel.verifyOtp(widget.phone, _otpController.text).then(
-                  //     (_) {
-                  //       if (viewModel.errorMessage == null) {
-                  //         router.go('/navigasi');
-                  //       } else {
-                  //         debugPrint(viewModel.errorMessage ?? '');
-                  //       }
-                  //     },
-                  //   );
-                  // }
-                  if (_otpController.text.isNotEmpty) {
-                    viewModel.verifyOtp(widget.phone, _otpController.text).then(
-                      (_) {
-                        if (viewModel.errorMessage == null) {
-                          if (viewModel.pinExists == false) {
+                  
+                  
+                  
+                  
+                  
+                  
+                  
+                  
+                  
+                  
+                  
+                  authViewModel.verifyOtp(widget.phone, _otpController.text).then((
+                    _,
+                  ) {
+                    
+                    pinViewModel
+                        .checkPinStatus(
+                          authViewModel.authModel?.data?['user_id'],
+                        )
+                        .then((_) {
+                          if (pinViewModel.pinExists == false) {
                             router.go('/setpin');
-                          } else {
+                          } else if (pinViewModel.pinExists == true) {
                             router.go('/verifpin');
+                          } else {
+                            
+                            ScaffoldMessenger.of(context).showSnackBar(
+                              SnackBar(
+                                content: Text('Gagal memverifikasi status PIN'),
+                              ),
+                            );
                           }
-                        } else {
-                          debugPrint(viewModel.errorMessage ?? '');
-                        }
-                      },
-                    );
-                  }
+                        });
+                  });
                 },
-                loadingTrue: viewModel.isLoading,
+                loadingTrue: authViewModel.isLoading,
                 usingRow: false,
               ),
             ],
