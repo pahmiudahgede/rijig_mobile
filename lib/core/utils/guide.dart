@@ -3,7 +3,7 @@ import 'package:google_fonts/google_fonts.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 
 // =====================color schema=====================
-Color whiteColor = Color(0xffF0F1EA);
+Color whiteColor = Color(0xffFBFBFB);
 Color blackNavyColor = Color(0xff101010);
 Color primaryColor = Color(0xff018558);
 Color secondaryColor = Color(0xffBDE902);

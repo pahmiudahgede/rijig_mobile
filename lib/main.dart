@@ -8,6 +8,7 @@ import 'package:provider/provider.dart';
 import 'package:rijig_mobile/core/container/injection_container.dart';
 import 'package:rijig_mobile/core/router.dart';
 import 'package:rijig_mobile/features/auth/presentation/viewmodel/login_vmod.dart';
+import 'package:rijig_mobile/features/auth/presentation/viewmodel/logout_vmod.dart';
 import 'package:rijig_mobile/features/auth/presentation/viewmodel/otp_vmod.dart';
 
 void main() async {
@@ -29,6 +30,7 @@ class MyApp extends StatelessWidget {
       providers: [
         ChangeNotifierProvider(create: (_) => sl<LoginViewModel>()),
         ChangeNotifierProvider(create: (_) => sl<OtpViewModel>()),
+        ChangeNotifierProvider(create: (_) => sl<LogoutViewModel>()),
       ],
       child: ScreenUtilInit(
         designSize: const Size(375, 812),

@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:gap/gap.dart';
 import 'package:iconsax_flutter/iconsax_flutter.dart';
+import 'package:rijig_mobile/core/utils/guide.dart';
 
 class HomeHeader extends StatelessWidget {
   const HomeHeader({super.key});
@@ -12,33 +13,23 @@ class HomeHeader extends StatelessWidget {
       child: Row(
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
         children: [
-          const Expanded(
+          Expanded(
             child: Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
-                Text("Rijig", style: TextStyle(fontSize: 24)),
+                Text("Rijig", style: Tulisan.heading(color: primaryColor)),
                 Row(
                   mainAxisAlignment: MainAxisAlignment.end,
                   children: [
                     Icon(Iconsax.notification),
                     Gap(10),
-                    Icon(Iconsax.message),
+                    Icon(Iconsax.message_2),
                   ],
                 ),
               ],
             ),
           ),
           const SizedBox(width: 16),
-          // IconBtnWithCounter(
-          //   svgSrc: "assets/icons/Cart Icon.svg",
-          //   press: () => Navigator.pushNamed(context, CartScreen.routeName),
-          // ),
-          // const SizedBox(width: 8),
-          // IconBtnWithCounter(
-          //   svgSrc: "assets/icons/Bell.svg",
-          //   numOfitem: 3,
-          //   press: () {},
-          // ),
         ],
       ),
     );

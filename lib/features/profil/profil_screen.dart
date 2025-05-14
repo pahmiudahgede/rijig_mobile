@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
 import 'package:rijig_mobile/core/router.dart';
-import 'package:shared_preferences/shared_preferences.dart';
+import 'package:rijig_mobile/features/auth/presentation/viewmodel/logout_vmod.dart';
+import 'package:rijig_mobile/widget/buttoncard.dart';
 
 class ProfilScreen extends StatefulWidget {
   const ProfilScreen({super.key});
@@ -14,21 +16,45 @@ class _ProfilScreenState extends State<ProfilScreen> {
   Widget build(BuildContext context) {
     final titleofscreen = "Profil";
     return Scaffold(
-      body: Center(
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            Text("ini adalah halaman $titleofscreen"),
-            TextButton(
-              onPressed: () async {
-                SharedPreferences prefs = await SharedPreferences.getInstance();
-                await prefs.remove('isLoggedIn');
-                router.go('/login');
-              },
-              child: Text("keluar"),
+      body: Consumer<LogoutViewModel>(
+        builder: (context, viewModel, child) {
+          return Padding(
+            padding: const EdgeInsets.all(16.0),
+            child: Column(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                Text("Are you sure you want to logout?"),
+                SizedBox(height: 20),
+                CardButtonOne(
+                  textButton: viewModel.isLoading ? 'Logging out...' : 'Logout',
+                  fontSized: 16,
+                  colorText: Colors.white,
+                  borderRadius: 10,
+                  horizontal: double.infinity,
+                  vertical: 50,
+                  onTap: () async {
+                    await viewModel.logout();
+
+                    if (viewModel.errorMessage == null) {
+                      router.go("/login");
+                    } else {
+                      ScaffoldMessenger.of(context).showSnackBar(
+                        SnackBar(content: Text(viewModel.errorMessage!)),
+                      );
+                    }
+                  },
+                  loadingTrue: viewModel.isLoading,
+                  usingRow: false,
+                ),
+                if (viewModel.errorMessage != null)
+                  Text(
+                    viewModel.errorMessage!,
+                    style: TextStyle(color: Colors.red),
+                  ),
+              ],
             ),
-          ],
-        ),
+          );
+        },
       ),
     );
   }

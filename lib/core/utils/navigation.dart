@@ -75,7 +75,7 @@ class _NavigationPageState extends State<NavigationPage> {
             padding: PaddingCustom().paddingHorizontal(2),
             elevation: 0,
             height: 67,
-            color: Colors.white,
+            color: primaryColor,
             clipBehavior: Clip.antiAlias,
             notchMargin: 3.0,
             child: BottomNavigationBar(
@@ -84,33 +84,33 @@ class _NavigationPageState extends State<NavigationPage> {
               elevation: 0,
               showSelectedLabels: true,
               showUnselectedLabels: true,
-              selectedItemColor: Colors.blue,
-              unselectedItemColor: Colors.grey,
+              selectedItemColor: secondaryColor,
+              unselectedItemColor: whiteColor,
               currentIndex: _selectedIndex,
               onTap: _onItemTapped,
               items: [
                 BottomNavigationBarItem(
-                  icon: Icon(Iconsax.home_1, color: Colors.grey),
-                  activeIcon: Icon(Iconsax.home_1, color: Colors.blue),
+                  icon: Icon(Iconsax.home_2),
+                  activeIcon: Icon(Iconsax.home_2, size: 28),
                   label: 'Beranda',
                 ),
                 BottomNavigationBarItem(
-                  icon: Icon(Iconsax.home, color: Colors.grey),
-                  activeIcon: Icon(Iconsax.home, color: Colors.blue),
-                  label: 'Pesan',
+                  icon: Icon(Iconsax.note_favorite),
+                  activeIcon: Icon(Iconsax.note_favorite, size: 28),
+                  label: 'Aktivitas',
                 ),
                 const BottomNavigationBarItem(
                   icon: SizedBox.shrink(),
                   label: '',
                 ),
                 BottomNavigationBarItem(
-                  icon: Icon(Iconsax.document, color: Colors.grey),
-                  activeIcon: Icon(Iconsax.document, color: Colors.blue),
-                  label: 'Tutorial',
+                  icon: Icon(Iconsax.shopping_cart),
+                  activeIcon: Icon(Iconsax.shopping_cart, size: 28),
+                  label: 'Keranjang',
                 ),
                 BottomNavigationBarItem(
-                  icon: Icon(Iconsax.home, color: Colors.grey),
-                  activeIcon: Icon(Iconsax.home, color: Colors.blue),
+                  icon: Icon(Iconsax.user),
+                  activeIcon: Icon(Iconsax.user, size: 28),
                   label: 'Profil',
                 ),
               ],
@@ -129,7 +129,7 @@ class _NavigationPageState extends State<NavigationPage> {
           onPressed: () {
             router.push("/requestpickup");
           },
-          backgroundColor: Colors.white,
+          backgroundColor: primaryColor,
           shape: const CircleBorder(
             side: BorderSide(color: Colors.white, width: 4),
           ),
@@ -142,8 +142,8 @@ class _NavigationPageState extends State<NavigationPage> {
             mainAxisAlignment: MainAxisAlignment.center,
             mainAxisSize: MainAxisSize.max,
             children: [
-              Icon(Iconsax.home, color: primaryColor, size: 30),
-              Text("data", style: TextStyle(color: blackNavyColor)),
+              Icon(Iconsax.archive_2, color: whiteColor, size: 30),
+              Text("mulai", style: TextStyle(color: whiteColor)),
             ],
           ),
         ),

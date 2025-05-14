@@ -19,7 +19,7 @@ class CustomAppBar extends StatelessWidget implements PreferredSizeWidget {
         onPressed: () {
           router.pop();
         },
-        icon: Icon(Iconsax.arrow_left_3_copy, color: whiteColor, size: 26),
+        icon: Icon(Iconsax.arrow_circle_left, color: whiteColor, size: 26),
       ),
       backgroundColor: primaryColor,
       elevation: 0,

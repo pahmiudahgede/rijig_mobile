@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:rijig_mobile/core/utils/guide.dart';
 import 'package:rijig_mobile/features/home/components/categories.dart';
 import 'package:rijig_mobile/features/home/components/discount_banner.dart';
 import 'package:rijig_mobile/features/home/components/home_header.dart';
@@ -15,7 +16,8 @@ class HomeScreen extends StatefulWidget {
 class _HomeScreenState extends State<HomeScreen> {
   @override
   Widget build(BuildContext context) {
-    return const Scaffold(
+    return Scaffold(
+      backgroundColor: whiteColor,
       body: SafeArea(
         child: SingleChildScrollView(
           padding: EdgeInsets.symmetric(vertical: 16),
