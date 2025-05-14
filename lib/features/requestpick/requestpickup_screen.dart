@@ -8,14 +8,7 @@ class RequestPickScreen extends StatelessWidget {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: CustomAppBar(judul: "Pilih Sampah"),
-      body: Center(
-        child: ElevatedButton(
-          onPressed: () {
-            Navigator.pop(context);
-          },
-          child: Text("Back to Home"),
-        ),
-      ),
+      body: Center(child: Text("pilih sampah anda")),
     );
   }
 }

@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:rijig_mobile/core/network/network_info.dart';
 import 'package:rijig_mobile/core/router.dart';
 import 'package:rijig_mobile/core/storage/expired_token.dart';
+import 'package:rijig_mobile/core/utils/guide.dart';
 // import 'package:rijig_mobile/core/storage/secure_storage.dart';
 
 class SplashScreen extends StatefulWidget {
@@ -67,7 +68,7 @@ class SplashScreenState extends State<SplashScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: Colors.white,
+      backgroundColor: primaryColor,
       body: Stack(
         children: [
           Positioned(
@@ -85,7 +86,7 @@ class SplashScreenState extends State<SplashScreen> {
                 style: TextStyle(
                   fontSize: 36,
                   fontWeight: FontWeight.bold,
-                  color: Colors.blue,
+                  color: whiteColor,
                   fontFamily: 'Roboto',
                 ),
               ),
