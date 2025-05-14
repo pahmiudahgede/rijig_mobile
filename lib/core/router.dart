@@ -1,16 +1,4 @@
-import 'package:go_router/go_router.dart';
-import 'package:rijig_mobile/core/navigation.dart';
-import 'package:rijig_mobile/screen/app/activity/activity_screen.dart';
-import 'package:rijig_mobile/screen/app/cart/cart_screen.dart';
-import 'package:rijig_mobile/screen/app/home/home_screen.dart';
-import 'package:rijig_mobile/screen/app/profil/profil_screen.dart';
-import 'package:rijig_mobile/screen/app/requestpick/requestpickup_screen.dart';
-import 'package:rijig_mobile/screen/auth/inputpin_screen.dart';
-import 'package:rijig_mobile/screen/auth/login_screen.dart';
-import 'package:rijig_mobile/screen/auth/otp_screen.dart';
-import 'package:rijig_mobile/screen/auth/verifpin_screen.dart';
-import 'package:rijig_mobile/screen/launch/onboardingpage_screen.dart';
-import 'package:rijig_mobile/screen/launch/splash_screen.dart';
+import 'package:rijig_mobile/core/utils/exportimportview.dart';
 
 final router = GoRouter(
   routes: [
@@ -20,22 +8,29 @@ final router = GoRouter(
       builder: (context, state) => OnboardingPageScreen(),
     ),
     GoRoute(path: '/login', builder: (context, state) => LoginScreen()),
+
+    // Rute untuk verifikasi OTP dengan ekstraksi data dari path
     GoRoute(
       path: '/verif-otp',
       builder: (context, state) {
-        final phone = state.extra as String?;
-        return VerifotpScreen(phone: phone!);
+        dynamic phoneNumber = state.extra;
+        return VerifOtpScreen(phoneNumber: phoneNumber);
       },
     ),
-    GoRoute(path: '/setpin', builder: (context, state) => SetPinScreen()),
-    GoRoute(path: '/verifpin', builder: (context, state) => VerifPinScreen()),
+
+    // GoRoute(path: '/setpin', builder: (context, state) => InputPinScreen()),
+    // GoRoute(path: '/verifpin', builder: (context, state) => VerifPinScreen()),
+
+    // Rute dengan parameter dinamis untuk halaman navigasi
     GoRoute(
       path: '/navigasi',
       builder: (context, state) {
-        dynamic data = state.extra;
+        final data = state.extra;
         return NavigationPage(data: data);
       },
     ),
+
+    // Rute untuk halaman-halaman utama
     GoRoute(path: '/home', builder: (context, state) => HomeScreen()),
     GoRoute(path: '/activity', builder: (context, state) => ActivityScreen()),
     GoRoute(

@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:iconsax_flutter/iconsax_flutter.dart';
-import 'package:rijig_mobile/core/guide.dart';
+import 'package:rijig_mobile/core/utils/guide.dart';
 import 'package:rijig_mobile/core/router.dart';
 
 class CustomAppBar extends StatelessWidget implements PreferredSizeWidget {

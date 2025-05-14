@@ -5,15 +5,17 @@ import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:intl/date_symbol_data_local.dart';
 import 'package:provider/provider.dart';
+import 'package:rijig_mobile/core/container/injection_container.dart';
 import 'package:rijig_mobile/core/router.dart';
-import 'package:rijig_mobile/viewmodel/auth_vmod.dart';
-import 'package:rijig_mobile/viewmodel/userpin_vmod.dart';  // Import PinViewModel
+import 'package:rijig_mobile/features/auth/presentation/viewmodel/login_vmod.dart';
+import 'package:rijig_mobile/features/auth/presentation/viewmodel/otp_vmod.dart';
 
 void main() async {
   await dotenv.load(fileName: "server/.env.dev");
   HttpOverrides.global = MyHttpOverrides();
   WidgetsFlutterBinding.ensureInitialized();
   await initializeDateFormatting('id_ID', null).then((_) {
+    init();
     runApp(const MyApp());
   });
 }
@@ -23,19 +25,19 @@ class MyApp extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return ChangeNotifierProvider(
-      create: (_) => AuthViewModel(),
-      child: ChangeNotifierProvider(
-        create: (_) => PinViewModel(),  // Tambahkan PinViewModel
-        child: ScreenUtilInit(
-          designSize: const Size(375, 812),
-          builder: (_, child) {
-            return MaterialApp.router(
-              debugShowCheckedModeBanner: false,
-              routerConfig: router,
-            );
-          },
-        ),
+    return MultiProvider(
+      providers: [
+        ChangeNotifierProvider(create: (_) => sl<LoginViewModel>()),
+        ChangeNotifierProvider(create: (_) => sl<OtpViewModel>()),
+      ],
+      child: ScreenUtilInit(
+        designSize: const Size(375, 812),
+        builder: (_, child) {
+          return MaterialApp.router(
+            debugShowCheckedModeBanner: false,
+            routerConfig: router,
+          );
+        },
       ),
     );
   }
