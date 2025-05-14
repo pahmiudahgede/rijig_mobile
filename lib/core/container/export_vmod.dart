@@ -1,0 +1,13 @@
+export 'package:get_it/get_it.dart';
+export 'package:rijig_mobile/features/auth/presentation/viewmodel/login_vmod.dart';
+export 'package:rijig_mobile/features/auth/presentation/viewmodel/logout_vmod.dart';
+export 'package:rijig_mobile/features/auth/presentation/viewmodel/otp_vmod.dart';
+export 'package:rijig_mobile/features/auth/repositories/login_repository.dart';
+export 'package:rijig_mobile/features/auth/repositories/logout_repository.dart';
+export 'package:rijig_mobile/features/auth/repositories/otp_repository.dart';
+export 'package:rijig_mobile/features/auth/service/login_service.dart';
+export 'package:rijig_mobile/features/auth/service/logout_service.dart';
+export 'package:rijig_mobile/features/auth/service/otp_service.dart';
+export 'package:rijig_mobile/globaldata/trash/trash_repository.dart';
+export 'package:rijig_mobile/globaldata/trash/trash_service.dart';
+export 'package:rijig_mobile/globaldata/trash/trash_viewmodel.dart';

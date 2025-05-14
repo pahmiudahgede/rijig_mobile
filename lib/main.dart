@@ -7,9 +7,7 @@ import 'package:intl/date_symbol_data_local.dart';
 import 'package:provider/provider.dart';
 import 'package:rijig_mobile/core/container/injection_container.dart';
 import 'package:rijig_mobile/core/router.dart';
-import 'package:rijig_mobile/features/auth/presentation/viewmodel/login_vmod.dart';
-import 'package:rijig_mobile/features/auth/presentation/viewmodel/logout_vmod.dart';
-import 'package:rijig_mobile/features/auth/presentation/viewmodel/otp_vmod.dart';
+import 'package:rijig_mobile/core/container/export_vmod.dart';
 
 void main() async {
   await dotenv.load(fileName: "server/.env.dev");
@@ -31,6 +29,8 @@ class MyApp extends StatelessWidget {
         ChangeNotifierProvider(create: (_) => sl<LoginViewModel>()),
         ChangeNotifierProvider(create: (_) => sl<OtpViewModel>()),
         ChangeNotifierProvider(create: (_) => sl<LogoutViewModel>()),
+
+        ChangeNotifierProvider(create: (_) => sl<TrashViewModel>()),
       ],
       child: ScreenUtilInit(
         designSize: const Size(375, 812),

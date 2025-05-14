@@ -1,13 +1,4 @@
-import 'package:get_it/get_it.dart';
-import 'package:rijig_mobile/features/auth/presentation/viewmodel/login_vmod.dart';
-import 'package:rijig_mobile/features/auth/presentation/viewmodel/logout_vmod.dart';
-import 'package:rijig_mobile/features/auth/presentation/viewmodel/otp_vmod.dart';
-import 'package:rijig_mobile/features/auth/repositories/login_repository.dart';
-import 'package:rijig_mobile/features/auth/repositories/logout_repository.dart';
-import 'package:rijig_mobile/features/auth/repositories/otp_repository.dart';
-import 'package:rijig_mobile/features/auth/service/login_service.dart';
-import 'package:rijig_mobile/features/auth/service/logout_service.dart';
-import 'package:rijig_mobile/features/auth/service/otp_service.dart';
+import 'package:rijig_mobile/core/container/export_vmod.dart';
 
 final sl = GetIt.instance;
 
@@ -15,4 +6,6 @@ void init() {
   sl.registerFactory(() => LoginViewModel(LoginService(LoginRepository())));
   sl.registerFactory(() => OtpViewModel(OtpService(OtpRepository())));
   sl.registerFactory(() => LogoutViewModel(LogoutService(LogoutRepository())));
+
+  sl.registerFactory(() => TrashViewModel(TrashCategoryService(TrashCategoryRepository())));
 }
