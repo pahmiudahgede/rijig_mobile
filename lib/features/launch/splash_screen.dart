@@ -69,18 +69,11 @@ class SplashScreenState extends State<SplashScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: primaryColor,
-      body: Stack(
-        children: [
-          Positioned(
-            bottom: 0,
-            left: 0,
-            right: 0,
-            child: Image.asset('assets/image/Go_Ride.png', height: 200),
-          ),
-          Align(
-            alignment: Alignment.center,
-            child: Padding(
-              padding: const EdgeInsets.only(bottom: 250.0),
+      body: Center(
+        child: Stack(
+          children: [
+            Align(
+              alignment: Alignment.center,
               child: Text(
                 'Rijig',
                 style: TextStyle(
@@ -91,14 +84,14 @@ class SplashScreenState extends State<SplashScreen> {
                 ),
               ),
             ),
-          ),
-
-          if (_isCheckingConnection)
-            Align(
-              alignment: Alignment.center,
-              child: CircularProgressIndicator(),
-            ),
-        ],
+        
+            if (_isCheckingConnection)
+              Align(
+                alignment: Alignment.center,
+                child: CircularProgressIndicator(),
+              ),
+          ],
+        ),
       ),
     );
   }
