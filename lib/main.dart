@@ -31,6 +31,8 @@ class MyApp extends StatelessWidget {
         ChangeNotifierProvider(create: (_) => sl<LogoutViewModel>()),
 
         ChangeNotifierProvider(create: (_) => sl<TrashViewModel>()),
+        ChangeNotifierProvider(create: (_) => sl<AboutViewModel>()),
+        ChangeNotifierProvider(create: (_) => sl<AboutDetailViewModel>()),
       ],
       child: ScreenUtilInit(
         designSize: const Size(375, 812),

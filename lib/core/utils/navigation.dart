@@ -4,7 +4,7 @@ import 'package:rijig_mobile/core/utils/guide.dart';
 import 'package:rijig_mobile/core/router.dart';
 import 'package:rijig_mobile/features/activity/activity_screen.dart';
 import 'package:rijig_mobile/features/cart/cart_screen.dart';
-import 'package:rijig_mobile/features/home/home_screen.dart';
+import 'package:rijig_mobile/features/home/presentation/screen/home_screen.dart';
 import 'package:rijig_mobile/features/profil/profil_screen.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 

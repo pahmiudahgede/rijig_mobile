@@ -7,5 +7,9 @@ void init() {
   sl.registerFactory(() => OtpViewModel(OtpService(OtpRepository())));
   sl.registerFactory(() => LogoutViewModel(LogoutService(LogoutRepository())));
 
-  sl.registerFactory(() => TrashViewModel(TrashCategoryService(TrashCategoryRepository())));
+  sl.registerFactory(
+    () => TrashViewModel(TrashCategoryService(TrashCategoryRepository())),
+  );
+  sl.registerFactory(() => AboutViewModel(AboutService(AboutRepository())));
+  sl.registerFactory(() => AboutDetailViewModel(AboutService(AboutRepository())));
 }

@@ -14,7 +14,7 @@ class RequestPickScreen extends StatelessWidget {
       // ignore: use_build_context_synchronously
       Provider.of<TrashViewModel>(context, listen: false).loadCategories();
     });
-    final String? _baseUrl = dotenv.env["BASE_URL"];
+    final String? baseUrl = dotenv.env["BASE_URL"];
 
     return Scaffold(
       appBar: CustomAppBar(judul: "Pilih sampah"),
@@ -49,7 +49,7 @@ class RequestPickScreen extends StatelessWidget {
                 ),
                 child: ListTile(
                   leading: Image.network(
-                    "$_baseUrl${category.icon}",
+                    "$baseUrl${category.icon}",
                     width: 50,
                     height: 50,
                     fit: BoxFit.cover,

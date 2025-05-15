@@ -39,5 +39,13 @@ final router = GoRouter(
     ),
     GoRoute(path: '/cart', builder: (context, state) => CartScreen()),
     GoRoute(path: '/profil', builder: (context, state) => ProfilScreen()),
+
+    GoRoute(
+      path: '/aboutdetail',
+      builder: (context, state) {
+        dynamic data = state.extra;
+        return AboutDetailScreenComp(data: data);
+      },
+    ),
   ],
 );

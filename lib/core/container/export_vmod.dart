@@ -11,3 +11,6 @@ export 'package:rijig_mobile/features/auth/service/otp_service.dart';
 export 'package:rijig_mobile/globaldata/trash/trash_repository.dart';
 export 'package:rijig_mobile/globaldata/trash/trash_service.dart';
 export 'package:rijig_mobile/globaldata/trash/trash_viewmodel.dart';
+export 'package:rijig_mobile/features/home/presentation/viewmodel/about_vmod.dart';
+export 'package:rijig_mobile/features/home/repositories/about_repository.dart';
+export 'package:rijig_mobile/features/home/service/about_service.dart';
