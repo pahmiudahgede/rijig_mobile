@@ -81,11 +81,7 @@ class _HomeScreenState extends State<HomeScreen> {
                     ],
                   ),
                   const Gap(15),
-                  Container(
-                    height:
-                        250, // Tentukan tinggi yang sesuai untuk AboutComponent
-                    child: AboutComponent(),
-                  ),
+                  AboutComponent(),
                 ],
               ),
               Gap(20),

@@ -133,7 +133,9 @@ class AboutComponentState extends State<AboutComponent> {
                                       Brightness.dark
                                   ? Colors.blue
                                   : Colors.blue)
-                              .withOpacity(_current == entry.key ? 0.9 : 0.2),
+                              .withValues(
+                                alpha: _current == entry.key ? 0.9 : 0.2,
+                              ),
                         ),
                       ),
                     );

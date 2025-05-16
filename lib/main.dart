@@ -39,6 +39,7 @@ class MyApp extends StatelessWidget {
         builder: (_, child) {
           return MaterialApp.router(
             debugShowCheckedModeBanner: false,
+            title: "Rijig",
             routerConfig: router,
           );
         },

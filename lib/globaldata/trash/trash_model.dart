@@ -1,6 +1,7 @@
 class Category {
   final String id;
   final String name;
+  final dynamic price;
   final String icon;
   final String createdAt;
   final String updatedAt;
@@ -8,6 +9,7 @@ class Category {
   Category({
     required this.id,
     required this.name,
+    required this.price,
     required this.icon,
     required this.createdAt,
     required this.updatedAt,
@@ -17,6 +19,7 @@ class Category {
     return Category(
       id: json['id'],
       name: json['name'],
+      price: json['estimatedprice'],
       icon: json['icon'],
       createdAt: json['createdAt'],
       updatedAt: json['updatedAt'],

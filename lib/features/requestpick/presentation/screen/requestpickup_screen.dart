@@ -55,6 +55,7 @@ class RequestPickScreen extends StatelessWidget {
                     fit: BoxFit.cover,
                   ),
                   title: Text(category.name),
+                  subtitle: Text("${category.price}"),
                 ),
               );
             },

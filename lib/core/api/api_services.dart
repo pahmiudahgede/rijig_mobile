@@ -1,7 +1,9 @@
 import 'dart:convert';
+import 'dart:io';
 
 import 'package:flutter/material.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
+import 'package:http_parser/http_parser.dart';
 import 'package:http/http.dart' as http;
 import 'package:rijig_mobile/core/api/api_exception.dart';
 import 'package:rijig_mobile/core/storage/expired_token.dart';
@@ -48,6 +50,7 @@ class Https {
     dynamic body,
     Encoding? encoding,
     String? baseUrl,
+    http.MultipartRequest? multipartRequest,
   }) async {
     final requestHeaders = await _getHeaders();
     String url = "${baseUrl ?? _baseUrl}$desturl";
@@ -55,43 +58,49 @@ class Https {
 
     http.Response response;
     try {
-      switch (method.toLowerCase()) {
-        case 'get':
-          response = await http.get(Uri.parse(url), headers: requestHeaders);
-          break;
-        case 'post':
-          response = await http.post(
-            Uri.parse(url),
-            body: jsonEncode(body),
-            headers: requestHeaders,
-            encoding: encoding,
-          );
-          break;
-        case 'put':
-          response = await http.put(
-            Uri.parse(url),
-            body: jsonEncode(body),
-            headers: requestHeaders,
-            encoding: encoding,
-          );
-          break;
-        case 'delete':
-          response = await http.delete(
-            Uri.parse(url),
-            body: jsonEncode(body),
-            headers: requestHeaders,
-          );
-          break;
-        case 'patch':
-          response = await http.patch(
-            Uri.parse(url),
-            body: jsonEncode(body),
-            headers: requestHeaders,
-            encoding: encoding,
-          );
-          break;
-        default:
-          throw ApiException('Unsupported HTTP method: $method', 405);
+      if (multipartRequest != null) {
+        response = await multipartRequest.send().then(
+          (response) => http.Response.fromStream(response),
+        );
+      } else {
+        switch (method.toLowerCase()) {
+          case 'get':
+            response = await http.get(Uri.parse(url), headers: requestHeaders);
+            break;
+          case 'post':
+            response = await http.post(
+              Uri.parse(url),
+              body: jsonEncode(body),
+              headers: requestHeaders,
+              encoding: encoding,
+            );
+            break;
+          case 'put':
+            response = await http.put(
+              Uri.parse(url),
+              body: jsonEncode(body),
+              headers: requestHeaders,
+              encoding: encoding,
+            );
+            break;
+          case 'delete':
+            response = await http.delete(
+              Uri.parse(url),
+              body: jsonEncode(body),
+              headers: requestHeaders,
+            );
+            break;
+          case 'patch':
+            response = await http.patch(
+              Uri.parse(url),
+              body: jsonEncode(body),
+              headers: requestHeaders,
+              encoding: encoding,
+            );
+            break;
+          default:
+            throw ApiException('Unsupported HTTP method: $method', 405);
+        }
       }
 
       final int statusCode = response.statusCode;
@@ -187,6 +196,50 @@ class Https {
       body: body,
       encoding: encoding,
       baseUrl: baseUrl,
+    );
+  }
+
+  Future<dynamic> uploadFormData(
+    String desturl, {
+    required Map<String, dynamic> formData,
+    Map<String, String> headers = const {},
+    String? baseUrl,
+  }) async {
+    var request = http.MultipartRequest(
+      'POST',
+      Uri.parse("${baseUrl ?? _baseUrl}$desturl"),
+    );
+
+    request.headers.addAll(await _getHeaders());
+
+    formData.forEach((key, value) async {
+      if (value is String) {
+        request.fields[key] = value;
+      } else if (value is File) {
+        String fileName = value.uri.pathSegments.last;
+
+        if (value.lengthSync() > 10485760) {
+          throw ApiException('File size exceeds 10MB', 401);
+        }
+
+        request.files.add(
+          await http.MultipartFile.fromPath(
+            key,
+            value.path,
+            filename: fileName,
+            contentType: MediaType('image', 'png'),
+          ),
+        );
+      } else {
+        throw ApiException('Unsupported value type for field $key', 401);
+      }
+    });
+
+    return await _request(
+      'post',
+      desturl: desturl,
+      headers: headers,
+      multipartRequest: request,
     );
   }
 }
