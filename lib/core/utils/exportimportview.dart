@@ -9,6 +9,6 @@ export 'package:rijig_mobile/features/auth/presentation/screen/inputpin_screen.d
 export 'package:rijig_mobile/features/auth/presentation/screen/login_screen.dart';
 export 'package:rijig_mobile/features/auth/presentation/screen/otp_screen.dart';
 export 'package:rijig_mobile/features/auth/presentation/screen/verifpin_screen.dart';
-export 'package:rijig_mobile/features/launch/onboardingpage_screen.dart';
-export 'package:rijig_mobile/features/launch/splash_screen.dart';
+export 'package:rijig_mobile/features/launch/screen/onboardingpage_screen.dart';
+export 'package:rijig_mobile/features/launch/screen/splash_screen.dart';
 export 'package:rijig_mobile/features/home/presentation/components/about_detail_comp.dart';

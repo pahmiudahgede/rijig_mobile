@@ -3,6 +3,7 @@ import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:carousel_slider/carousel_slider.dart';
 import 'package:provider/provider.dart';
 import 'package:rijig_mobile/core/router.dart';
+import 'package:rijig_mobile/core/utils/guide.dart';
 import 'package:rijig_mobile/features/home/presentation/viewmodel/about_vmod.dart';
 import 'package:rijig_mobile/features/requestpick/presentation/screen/requestpickup_screen.dart';
 
@@ -83,11 +84,11 @@ class AboutComponentState extends State<AboutComponent> {
                                   horizontal: 12,
                                   vertical: 6,
                                 ),
-                                color: Colors.black.withOpacity(0.5),
+                                color: blackNavyColor.withValues(alpha: 0.5),
                                 child: Text(
                                   imageData["title"],
                                   style: TextStyle(
-                                    color: Colors.white,
+                                    color: whiteColor,
                                     fontWeight: FontWeight.bold,
                                   ),
                                 ),
