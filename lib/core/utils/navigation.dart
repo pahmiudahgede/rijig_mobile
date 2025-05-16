@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:iconsax_flutter/iconsax_flutter.dart';
 import 'package:rijig_mobile/core/utils/guide.dart';
 import 'package:rijig_mobile/core/router.dart';
-import 'package:rijig_mobile/features/activity/activity_screen.dart';
+import 'package:rijig_mobile/features/activity/presentation/screen/activity_screen.dart';
 import 'package:rijig_mobile/features/cart/cart_screen.dart';
 import 'package:rijig_mobile/features/home/presentation/screen/home_screen.dart';
 import 'package:rijig_mobile/features/profil/presentation/screen/profil_screen.dart';
