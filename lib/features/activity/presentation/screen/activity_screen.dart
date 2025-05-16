@@ -15,6 +15,7 @@ class _ActivityScreenState extends State<ActivityScreen> {
     return DefaultTabController(
       length: 3,
       child: Scaffold(
+        backgroundColor: whiteColor,
         appBar: AppBar(
           title: Text('Aktifitas', style: Tulisan.subheading()),
           centerTitle: true,

@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:provider/provider.dart';
+import 'package:rijig_mobile/core/utils/guide.dart';
 import 'package:rijig_mobile/globaldata/trash/trash_viewmodel.dart';
 import 'package:rijig_mobile/widget/appbar.dart';
 import 'package:shimmer/shimmer.dart';
@@ -17,6 +18,7 @@ class RequestPickScreen extends StatelessWidget {
     final String? baseUrl = dotenv.env["BASE_URL"];
 
     return Scaffold(
+      backgroundColor: whiteColor,
       appBar: CustomAppBar(judul: "Pilih sampah"),
       body: Consumer<TrashViewModel>(
         builder: (context, viewModel, child) {

@@ -16,6 +16,7 @@ class _ProfilScreenState extends State<ProfilScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      backgroundColor: whiteColor,
       body: SafeArea(
         child: Stack(
           children: [
@@ -52,20 +53,6 @@ class _ProfilScreenState extends State<ProfilScreen> {
                     Text('+62878774527342'),
                     SizedBox(height: 20),
 
-                    // Row(
-                    //   children: [
-                    //     Text(
-                    //       'Tipe Kontributor: ',
-                    //       style: TextStyle(fontWeight: FontWeight.bold),
-                    //     ),
-                    //     Chip(
-                    //       label: Text('Personal'),
-                    //       backgroundColor: Colors.green,
-                    //       labelStyle: TextStyle(color: Colors.white),
-                    //     ),
-                    //   ],
-                    // ),
-                    // SizedBox(height: 20),
                     Row(
                       mainAxisAlignment: MainAxisAlignment.spaceBetween,
                       children: [
@@ -87,12 +74,7 @@ class _ProfilScreenState extends State<ProfilScreen> {
                 child: Padding(
                   padding: PaddingCustom().paddingHorizontal(20),
                   child: Column(
-                    children: [
-                      ProfileMenuOptions(),
-                      // SizedBox(height: 20),
-                      Gap(30),
-                      ButtonLogout(),
-                    ],
+                    children: [ProfileMenuOptions(), Gap(30), ButtonLogout()],
                   ),
                 ),
               ),
