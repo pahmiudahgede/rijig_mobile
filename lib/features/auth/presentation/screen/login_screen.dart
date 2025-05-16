@@ -14,21 +14,19 @@ class LoginScreen extends StatefulWidget {
 }
 
 class LoginScreenState extends State<LoginScreen> {
-  final TextEditingController _phoneController = TextEditingController();
-
   @override
   Widget build(BuildContext context) {
+    final TextEditingController phoneController = TextEditingController();
     return Scaffold(
-      appBar: AppBar(title: Text("Login")),
       body: Consumer<LoginViewModel>(
         builder: (context, viewModel, child) {
           return Padding(
-            padding: const EdgeInsets.all(16.0),
+            padding: PaddingCustom().paddingHorizontalVertical(15, 40),
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 FormFieldOne(
-                  controllers: _phoneController,
+                  controllers: phoneController,
                   hintText: 'Phone Number',
                   isRequired: true,
                   textInputAction: TextInputAction.done,
@@ -51,11 +49,11 @@ class LoginScreenState extends State<LoginScreen> {
                   horizontal: double.infinity,
                   vertical: 50,
                   onTap: () async {
-                    if (_phoneController.text.isNotEmpty) {
+                    if (phoneController.text.isNotEmpty) {
                       debugPrint("send otp dipencet");
-                      await viewModel.loginOrRegister(_phoneController.text);
+                      await viewModel.loginOrRegister(phoneController.text);
                       if (viewModel.loginResponse != null) {
-                        router.go("/verif-otp", extra: _phoneController.text);
+                        router.go("/verif-otp", extra: phoneController.text);
                       }
                     }
                   },

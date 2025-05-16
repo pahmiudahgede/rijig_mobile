@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:pin_code_fields/pin_code_fields.dart';
 import 'package:provider/provider.dart';
 import 'package:rijig_mobile/core/router.dart';
+import 'package:rijig_mobile/core/utils/guide.dart';
 import 'package:rijig_mobile/features/auth/presentation/viewmodel/otp_vmod.dart';
 import 'package:rijig_mobile/widget/buttoncard.dart';
 
@@ -20,11 +21,10 @@ class VerifOtpScreenState extends State<VerifOtpScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: Text("Verify OTP")),
       body: Consumer<OtpViewModel>(
         builder: (context, viewModel, child) {
           return Padding(
-            padding: const EdgeInsets.all(16.0),
+            padding: PaddingCustom().paddingHorizontalVertical(15, 40),
             child: Column(
               children: [
                 Text("OTP has been sent to ${widget.phoneNumber}"),
