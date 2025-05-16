@@ -1,9 +1,9 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_svg/flutter_svg.dart';
 import 'package:rijig_mobile/core/network/network_info.dart';
 import 'package:rijig_mobile/core/router.dart';
 import 'package:rijig_mobile/core/storage/expired_token.dart';
 import 'package:rijig_mobile/core/utils/guide.dart';
-// import 'package:rijig_mobile/core/storage/secure_storage.dart';
 
 class SplashScreen extends StatefulWidget {
   const SplashScreen({super.key});
@@ -67,6 +67,7 @@ class SplashScreenState extends State<SplashScreen> {
 
   @override
   Widget build(BuildContext context) {
+    const String assetName = 'assets/icon/logorijig.svg';
     return Scaffold(
       backgroundColor: primaryColor,
       body: Center(
@@ -74,17 +75,9 @@ class SplashScreenState extends State<SplashScreen> {
           children: [
             Align(
               alignment: Alignment.center,
-              child: Text(
-                'Rijig',
-                style: TextStyle(
-                  fontSize: 36,
-                  fontWeight: FontWeight.bold,
-                  color: whiteColor,
-                  fontFamily: 'Roboto',
-                ),
-              ),
+              child: SvgPicture.asset(assetName, height: 120),
             ),
-        
+
             if (_isCheckingConnection)
               Align(
                 alignment: Alignment.center,
