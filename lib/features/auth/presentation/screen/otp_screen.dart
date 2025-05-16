@@ -23,65 +23,73 @@ class VerifOtpScreenState extends State<VerifOtpScreen> {
     return Scaffold(
       body: Consumer<OtpViewModel>(
         builder: (context, viewModel, child) {
-          return Padding(
-            padding: PaddingCustom().paddingHorizontalVertical(15, 40),
-            child: Column(
-              children: [
-                Text("OTP has been sent to ${widget.phoneNumber}"),
-                SizedBox(height: 20),
+          return SafeArea(
+            child: Center(
+              child: Padding(
+                padding: PaddingCustom().paddingHorizontalVertical(15, 40),
+                child: Column(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    Text("OTP has been sent to ${widget.phoneNumber}"),
+                    SizedBox(height: 20),
 
-                PinCodeTextField(
-                  controller: _otpController,
-                  appContext: context,
-                  length: 4,
-                  obscureText: false,
-                  animationType: AnimationType.fade,
-                  pinTheme: PinTheme(
-                    shape: PinCodeFieldShape.box,
-                    borderRadius: BorderRadius.circular(5),
-                    fieldHeight: 50,
-                    fieldWidth: 50,
-                    activeFillColor: Colors.white,
-                    inactiveFillColor: Colors.white,
-                    selectedFillColor: Colors.white,
-                    activeColor: Colors.black,
-                    inactiveColor: Colors.black,
-                    selectedColor: Colors.blue,
-                  ),
-                  onChanged: (value) {},
-                  onCompleted: (value) {},
+                    PinCodeTextField(
+                      controller: _otpController,
+                      appContext: context,
+                      length: 4,
+                      obscureText: false,
+                      animationType: AnimationType.fade,
+                      pinTheme: PinTheme(
+                        shape: PinCodeFieldShape.box,
+                        borderRadius: BorderRadius.circular(5),
+                        fieldHeight: 50,
+                        fieldWidth: 50,
+                        activeFillColor: whiteColor,
+                        inactiveFillColor: whiteColor,
+                        selectedFillColor: whiteColor,
+                        activeColor: blackNavyColor,
+                        inactiveColor: blackNavyColor,
+                        selectedColor: primaryColor,
+                      ),
+                      onChanged: (value) {},
+                      onCompleted: (value) {},
+                    ),
+                    SizedBox(height: 20),
+
+                    CardButtonOne(
+                      textButton:
+                          viewModel.isLoading
+                              ? 'Verifying OTP...'
+                              : 'Verify OTP',
+                      fontSized: 16,
+                      colorText: whiteColor,
+                      color: primaryColor,
+                      borderRadius: 10,
+                      horizontal: double.infinity,
+                      vertical: 50,
+                      onTap: () async {
+                        if (_otpController.text.isNotEmpty) {
+                          await viewModel.verifyOtp(
+                            widget.phoneNumber,
+                            _otpController.text,
+                          );
+                          if (viewModel.authResponse != null) {
+                            router.go("/navigasi");
+                          }
+                        }
+                      },
+                      loadingTrue: viewModel.isLoading,
+                      usingRow: false,
+                    ),
+
+                    if (viewModel.errorMessage != null)
+                      Text(
+                        viewModel.errorMessage!,
+                        style: TextStyle(color: redColor),
+                      ),
+                  ],
                 ),
-                SizedBox(height: 20),
-
-                CardButtonOne(
-                  textButton:
-                      viewModel.isLoading ? 'Verifying OTP...' : 'Verify OTP',
-                  fontSized: 16,
-                  colorText: Colors.white,
-                  borderRadius: 10,
-                  horizontal: double.infinity,
-                  vertical: 50,
-                  onTap: () async {
-                    if (_otpController.text.isNotEmpty) {
-                      await viewModel.verifyOtp(
-                        widget.phoneNumber,
-                        _otpController.text,
-                      );
-                      if (viewModel.authResponse != null) {
-                        router.go("/navigasi");
-                      }
-                    }
-                  },
-                  loadingTrue: viewModel.isLoading,
-                  usingRow: false,
-                ),
-
-                if (viewModel.errorMessage != null)
-                  Text(
-                    viewModel.errorMessage!,
-                    style: TextStyle(color: Colors.red),
-                  ),
-              ],
+              ),
             ),
           );
         },

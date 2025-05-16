@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:gap/gap.dart';
 import 'package:provider/provider.dart';
 import 'package:rijig_mobile/core/router.dart';
 import 'package:rijig_mobile/core/utils/guide.dart';
@@ -20,47 +21,77 @@ class LoginScreenState extends State<LoginScreen> {
     return Scaffold(
       body: Consumer<LoginViewModel>(
         builder: (context, viewModel, child) {
-          return Padding(
-            padding: PaddingCustom().paddingHorizontalVertical(15, 40),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                FormFieldOne(
-                  controllers: phoneController,
-                  hintText: 'Phone Number',
-                  isRequired: true,
-                  textInputAction: TextInputAction.done,
-                  keyboardType: TextInputType.phone,
-                  onTap: () {},
-                  onChanged: (value) {},
-                  fontSize: 14,
-                  fontSizeField: 16,
-                  onFieldSubmitted: (value) {},
-                  readOnly: false,
-                  enabled: true,
+          return SafeArea(
+            child: Center(
+              child: Padding(
+                padding: PaddingCustom().paddingHorizontalVertical(15, 40),
+                child: Column(
+                  mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                  children: [
+                    Column(
+                      children: [
+                        Text(
+                          "Selamat datang di aplikasi",
+                          style: Tulisan.subheading(),
+                        ),
+                        Text(
+                          "Rijig",
+                          style: Tulisan.heading(color: primaryColor),
+                        ),
+                        Gap(60),
+                        Column(
+                          children: [
+                            FormFieldOne(
+                              controllers: phoneController,
+                              hintText: 'Masukkan nomor whatsapp anda!',
+                              placeholder: "cth.62..",
+                              isRequired: true,
+                              textInputAction: TextInputAction.done,
+                              keyboardType: TextInputType.phone,
+                              onTap: () {},
+                              onChanged: (value) {},
+                              fontSize: 14,
+                              fontSizeField: 16,
+                              onFieldSubmitted: (value) {},
+                              readOnly: false,
+                              enabled: true,
+                            ),
+                            SizedBox(height: 20),
+                            CardButtonOne(
+                              textButton:
+                                  viewModel.isLoading
+                                      ? 'Sending OTP...'
+                                      : 'Send OTP',
+                              fontSized: 16,
+                              colorText: whiteColor,
+                              color: primaryColor,
+                              borderRadius: 10,
+                              horizontal: double.infinity,
+                              vertical: 50,
+                              onTap: () async {
+                                if (phoneController.text.isNotEmpty) {
+                                  debugPrint("send otp dipencet");
+                                  await viewModel.loginOrRegister(
+                                    phoneController.text,
+                                  );
+                                  if (viewModel.loginResponse != null) {
+                                    router.go(
+                                      "/verif-otp",
+                                      extra: phoneController.text,
+                                    );
+                                  }
+                                }
+                              },
+                              loadingTrue: viewModel.isLoading,
+                              usingRow: false,
+                            ),
+                          ],
+                        ),
+                      ],
+                    ),
+                  ],
                 ),
-                SizedBox(height: 20),
-                CardButtonOne(
-                  textButton:
-                      viewModel.isLoading ? 'Sending OTP...' : 'Send OTP',
-                  fontSized: 16,
-                  colorText: whiteColor,
-                  borderRadius: 10,
-                  horizontal: double.infinity,
-                  vertical: 50,
-                  onTap: () async {
-                    if (phoneController.text.isNotEmpty) {
-                      debugPrint("send otp dipencet");
-                      await viewModel.loginOrRegister(phoneController.text);
-                      if (viewModel.loginResponse != null) {
-                        router.go("/verif-otp", extra: phoneController.text);
-                      }
-                    }
-                  },
-                  loadingTrue: viewModel.isLoading,
-                  usingRow: false,
-                ),
-              ],
+              ),
             ),
           );
         },
