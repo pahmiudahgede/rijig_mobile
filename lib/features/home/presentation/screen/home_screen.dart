@@ -60,9 +60,12 @@ class _HomeScreenState extends State<HomeScreen> {
                         Row(
                           mainAxisAlignment: MainAxisAlignment.end,
                           children: [
-                            Icon(Iconsax.notification_1),
+                            Icon(
+                              Iconsax.notification_copy,
+                              color: primaryColor,
+                            ),
                             Gap(10),
-                            Icon(Iconsax.message_2),
+                            Icon(Iconsax.message_copy, color: primaryColor),
                           ],
                         ),
                       ],
@@ -75,15 +78,15 @@ class _HomeScreenState extends State<HomeScreen> {
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
                   CardWithIcon(
-                    icon: Icons.account_circle,
-                    text: 'Users',
-                    number: '245',
+                    icon: Iconsax.trash,
+                    text: 'Sampah',
+                    number: '245 kg',
                     onTap: () {},
                   ),
                   CardWithIcon(
-                    icon: Icons.shopping_cart,
-                    text: 'Orders',
-                    number: '178',
+                    icon: Iconsax.timer,
+                    text: 'Process',
+                    number: '1',
                     onTap: () {},
                   ),
                 ],
