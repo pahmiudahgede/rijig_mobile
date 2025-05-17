@@ -25,7 +25,16 @@ class _ProfilScreenState extends State<ProfilScreen> {
               child: Container(
                 height: 180,
                 width: MediaQuery.of(context).size.width,
-                color: primaryColor,
+                decoration: BoxDecoration(
+                  gradient: LinearGradient(
+                    colors: [
+                      primaryColor,
+                      secondaryColor,
+                    ], // Ganti dengan warna gradien pilihan Anda
+                    begin: Alignment.topLeft,
+                    end: Alignment.bottomRight,
+                  ),
+                ),
               ),
             ),
             Positioned(

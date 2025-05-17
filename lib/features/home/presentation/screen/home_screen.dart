@@ -60,7 +60,7 @@ class _HomeScreenState extends State<HomeScreen> {
                         Row(
                           mainAxisAlignment: MainAxisAlignment.end,
                           children: [
-                            Icon(Iconsax.notification),
+                            Icon(Iconsax.notification_1),
                             Gap(10),
                             Icon(Iconsax.message_2),
                           ],
