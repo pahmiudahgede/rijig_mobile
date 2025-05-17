@@ -1,12 +1,12 @@
 import 'package:flutter/material.dart';
 
-class PaymentItem extends StatelessWidget {
+class ButtonWIthIcon extends StatelessWidget {
   final String title;
   final String? category;
   final IconData iconData;
   final String amount;
 
-  const PaymentItem({
+  const ButtonWIthIcon({
     super.key,
     required this.title,
     this.category,
