@@ -1,3 +1,6 @@
+import 'dart:math' as math;
+
+import 'package:custom_refresh_indicator/custom_refresh_indicator.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:provider/provider.dart';
@@ -6,63 +9,92 @@ import 'package:rijig_mobile/globaldata/trash/trash_viewmodel.dart';
 import 'package:rijig_mobile/widget/appbar.dart';
 import 'package:shimmer/shimmer.dart';
 
-class RequestPickScreen extends StatelessWidget {
+class RequestPickScreen extends StatefulWidget {
   const RequestPickScreen({super.key});
 
   @override
+  RequestPickScreenState createState() => RequestPickScreenState();
+}
+
+class RequestPickScreenState extends State<RequestPickScreen> {
+  @override
+  void initState() {
+    super.initState();
+    Provider.of<TrashViewModel>(context, listen: false).loadCategories();
+  }
+
+  @override
   Widget build(BuildContext context) {
-    Future.microtask(() {
-      // ignore: use_build_context_synchronously
-      Provider.of<TrashViewModel>(context, listen: false).loadCategories();
-    });
     final String? baseUrl = dotenv.env["BASE_URL"];
 
     return Scaffold(
       backgroundColor: whiteColor,
       appBar: CustomAppBar(judul: "Pilih sampah"),
-      body: Consumer<TrashViewModel>(
-        builder: (context, viewModel, child) {
-          if (viewModel.isLoading) {
-            return ListView.builder(
-              itemCount: 5,
-              itemBuilder: (context, index) {
-                return SkeletonCard();
-              },
-            );
-          }
-
-          if (viewModel.errorMessage != null) {
-            return Center(child: Text(viewModel.errorMessage!));
-          }
-
-          return ListView.builder(
-            itemCount: viewModel.trashCategoryResponse?.categories.length ?? 0,
-            itemBuilder: (context, index) {
-              final category =
-                  viewModel.trashCategoryResponse!.categories[index];
-              return Card(
-                margin: const EdgeInsets.symmetric(
-                  vertical: 10,
-                  horizontal: 15,
-                ),
-                elevation: 4,
-                shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(12),
-                ),
-                child: ListTile(
-                  leading: Image.network(
-                    "$baseUrl${category.icon}",
-                    width: 50,
-                    height: 50,
-                    fit: BoxFit.cover,
-                  ),
-                  title: Text(category.name),
-                  subtitle: Text("${category.price}"),
-                ),
-              );
-            },
+      body: CustomMaterialIndicator(
+        onRefresh: () async {
+          await Provider.of<TrashViewModel>(
+            context,
+            listen: false,
+          ).loadCategories();
+        },
+        backgroundColor: Colors.white,
+        indicatorBuilder: (context, controller) {
+          return Padding(
+            padding: const EdgeInsets.all(6.0),
+            child: CircularProgressIndicator(
+              color: primaryColor,
+              value:
+                  controller.state.isLoading
+                      ? null
+                      : math.min(controller.value, 1.0),
+            ),
           );
         },
+        child: Consumer<TrashViewModel>(
+          builder: (context, viewModel, child) {
+            if (viewModel.isLoading) {
+              return ListView.builder(
+                itemCount: 5,
+                itemBuilder: (context, index) {
+                  return SkeletonCard();
+                },
+              );
+            }
+
+            if (viewModel.errorMessage != null) {
+              return Center(child: Text(viewModel.errorMessage!));
+            }
+
+            return ListView.builder(
+              itemCount:
+                  viewModel.trashCategoryResponse?.categories.length ?? 0,
+              itemBuilder: (context, index) {
+                final category =
+                    viewModel.trashCategoryResponse!.categories[index];
+                return Card(
+                  margin: const EdgeInsets.symmetric(
+                    vertical: 10,
+                    horizontal: 15,
+                  ),
+                  elevation: 4,
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(12),
+                  ),
+                  child: ListTile(
+                    leading: Image.network(
+                      "$baseUrl${category.icon}",
+                      width: 50,
+                      height: 50,
+                      fit: BoxFit.cover,
+                    ),
+                    title: Text(category.name),
+                    subtitle: Text("${category.price}"),
+                  ),
+                );
+              },
+            );
+          },
+        ),
       ),
     );
   }
