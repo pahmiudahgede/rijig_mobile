@@ -1,3 +1,5 @@
+// ignore_for_file: use_build_context_synchronously
+
 import 'dart:math' as math;
 
 import 'package:custom_refresh_indicator/custom_refresh_indicator.dart';
@@ -7,7 +9,9 @@ import 'package:iconsax_flutter/iconsax_flutter.dart';
 import 'package:provider/provider.dart';
 import 'package:rijig_mobile/core/utils/guide.dart';
 import 'package:rijig_mobile/features/home/presentation/components/about_comp.dart';
+import 'package:rijig_mobile/features/home/presentation/components/article_list.dart';
 import 'package:rijig_mobile/features/home/presentation/viewmodel/about_vmod.dart';
+import 'package:rijig_mobile/globaldata/article/article_vmod.dart';
 import 'package:rijig_mobile/widget/card_withicon.dart';
 
 class HomeScreen extends StatefulWidget {
@@ -28,6 +32,10 @@ class _HomeScreenState extends State<HomeScreen> {
             context,
             listen: false,
           ).getAboutList();
+          await Provider.of<ArticleViewModel>(
+            context,
+            listen: false,
+          ).loadArticles();
         },
         backgroundColor: whiteColor,
         indicatorBuilder: (context, controller) {
@@ -130,9 +138,11 @@ class _HomeScreenState extends State<HomeScreen> {
                       ],
                     ),
                   ),
+                  Gap(15),
+                  ArticleScreen(),
                 ],
               ),
-              Gap(20),
+              // Gap(20),
             ],
           ),
         ),

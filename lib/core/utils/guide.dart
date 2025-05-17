@@ -32,9 +32,9 @@ class Tulisan {
     );
   }
 
-  static TextStyle body({Color? color}) {
+  static TextStyle body({Color? color, double? fontsize}) {
     return GoogleFonts.spaceMono(
-      fontSize: 16.sp,
+      fontSize: fontsize?.sp ?? 16.sp,
       fontWeight: FontWeight.w400,
       color: color ?? blackNavyColor,
     );
@@ -44,6 +44,18 @@ class Tulisan {
     return GoogleFonts.spaceGrotesk(
       fontSize: 18.sp,
       fontWeight: FontWeight.w500,
+      color: color ?? blackNavyColor,
+    );
+  }
+
+  static TextStyle customText({
+    Color? color,
+    double? fontsize,
+    FontWeight? fontWeight,
+  }) {
+    return GoogleFonts.spaceGrotesk(
+      fontSize: fontsize?.sp ?? 16.sp,
+      fontWeight: fontWeight ?? FontWeight.w400,
       color: color ?? blackNavyColor,
     );
   }

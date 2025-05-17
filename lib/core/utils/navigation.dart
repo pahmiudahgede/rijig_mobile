@@ -91,12 +91,12 @@ class _NavigationPageState extends State<NavigationPage> {
               items: [
                 BottomNavigationBarItem(
                   icon: Icon(Iconsax.home_2),
-                  activeIcon: Icon(Iconsax.home_2, size: 28),
+                  activeIcon: Icon(Iconsax.home_2, size: 26),
                   label: 'Beranda',
                 ),
                 BottomNavigationBarItem(
                   icon: Icon(Iconsax.note_favorite),
-                  activeIcon: Icon(Iconsax.note_favorite, size: 28),
+                  activeIcon: Icon(Iconsax.note_favorite, size: 26),
                   label: 'Aktivitas',
                 ),
                 const BottomNavigationBarItem(
@@ -105,45 +105,61 @@ class _NavigationPageState extends State<NavigationPage> {
                 ),
                 BottomNavigationBarItem(
                   icon: Icon(Iconsax.shopping_cart),
-                  activeIcon: Icon(Iconsax.shopping_cart, size: 28),
+                  activeIcon: Icon(Iconsax.shopping_cart, size: 26),
                   label: 'Keranjang',
                 ),
                 BottomNavigationBarItem(
                   icon: Icon(Iconsax.user),
-                  activeIcon: Icon(Iconsax.user, size: 28),
+                  activeIcon: Icon(Iconsax.user, size: 26),
                   label: 'Profil',
                 ),
               ],
-              selectedLabelStyle: const TextStyle(fontSize: 14),
-              unselectedLabelStyle: const TextStyle(fontSize: 12),
+              selectedLabelStyle: Tulisan.customText(
+                color: secondaryColor,
+                fontsize: 14,
+                fontWeight: FontWeight.w600,
+              ),
+              unselectedLabelStyle: Tulisan.customText(
+                color: whiteColor,
+                fontsize: 12,
+                fontWeight: FontWeight.w400,
+              ),
             ),
           ),
         ),
       ),
 
       floatingActionButtonLocation: FloatingActionButtonLocation.centerDocked,
-      floatingActionButton: SizedBox(
+      floatingActionButton: Container(
         width: 78,
         height: 78,
-        child: FloatingActionButton(
+        decoration: BoxDecoration(
+          shape: BoxShape.circle,
+          gradient: LinearGradient(
+            colors: [secondaryColor, primaryColor],
+            begin: Alignment.topCenter,
+            end: Alignment.bottomCenter,
+          ),
+          border: Border.all(color: whiteColor, width: 4),
+        ),
+        child: RawMaterialButton(
           onPressed: () {
             router.push("/requestpickup");
           },
-          backgroundColor: primaryColor,
-          shape: const CircleBorder(
-            side: BorderSide(color: Colors.white, width: 4),
-          ),
+          shape: const CircleBorder(),
           elevation: 0,
-          highlightElevation: 0,
-          hoverColor: Colors.blue,
-          splashColor: Colors.transparent,
-          foregroundColor: Colors.white,
           child: Column(
             mainAxisAlignment: MainAxisAlignment.center,
-            mainAxisSize: MainAxisSize.max,
             children: [
-              Icon(Iconsax.archive_2, color: whiteColor, size: 30),
-              Text("mulai", style: TextStyle(color: whiteColor)),
+              Icon(Iconsax.archive_2, color: Colors.white, size: 30),
+              Text(
+                "Mulai",
+                style: Tulisan.customText(
+                  color: whiteColor,
+                  fontsize: 14,
+                  fontWeight: FontWeight.w600,
+                ),
+              ),
             ],
           ),
         ),
