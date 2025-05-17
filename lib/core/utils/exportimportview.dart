@@ -12,3 +12,4 @@ export 'package:rijig_mobile/features/auth/presentation/screen/verifpin_screen.d
 export 'package:rijig_mobile/features/launch/screen/onboardingpage_screen.dart';
 export 'package:rijig_mobile/features/launch/screen/splash_screen.dart';
 export 'package:rijig_mobile/features/home/presentation/components/about_detail_comp.dart';
+export 'package:rijig_mobile/features/home/presentation/components/article_content.dart';

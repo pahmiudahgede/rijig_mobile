@@ -47,5 +47,13 @@ final router = GoRouter(
         return AboutDetailScreenComp(data: data);
       },
     ),
+
+    GoRoute(
+      path: '/artikeldetail',
+      builder: (context, state) {
+        dynamic data = state.extra;
+        return ArticleDetailScreen(data: data);
+      },
+    ),
   ],
 );

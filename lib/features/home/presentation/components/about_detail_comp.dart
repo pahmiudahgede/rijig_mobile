@@ -2,8 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:provider/provider.dart';
 import 'package:rijig_mobile/features/home/presentation/viewmodel/about_vmod.dart';
-import 'package:rijig_mobile/features/requestpick/presentation/screen/requestpickup_screen.dart';
 import 'package:rijig_mobile/widget/appbar.dart';
+import 'package:rijig_mobile/widget/skeletonize.dart';
 
 class AboutDetailScreenComp extends StatefulWidget {
   final String data;

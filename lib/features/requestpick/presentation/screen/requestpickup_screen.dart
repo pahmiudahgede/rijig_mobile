@@ -7,7 +7,7 @@ import 'package:provider/provider.dart';
 import 'package:rijig_mobile/core/utils/guide.dart';
 import 'package:rijig_mobile/globaldata/trash/trash_viewmodel.dart';
 import 'package:rijig_mobile/widget/appbar.dart';
-import 'package:shimmer/shimmer.dart';
+import 'package:rijig_mobile/widget/skeletonize.dart';
 
 class RequestPickScreen extends StatefulWidget {
   const RequestPickScreen({super.key});
@@ -20,7 +20,9 @@ class RequestPickScreenState extends State<RequestPickScreen> {
   @override
   void initState() {
     super.initState();
-    Provider.of<TrashViewModel>(context, listen: false).loadCategories();
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      Provider.of<TrashViewModel>(context, listen: false).loadCategories();
+    });
   }
 
   @override
@@ -37,10 +39,10 @@ class RequestPickScreenState extends State<RequestPickScreen> {
             listen: false,
           ).loadCategories();
         },
-        backgroundColor: Colors.white,
+        backgroundColor: whiteColor,
         indicatorBuilder: (context, controller) {
           return Padding(
-            padding: const EdgeInsets.all(6.0),
+            padding: PaddingCustom().paddingAll(6),
             child: CircularProgressIndicator(
               color: primaryColor,
               value:
@@ -54,6 +56,7 @@ class RequestPickScreenState extends State<RequestPickScreen> {
           builder: (context, viewModel, child) {
             if (viewModel.isLoading) {
               return ListView.builder(
+                shrinkWrap: true,
                 itemCount: 5,
                 itemBuilder: (context, index) {
                   return SkeletonCard();
@@ -94,28 +97,6 @@ class RequestPickScreenState extends State<RequestPickScreen> {
               },
             );
           },
-        ),
-      ),
-    );
-  }
-}
-
-class SkeletonCard extends StatelessWidget {
-  const SkeletonCard({super.key});
-
-  @override
-  Widget build(BuildContext context) {
-    return Shimmer.fromColors(
-      baseColor: Colors.grey[300]!,
-      highlightColor: Colors.grey[100]!,
-      child: Card(
-        margin: const EdgeInsets.symmetric(vertical: 10, horizontal: 15),
-        elevation: 4,
-        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
-        child: ListTile(
-          leading: Container(width: 50, height: 50, color: Colors.white),
-          title: Container(width: 100, height: 15, color: Colors.white),
-          subtitle: Container(width: 150, height: 10, color: Colors.white),
         ),
       ),
     );

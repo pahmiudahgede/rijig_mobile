@@ -1,7 +1,11 @@
 import 'package:flutter/material.dart';
+import 'package:gap/gap.dart';
 import 'package:provider/provider.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
+import 'package:rijig_mobile/core/router.dart';
+import 'package:rijig_mobile/core/utils/guide.dart';
 import 'package:rijig_mobile/globaldata/article/article_vmod.dart';
+import 'package:rijig_mobile/widget/skeletonize.dart';
 
 class ArticleScreen extends StatefulWidget {
   const ArticleScreen({super.key});
@@ -14,7 +18,6 @@ class _ArticleScreenState extends State<ArticleScreen> {
   @override
   void initState() {
     super.initState();
-    // Fetch data setelah frame build pertama
     WidgetsBinding.instance.addPostFrameCallback((_) {
       Provider.of<ArticleViewModel>(context, listen: false).loadArticles();
     });
@@ -27,7 +30,13 @@ class _ArticleScreenState extends State<ArticleScreen> {
     return Consumer<ArticleViewModel>(
       builder: (context, viewModel, child) {
         if (viewModel.isLoading) {
-          return const Center(child: CircularProgressIndicator());
+          return ListView.builder(
+            shrinkWrap: true,
+            itemCount: 1,
+            itemBuilder: (context, index) {
+              return SkeletonCard();
+            },
+          );
         }
 
         if (viewModel.errorMessage != null) {
@@ -38,49 +47,78 @@ class _ArticleScreenState extends State<ArticleScreen> {
           return const Center(child: Text("Tidak ada artikel ditemukan."));
         }
 
-        return ListView.builder(
-          itemCount: viewModel.articles.length,
-          shrinkWrap: true,
-          physics: const NeverScrollableScrollPhysics(),
-          itemBuilder: (context, index) {
-            final article = viewModel.articles[index];
-            return Card(
-              margin: const EdgeInsets.only(bottom: 12),
-              elevation: 3,
-              shape: RoundedRectangleBorder(
-                borderRadius: BorderRadius.circular(10),
-              ),
-              child: ListTile(
-                contentPadding: const EdgeInsets.all(12),
-                leading: ClipRRect(
-                  borderRadius: BorderRadius.circular(8),
-                  child: Image.network(
-                    "$baseUrl${article.coverImage}",
-                    width: 60,
-                    height: 60,
-                    fit: BoxFit.cover,
-                    errorBuilder:
-                        (context, error, stackTrace) =>
-                            const Icon(Icons.image_not_supported),
+        return SizedBox(
+          height: 190,
+          child: ListView.separated(
+            scrollDirection: Axis.horizontal,
+            clipBehavior: Clip.none,
+            itemCount: viewModel.articles.length,
+            separatorBuilder: (_, __) => Gap(12),
+            itemBuilder: (context, index) {
+              final article = viewModel.articles[index];
+              return GestureDetector(
+                onTap: () {
+                  router.push("/artikeldetail", extra: article);
+                },
+                child: Container(
+                  padding: PaddingCustom().paddingAll(3),
+                  width: 180,
+                  decoration: BoxDecoration(
+                    border: Border.all(color: greyColor),
+                    color: whiteColor,
+                    borderRadius: BorderRadius.circular(16),
+                  ),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      ClipRRect(
+                        borderRadius: const BorderRadius.only(
+                          topLeft: Radius.circular(16),
+                          topRight: Radius.circular(16),
+                        ),
+                        child: Image.network(
+                          "$baseUrl${article.coverImage}",
+                          width: double.infinity,
+                          height: 100,
+                          fit: BoxFit.cover,
+                          errorBuilder:
+                              (context, error, stackTrace) =>
+                                  const Icon(Icons.image_not_supported),
+                        ),
+                      ),
+                      Padding(
+                        padding: PaddingCustom().paddingAll(10),
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Text(
+                              article.heading,
+                              maxLines: 2,
+                              overflow: TextOverflow.ellipsis,
+                              style: const TextStyle(
+                                fontWeight: FontWeight.bold,
+                                fontSize: 14,
+                              ),
+                            ),
+                            const SizedBox(height: 8),
+                            Text(
+                              "by ${article.author} • ${article.publishedAt}",
+                              maxLines: 1,
+                              overflow: TextOverflow.ellipsis,
+                              style: const TextStyle(
+                                fontSize: 12,
+                                color: Colors.grey,
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
+                    ],
                   ),
                 ),
-                title: Text(
-                  article.heading,
-                  style: const TextStyle(fontWeight: FontWeight.bold),
-                  maxLines: 1,
-                  overflow: TextOverflow.ellipsis,
-                ),
-                subtitle: Text(
-                  "By ${article.author} • ${article.publishedAt}",
-                  style: const TextStyle(fontSize: 12),
-                ),
-                onTap: () {
-                  // Navigasi ke detail (jika tersedia)
-                  // router.push('/article-detail', extra: article.articleId);
-                },
-              ),
-            );
-          },
+              );
+            },
+          ),
         );
       },
     );

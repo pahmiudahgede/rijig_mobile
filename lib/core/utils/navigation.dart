@@ -52,7 +52,7 @@ class _NavigationPageState extends State<NavigationPage> {
   Widget build(BuildContext context) {
     return Scaffold(
       extendBody: true,
-      backgroundColor: Colors.white,
+      backgroundColor: whiteColor,
       body: IndexedStack(
         index: _selectedIndex,
         children: const [
@@ -151,7 +151,7 @@ class _NavigationPageState extends State<NavigationPage> {
           child: Column(
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
-              Icon(Iconsax.archive_2, color: Colors.white, size: 30),
+              Icon(Iconsax.archive_2, color: whiteColor, size: 30),
               Text(
                 "Mulai",
                 style: Tulisan.customText(

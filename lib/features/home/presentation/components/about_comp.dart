@@ -5,7 +5,7 @@ import 'package:provider/provider.dart';
 import 'package:rijig_mobile/core/router.dart';
 import 'package:rijig_mobile/core/utils/guide.dart';
 import 'package:rijig_mobile/features/home/presentation/viewmodel/about_vmod.dart';
-import 'package:rijig_mobile/features/requestpick/presentation/screen/requestpickup_screen.dart';
+import 'package:rijig_mobile/widget/skeletonize.dart';
 
 class AboutComponent extends StatefulWidget {
   const AboutComponent({super.key});
@@ -33,6 +33,7 @@ class AboutComponentState extends State<AboutComponent> {
       builder: (context, viewModel, child) {
         if (viewModel.isLoading) {
           return ListView.builder(
+            shrinkWrap: true,
             itemCount: 1,
             itemBuilder: (context, index) {
               return SkeletonCard();
@@ -99,7 +100,6 @@ class AboutComponentState extends State<AboutComponent> {
                       ),
                       onTap: () {
                         debugPrint("Tapped on ${imageData['route']}");
-                        // imageData["route"];
                         router.push("/aboutdetail", extra: imageData["route"]);
                       },
                     );
