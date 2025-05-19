@@ -40,9 +40,9 @@ class Tulisan {
     );
   }
 
-  static TextStyle subheading({Color? color}) {
+  static TextStyle subheading({Color? color, double? fontsize}) {
     return GoogleFonts.spaceGrotesk(
-      fontSize: 18.sp,
+      fontSize: fontsize?.sp ?? 18.sp,
       fontWeight: FontWeight.w500,
       color: color ?? blackNavyColor,
     );

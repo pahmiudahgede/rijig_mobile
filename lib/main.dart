@@ -34,6 +34,7 @@ class MyApp extends StatelessWidget {
         ChangeNotifierProvider(create: (_) => sl<AboutViewModel>()),
         ChangeNotifierProvider(create: (_) => sl<AboutDetailViewModel>()),
         ChangeNotifierProvider(create: (_) => sl<ArticleViewModel>()),
+        ChangeNotifierProvider(create: (_) => sl<CartViewModel>()),
       ],
       child: ScreenUtilInit(
         designSize: const Size(375, 812),

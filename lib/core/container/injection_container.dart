@@ -13,4 +13,5 @@ void init() {
   sl.registerFactory(() => AboutViewModel(AboutService(AboutRepository())));
   sl.registerFactory(() => AboutDetailViewModel(AboutService(AboutRepository())));
   sl.registerFactory(() => ArticleViewModel(ArticleService(ArticleRepository())));
+  sl.registerFactory(() => CartViewModel(CartRepository()));
 }
