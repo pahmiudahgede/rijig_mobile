@@ -55,5 +55,20 @@ final router = GoRouter(
         return ArticleDetailScreen(data: data);
       },
     ),
+
+    GoRoute(
+      path: '/pickupmethod',
+      builder: (context, state) {
+        dynamic data = state.extra;
+        return PickupScreen(data: data);
+      },
+    ),
+
+    GoRoute(
+      path: '/pilihpengepul',
+      builder: (context, state) {
+        return SelectCollectorScreen();
+      },
+    ),
   ],
 );

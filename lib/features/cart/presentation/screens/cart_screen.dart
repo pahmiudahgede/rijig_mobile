@@ -6,6 +6,7 @@ import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:gap/gap.dart';
 import 'package:iconsax_flutter/iconsax_flutter.dart';
 import 'package:provider/provider.dart';
+import 'package:rijig_mobile/core/router.dart';
 import 'package:rijig_mobile/core/utils/guide.dart';
 import 'package:rijig_mobile/features/cart/model/cartitem_model.dart';
 import 'package:rijig_mobile/features/cart/presentation/viewmodel/cartitem_vmod.dart';
@@ -435,20 +436,23 @@ class _CartScreenState extends State<CartScreen> with WidgetsBindingObserver {
                           borderRadius: 9,
                           horizontal: double.infinity,
                           vertical: 50,
-                          onTap: () async {
-                            final vmod = Provider.of<CartViewModel>(
-                              context,
-                              listen: false,
-                            );
-                            await vmod.flushCartToServer();
+                          // onTap: () async {
+                          //   final vmod = Provider.of<CartViewModel>(
+                          //     context,
+                          //     listen: false,
+                          //   );
+                          //   await vmod.flushCartToServer();
 
-                            ScaffoldMessenger.of(context).showSnackBar(
-                              const SnackBar(
-                                content: Text(
-                                  "Keranjang berhasil dikirim ke server!",
-                                ),
-                              ),
-                            );
+                          //   ScaffoldMessenger.of(context).showSnackBar(
+                          //     const SnackBar(
+                          //       content: Text(
+                          //         "Keranjang berhasil dikirim ke server!",
+                          //       ),
+                          //     ),
+                          //   );
+                          // },
+                          onTap: () {
+                            router.push("/pickupmethod", extra: '');
                           },
                         ),
                       ),
