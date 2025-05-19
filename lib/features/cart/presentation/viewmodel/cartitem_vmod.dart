@@ -4,9 +4,7 @@ import 'package:rijig_mobile/features/cart/repositories/cartitem_repo.dart';
 
 class CartViewModel extends ChangeNotifier {
   final CartRepository _repository;
-
   CartViewModel(this._repository);
-
   List<CartItem> _cartItems = [];
 
   List<CartItem> get cartItems => _cartItems;
