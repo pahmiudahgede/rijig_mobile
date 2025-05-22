@@ -3,22 +3,22 @@ import 'package:rijig_mobile/features/launch/model/onboard_model.dart';
 class OnboardingData {
   static List<OnboardingModel> items = [
     OnboardingModel(
-      imagePath: "https://i.imgur.com/X2G11k0.png",
-      headline: 'Browse all the category',
+      imagePath: "assets/image/onboard_first.png",
+      headline: 'Sampahmu, Cuanmu',
       description:
-          'In aliquip aute exercitation ut et nisi ut mollit. Deserunt dolor elit pariatur aute .',
+          'Jual sampah dari rumah tanpa ribet. Bisa dapet duit, bisa bantu lingkungan juga!',
     ),
     OnboardingModel(
-      imagePath: "https://i.imgur.com/X2G11k0.png",
-      headline: 'Amazing Discounts & Offers',
+      imagePath: "assets/image/waiting_oboard_sec.png",
+      headline: 'Pilih Pengepul, Duduk Manis',
       description:
-          'In aliquip aute exercitation ut et nisi ut mollit. Deserunt dolor elit pariatur aute .',
+          'Tinggal pilih pengepul terdekat, mereka yang datang ke kamu. Praktis banget, kan?',
     ),
     OnboardingModel(
-      imagePath: "https://i.imgur.com/X2G11k0.png",
-      headline: 'Delivery in 30 Min',
+      imagePath: "assets/image/onboard_third.png",
+      headline: 'Ayo, Kita Jaga Bumi Bareng',
       description:
-          'In aliquip aute exercitation ut et nisi ut mollit. Deserunt dolor elit pariatur aute .',
+          'Satu langkah kecil bisa bikin perubahan besar. Yuk mulai sekarang — lanjut masuk dulu, ya!',
     ),
   ];
 }

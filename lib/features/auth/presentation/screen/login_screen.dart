@@ -17,6 +17,7 @@ class LoginScreen extends StatefulWidget {
 class LoginScreenState extends State<LoginScreen> {
   @override
   Widget build(BuildContext context) {
+    final mediaQuery = MediaQuery.of(context);
     final TextEditingController phoneController = TextEditingController();
     return Scaffold(
       body: Consumer<LoginViewModel>(
@@ -38,9 +39,14 @@ class LoginScreenState extends State<LoginScreen> {
                           "Rijig",
                           style: Tulisan.heading(color: primaryColor),
                         ),
-                        Gap(60),
+                        // Gap(60),
+                        SizedBox(height: mediaQuery.size.height * 0.2),
                         Column(
                           children: [
+                            Image.asset(
+                              'assets/image/security.png',
+                              width: mediaQuery.size.width * 0.35,
+                            ),
                             FormFieldOne(
                               controllers: phoneController,
                               hintText: 'Masukkan nomor whatsapp anda!',
@@ -84,6 +90,17 @@ class LoginScreenState extends State<LoginScreen> {
                               },
                               loadingTrue: viewModel.isLoading,
                               usingRow: false,
+                            ),
+                          ],
+                        ),
+                        Gap(20),
+                        Row(
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          children: [
+                            Text("login sebagai:"),
+                            TextButton(
+                              onPressed: () => router.go('/welcomec'),
+                              child: Text("pengepul?"),
                             ),
                           ],
                         ),

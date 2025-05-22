@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
-import 'package:gap/gap.dart';
+import 'package:flutter_screenutil/flutter_screenutil.dart';
+import 'package:rijig_mobile/core/utils/guide.dart';
 import 'package:rijig_mobile/features/launch/model/onboard_model.dart';
 
 class OnboardingView extends StatelessWidget {
@@ -14,35 +15,30 @@ class OnboardingView extends StatelessWidget {
       children: [
         SizedBox(
           width: MediaQuery.of(context).size.width,
-          height: MediaQuery.of(context).size.width,
+          height: MediaQuery.of(context).size.height * 0.4,
           child: Padding(
-            padding: const EdgeInsets.only(top: 40.0),
-            child: Image.network(data.imagePath, fit: BoxFit.contain),
+            padding: PaddingCustom().paddingOnly(top: 40),
+            child: Image.asset(data.imagePath, fit: BoxFit.contain),
           ),
         ),
         Padding(
-          padding: const EdgeInsets.all(15),
+          padding: PaddingCustom().paddingAll(15),
           child: Column(
             children: [
-              Text(
-                data.headline,
-                style: Theme.of(context).textTheme.titleLarge?.copyWith(
-                  fontWeight: FontWeight.bold,
-                  fontSize: 24,
-                ),
-              ),
+              Text(data.headline, style: Tulisan.heading()),
               Padding(
-                padding: const EdgeInsets.symmetric(vertical: 15.0),
+                padding: PaddingCustom().paddingVertical(15),
                 child: Text(
                   data.description,
                   textAlign: TextAlign.center,
-                  style: TextStyle(fontSize: 16),
+                  style: Tulisan.customText(fontsize: 14.sp),
                 ),
               ),
             ],
           ),
         ),
-        Gap(100),
+
+        SizedBox(height: MediaQuery.of(context).size.height * 0.2),
       ],
     );
   }

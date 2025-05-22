@@ -1,4 +1,6 @@
 import 'package:rijig_mobile/core/utils/exportimportview.dart';
+import 'package:rijig_mobile/features/auth/presentation/screen/collector/clogin_screen.dart';
+import 'package:rijig_mobile/features/auth/presentation/screen/collector/welcome_collector_screen.dart';
 
 final router = GoRouter(
   routes: [
@@ -8,6 +10,8 @@ final router = GoRouter(
       builder: (context, state) => OnboardingPageScreen(),
     ),
     GoRoute(path: '/login', builder: (context, state) => LoginScreen()),
+    GoRoute(path: '/clogin', builder: (context, state) => CloginScreen()),
+    GoRoute(path: '/welcomec', builder: (context, state) => WelcomeCollectorScreen()),
 
     // Rute untuk verifikasi OTP dengan ekstraksi data dari path
     GoRoute(
