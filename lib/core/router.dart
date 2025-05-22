@@ -1,10 +1,12 @@
 import 'package:rijig_mobile/core/utils/exportimportview.dart';
 import 'package:rijig_mobile/features/auth/presentation/screen/collector/clogin_screen.dart';
+import 'package:rijig_mobile/features/auth/presentation/screen/collector/identity_validation_screen.dart';
 import 'package:rijig_mobile/features/auth/presentation/screen/collector/welcome_collector_screen.dart';
 
 final router = GoRouter(
   routes: [
-    GoRoute(path: '/', builder: (context, state) => SplashScreen()),
+    // GoRoute(path: '/', builder: (context, state) => SplashScreen()),
+    GoRoute(path: '/', builder: (context, state) => UploadKtpScreen()),
     GoRoute(
       path: '/onboarding',
       builder: (context, state) => OnboardingPageScreen(),
