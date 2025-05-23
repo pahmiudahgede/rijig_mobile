@@ -15,3 +15,8 @@ export 'package:rijig_mobile/features/home/presentation/components/about_detail_
 export 'package:rijig_mobile/features/home/presentation/components/article_content.dart';
 export 'package:rijig_mobile/features/pickup/presentation/screen/pickup_screen.dart';
 export 'package:rijig_mobile/features/pickup/presentation/screen/selectcollector_screen.dart';
+export 'package:rijig_mobile/features/auth/presentation/screen/collector/clogin_screen.dart';
+export 'package:rijig_mobile/features/auth/presentation/screen/collector/identity_validation_screen.dart';
+export 'package:rijig_mobile/features/auth/presentation/screen/collector/welcome_collector_screen.dart';
+export 'package:rijig_mobile/features/home/presentation/screen/collector/chome_screen.dart';
+export 'package:rijig_mobile/features/auth/presentation/screen/collector/cotp_screen.dart';

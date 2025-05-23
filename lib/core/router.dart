@@ -1,12 +1,9 @@
 import 'package:rijig_mobile/core/utils/exportimportview.dart';
-import 'package:rijig_mobile/features/auth/presentation/screen/collector/clogin_screen.dart';
-import 'package:rijig_mobile/features/auth/presentation/screen/collector/identity_validation_screen.dart';
-import 'package:rijig_mobile/features/auth/presentation/screen/collector/welcome_collector_screen.dart';
+import 'package:rijig_mobile/features/home/presentation/screen/collector/pickup_history_screen.dart';
 
 final router = GoRouter(
   routes: [
-    // GoRoute(path: '/', builder: (context, state) => SplashScreen()),
-    GoRoute(path: '/', builder: (context, state) => UploadKtpScreen()),
+    GoRoute(path: '/', builder: (context, state) => SplashScreen()),
     GoRoute(
       path: '/onboarding',
       builder: (context, state) => OnboardingPageScreen(),
@@ -14,6 +11,9 @@ final router = GoRouter(
     GoRoute(path: '/login', builder: (context, state) => LoginScreen()),
     GoRoute(path: '/clogin', builder: (context, state) => CloginScreen()),
     GoRoute(path: '/welcomec', builder: (context, state) => WelcomeCollectorScreen()),
+    GoRoute(path: '/verifidentity', builder: (context, state) => UploadKtpScreen()),
+    GoRoute(path: '/berandapengepul', builder: (context, state) => ChomeCollectorScreen()),
+    GoRoute(path: '/cpickuphistory', builder: (context, state) => PickupHistoryScreen()),
 
     // Rute untuk verifikasi OTP dengan ekstraksi data dari path
     GoRoute(
@@ -21,6 +21,13 @@ final router = GoRouter(
       builder: (context, state) {
         dynamic phoneNumber = state.extra;
         return VerifOtpScreen(phoneNumber: phoneNumber);
+      },
+    ),
+    GoRoute(
+      path: '/cverif-otp',
+      builder: (context, state) {
+        // dynamic phoneNumber = state.extra;
+        return CverifOtpScreen();
       },
     ),
 

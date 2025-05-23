@@ -59,7 +59,7 @@ class _WelcomeSeekJobScreenState extends State<WelcomeCollectorScreen> {
                 horizontal: double.infinity,
                 vertical: 50,
                 onTap: () {
-                  router.go("/clogin");
+                  router.push("/clogin");
                 },
                 usingRow: false,
               ),

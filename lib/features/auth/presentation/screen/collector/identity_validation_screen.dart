@@ -4,6 +4,7 @@ import 'package:google_mlkit_text_recognition/google_mlkit_text_recognition.dart
 import 'package:image_picker/image_picker.dart';
 import 'package:image/image.dart' as img;
 import 'package:path_provider/path_provider.dart';
+import 'package:rijig_mobile/core/router.dart';
 import 'package:rijig_mobile/core/utils/guide.dart';
 import 'package:rijig_mobile/widget/buttoncard.dart';
 
@@ -167,6 +168,7 @@ class _UploadKtpScreenState extends State<UploadKtpScreen> {
                     controller: controllers[key],
                   ),
                 ),
+                TextButton(onPressed: ()=> router.go("/berandapengepul"), child: Text("ke home collector"))
             ],
           ),
         ),

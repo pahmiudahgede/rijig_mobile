@@ -43,10 +43,10 @@ class LoginScreenState extends State<LoginScreen> {
                         SizedBox(height: mediaQuery.size.height * 0.2),
                         Column(
                           children: [
-                            Image.asset(
-                              'assets/image/security.png',
-                              width: mediaQuery.size.width * 0.35,
-                            ),
+                            // Image.asset(
+                            //   'assets/image/security.png',
+                            //   width: mediaQuery.size.width * 0.35,
+                            // ),
                             FormFieldOne(
                               controllers: phoneController,
                               hintText: 'Masukkan nomor whatsapp anda!',
@@ -99,10 +99,15 @@ class LoginScreenState extends State<LoginScreen> {
                           children: [
                             Text("login sebagai:"),
                             TextButton(
-                              onPressed: () => router.go('/welcomec'),
+                              onPressed: () => router.push('/welcomec'),
                               child: Text("pengepul?"),
                             ),
                           ],
+                        ),
+                        Gap(20),
+                        TextButton(
+                          onPressed: () => router.push('/navigasi'),
+                          child: Text("skip login"),
                         ),
                       ],
                     ),

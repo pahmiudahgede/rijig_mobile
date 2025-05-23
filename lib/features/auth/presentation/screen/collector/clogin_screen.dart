@@ -58,9 +58,6 @@ class _CloginScreenState extends State<CloginScreen> {
                         SizedBox(height: 20),
                         CardButtonOne(
                           textButton: "Kirim OTP",
-                          // viewModel.isLoading
-                          //     ? 'Sending OTP...'
-                          //     : 'Send OTP',
                           fontSized: 16.sp,
                           colorText: whiteColor,
                           color: primaryColor,
@@ -68,20 +65,9 @@ class _CloginScreenState extends State<CloginScreen> {
                           horizontal: double.infinity,
                           vertical: 50,
                           onTap: () {
-                            // if (cPhoneController.text.isNotEmpty) {
-                            //   debugPrint("send otp dipencet");
-                            //   await viewModel.loginOrRegister(
-                            //     cPhoneController.text,
-                            //   );
-                            //   if (viewModel.loginResponse != null) {
-                            //     router.go(
-                            //       "/verif-otp",
-                            //       extra: cPhoneController.text,
-                            //     );
-                            //   }
-                            // }
+                            router.go('/cverif-otp');
                           },
-                          // loadingTrue: viewModel.isLoading,
+
                           usingRow: false,
                         ),
                       ],
@@ -105,6 +91,5 @@ class _CloginScreenState extends State<CloginScreen> {
         ),
       ),
     );
-    // return const Placeholder();
   }
 }
