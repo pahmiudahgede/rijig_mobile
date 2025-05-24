@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:gap/gap.dart';
 import 'package:provider/provider.dart';
 import 'package:rijig_mobile/core/router.dart';
 import 'package:rijig_mobile/core/utils/guide.dart';
@@ -15,103 +14,118 @@ class LoginScreen extends StatefulWidget {
 }
 
 class LoginScreenState extends State<LoginScreen> {
+  final TextEditingController phoneController = TextEditingController();
+
+  @override
+  void dispose() {
+    phoneController.dispose();
+    super.dispose();
+  }
+
   @override
   Widget build(BuildContext context) {
     final mediaQuery = MediaQuery.of(context);
-    final TextEditingController phoneController = TextEditingController();
+
     return Scaffold(
+      resizeToAvoidBottomInset: true,
       body: Consumer<LoginViewModel>(
         builder: (context, viewModel, child) {
           return SafeArea(
-            child: Center(
-              child: Padding(
-                padding: PaddingCustom().paddingHorizontalVertical(15, 40),
-                child: Column(
-                  mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                  children: [
-                    Column(
-                      children: [
-                        Text(
-                          "Selamat datang di aplikasi",
-                          style: Tulisan.subheading(),
-                        ),
-                        Text(
-                          "Rijig",
-                          style: Tulisan.heading(color: primaryColor),
-                        ),
-                        // Gap(60),
-                        SizedBox(height: mediaQuery.size.height * 0.2),
-                        Column(
-                          children: [
-                            // Image.asset(
-                            //   'assets/image/security.png',
-                            //   width: mediaQuery.size.width * 0.35,
-                            // ),
-                            FormFieldOne(
-                              controllers: phoneController,
-                              hintText: 'Masukkan nomor whatsapp anda!',
-                              placeholder: "cth.62..",
-                              isRequired: true,
-                              textInputAction: TextInputAction.done,
-                              keyboardType: TextInputType.phone,
-                              onTap: () {},
-                              onChanged: (value) {},
-                              fontSize: 14,
-                              fontSizeField: 16,
-                              onFieldSubmitted: (value) {},
-                              readOnly: false,
-                              enabled: true,
-                            ),
-                            SizedBox(height: 20),
-                            CardButtonOne(
-                              textButton:
-                                  viewModel.isLoading
-                                      ? 'Sending OTP...'
-                                      : 'Send OTP',
-                              fontSized: 16,
-                              colorText: whiteColor,
-                              color: primaryColor,
-                              borderRadius: 10,
-                              horizontal: double.infinity,
-                              vertical: 50,
-                              onTap: () async {
-                                if (phoneController.text.isNotEmpty) {
-                                  debugPrint("send otp dipencet");
-                                  await viewModel.loginOrRegister(
-                                    phoneController.text,
+            child: SingleChildScrollView(
+              padding: PaddingCustom().paddingHorizontalVertical(15, 40),
+              child: ConstrainedBox(
+                constraints: BoxConstraints(
+                  minHeight:
+                      mediaQuery.size.height * 1 / 4 -
+                      mediaQuery.padding.top -
+                      mediaQuery.padding.bottom,
+                ),
+                child: IntrinsicHeight(
+                  child: Column(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: [
+                      Column(
+                        children: [
+                          Text(
+                            "Selamat datang di aplikasi",
+                            style: Tulisan.subheading(),
+                          ),
+                          Text(
+                            "Rijig",
+                            style: Tulisan.heading(color: primaryColor),
+                          ),
+                          SizedBox(height: mediaQuery.size.height * 0.1),
+                          Image.asset(
+                            'assets/image/security.png',
+                            width: mediaQuery.size.width * 0.35,
+                          ),
+                          SizedBox(height: 30),
+                          FormFieldOne(
+                            controllers: phoneController,
+                            hintText: 'Masukkan nomor whatsapp anda!',
+                            placeholder: "cth.62..",
+                            isRequired: true,
+                            textInputAction: TextInputAction.done,
+                            keyboardType: TextInputType.phone,
+                            onTap: () {},
+                            onChanged: (value) {},
+                            fontSize: 14,
+                            fontSizeField: 16,
+                            onFieldSubmitted: (value) {},
+                            readOnly: false,
+                            enabled: true,
+                          ),
+                          SizedBox(height: 20),
+                          CardButtonOne(
+                            textButton:
+                                viewModel.isLoading
+                                    ? 'Sending OTP...'
+                                    : 'Send OTP',
+                            fontSized: 16,
+                            colorText: whiteColor,
+                            color: primaryColor,
+                            borderRadius: 10,
+                            horizontal: double.infinity,
+                            vertical: 50,
+                            onTap: () async {
+                              if (phoneController.text.isNotEmpty) {
+                                debugPrint("send otp dipencet");
+                                await viewModel.loginOrRegister(
+                                  phoneController.text,
+                                );
+                                if (viewModel.loginResponse != null) {
+                                  router.go(
+                                    "/verif-otp",
+                                    extra: phoneController.text,
                                   );
-                                  if (viewModel.loginResponse != null) {
-                                    router.go(
-                                      "/verif-otp",
-                                      extra: phoneController.text,
-                                    );
-                                  }
                                 }
-                              },
-                              loadingTrue: viewModel.isLoading,
-                              usingRow: false,
-                            ),
-                          ],
-                        ),
-                        Gap(20),
-                        Row(
-                          mainAxisAlignment: MainAxisAlignment.center,
-                          children: [
-                            Text("login sebagai:"),
-                            TextButton(
-                              onPressed: () => router.push('/welcomec'),
-                              child: Text("pengepul?"),
-                            ),
-                          ],
-                        ),
-                        Gap(20),
-                        TextButton(
-                          onPressed: () => router.push('/navigasi'),
-                          child: Text("skip login"),
-                        ),
-                      ],
-                    ),
-                  ],
+                              }
+                            },
+                            loadingTrue: viewModel.isLoading,
+                            usingRow: false,
+                          ),
+                        ],
+                      ),
+                      Column(
+                        children: [
+                          Row(
+                            mainAxisAlignment: MainAxisAlignment.center,
+                            children: [
+                              Text("login sebagai:"),
+                              TextButton(
+                                onPressed: () => router.push('/welcomec'),
+                                child: Text("pengepul?"),
+                              ),
+                            ],
+                          ),
+                          TextButton(
+                            onPressed: () => router.push('/navigasi'),
+                            child: Text("skip login"),
+                          ),
+                        ],
+                      ),
+                    ],
+                  ),
                 ),
               ),
             ),

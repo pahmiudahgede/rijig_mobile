@@ -1,11 +1,9 @@
 import 'package:rijig_mobile/core/utils/exportimportview.dart';
-import 'package:rijig_mobile/features/home/presentation/screen/collector/pickup_history_screen.dart';
-import 'package:rijig_mobile/features/pickup/presentation/screen/pickup_map_screen.dart';
 
 final router = GoRouter(
   routes: [
-    // GoRoute(path: '/', builder: (context, state) => SplashScreen()),
-    GoRoute(path: '/', builder: (context, state) => CollectorRouteMapScreen()),
+    GoRoute(path: '/', builder: (context, state) => SplashScreen()),
+    GoRoute(path: '/cmapview', builder: (context, state) => CollectorRouteMapScreen()),
     GoRoute(
       path: '/onboarding',
       builder: (context, state) => OnboardingPageScreen(),
