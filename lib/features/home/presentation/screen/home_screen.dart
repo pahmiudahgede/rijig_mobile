@@ -7,10 +7,11 @@ import 'package:flutter/material.dart';
 import 'package:gap/gap.dart';
 import 'package:iconsax_flutter/iconsax_flutter.dart';
 import 'package:provider/provider.dart';
+import 'package:rijig_mobile/core/router.dart';
 import 'package:rijig_mobile/core/utils/guide.dart';
 import 'package:rijig_mobile/features/home/presentation/components/about_comp.dart';
 import 'package:rijig_mobile/features/home/presentation/components/article_list.dart';
-import 'package:rijig_mobile/features/home/presentation/viewmodel/about_vmod.dart';
+import 'package:rijig_mobile/globaldata/about/about_vmod.dart';
 import 'package:rijig_mobile/globaldata/article/article_vmod.dart';
 import 'package:rijig_mobile/widget/card_withicon.dart';
 
@@ -89,7 +90,9 @@ class _HomeScreenState extends State<HomeScreen> {
                     icon: Iconsax.trash,
                     text: 'Sampah',
                     number: '245 kg',
-                    onTap: () {},
+                    onTap: () {
+                      router.push('/dataperforma');
+                    },
                   ),
                   CardWithIcon(
                     icon: Iconsax.timer,

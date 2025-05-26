@@ -45,6 +45,7 @@ final router = GoRouter(
 
     // Rute untuk halaman-halaman utama
     GoRoute(path: '/home', builder: (context, state) => HomeScreen()),
+    GoRoute(path: '/dataperforma', builder: (context, state) => DatavisualizedScreen()),
     GoRoute(path: '/activity', builder: (context, state) => ActivityScreen()),
     GoRoute(
       path: '/requestpickup',

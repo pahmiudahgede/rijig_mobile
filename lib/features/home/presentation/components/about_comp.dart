@@ -4,7 +4,7 @@ import 'package:carousel_slider/carousel_slider.dart';
 import 'package:provider/provider.dart';
 import 'package:rijig_mobile/core/router.dart';
 import 'package:rijig_mobile/core/utils/guide.dart';
-import 'package:rijig_mobile/features/home/presentation/viewmodel/about_vmod.dart';
+import 'package:rijig_mobile/globaldata/about/about_vmod.dart';
 import 'package:rijig_mobile/widget/skeletonize.dart';
 
 class AboutComponent extends StatefulWidget {

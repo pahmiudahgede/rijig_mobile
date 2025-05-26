@@ -3,6 +3,7 @@ export 'package:rijig_mobile/core/utils/navigation.dart';
 export 'package:rijig_mobile/features/activity/presentation/screen/activity_screen.dart';
 export 'package:rijig_mobile/features/cart/presentation/screens/cart_screen.dart';
 export 'package:rijig_mobile/features/home/presentation/screen/home_screen.dart';
+export 'package:rijig_mobile/features/home/datavisualized/presentation/screen/datavisualized_screen.dart';
 export 'package:rijig_mobile/features/profil/presentation/screen/profil_screen.dart';
 export 'package:rijig_mobile/features/requestpick/presentation/screen/requestpickup_screen.dart';
 export 'package:rijig_mobile/features/auth/presentation/screen/inputpin_screen.dart';

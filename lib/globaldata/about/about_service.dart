@@ -1,5 +1,5 @@
-import 'package:rijig_mobile/features/home/repositories/about_repository.dart';
-import 'package:rijig_mobile/features/home/model/about_model.dart';
+import 'package:rijig_mobile/globaldata/about/about_repository.dart';
+import 'package:rijig_mobile/globaldata/about/about_model.dart';
 
 class AboutService {
   final AboutRepository _aboutRepository;

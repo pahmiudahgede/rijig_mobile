@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
-import 'package:rijig_mobile/features/home/service/about_service.dart';
-import 'package:rijig_mobile/features/home/model/about_model.dart';
+import 'package:rijig_mobile/globaldata/about/about_service.dart';
+import 'package:rijig_mobile/globaldata/about/about_model.dart';
 
 class AboutViewModel extends ChangeNotifier {
   final AboutService _aboutService;

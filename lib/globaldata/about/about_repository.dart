@@ -1,5 +1,5 @@
 import 'package:rijig_mobile/core/api/api_services.dart';
-import 'package:rijig_mobile/features/home/model/about_model.dart';
+import 'package:rijig_mobile/globaldata/about/about_model.dart';
 
 class AboutRepository {
   final Https _https = Https();
