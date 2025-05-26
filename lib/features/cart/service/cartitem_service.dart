@@ -1,3 +1,4 @@
+import 'package:flutter/material.dart';
 import 'package:rijig_mobile/core/api/api_services.dart';
 import 'package:rijig_mobile/features/cart/model/cartitem_model.dart';
 
@@ -12,6 +13,7 @@ class CartService {
 
   Future<CartResponse> getCart() async {
     final response = await _https.get("/cart");
+    debugPrint(response);
     return CartResponse.fromJson(response['data']);
   }
 
