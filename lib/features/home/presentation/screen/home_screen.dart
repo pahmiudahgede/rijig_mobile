@@ -71,10 +71,14 @@ class _HomeScreenState extends State<HomeScreen> {
                         Row(
                           mainAxisAlignment: MainAxisAlignment.end,
                           children: [
-                            Icon(
+                            IconButton(onPressed: ()=>router.push('/trashview'), icon: Icon(
                               Iconsax.notification_copy,
                               color: primaryColor,
-                            ),
+                            ),),
+                            // Icon(
+                            //   Iconsax.notification_copy,
+                            //   color: primaryColor,
+                            // ),
                             Gap(10),
                             Icon(Iconsax.message_copy, color: primaryColor),
                           ],

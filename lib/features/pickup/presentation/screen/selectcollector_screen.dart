@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+import 'package:gap/gap.dart';
+import 'package:rijig_mobile/core/router.dart';
 import 'dart:math';
 import 'package:rijig_mobile/core/utils/guide.dart';
 import 'package:rijig_mobile/widget/appbar.dart';
@@ -66,17 +68,17 @@ class _SelectCollectorScreenState extends State<SelectCollectorScreen> {
                       backgroundColor: greyAbsolutColor,
                       child: Icon(Icons.person, color: whiteColor, size: 30),
                     ),
-                    const SizedBox(width: 12),
+                    Gap(12),
                     Expanded(
                       child: Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
                           Text(collector.name, style: Tulisan.subheading()),
-                          const SizedBox(height: 4),
+                          Gap(4),
                           Row(
                             children: [
                               Icon(Icons.star, color: Colors.amber, size: 18),
-                              const SizedBox(width: 4),
+                              Gap(4),
                               Text(
                                 collector.rating.toStringAsFixed(1),
                                 style: Tulisan.body(fontsize: 12),
@@ -88,11 +90,11 @@ class _SelectCollectorScreenState extends State<SelectCollectorScreen> {
                     ),
                   ],
                 ),
-                const SizedBox(height: 16),
+                Gap(16),
                 Text("Alamat:", style: Tulisan.body(fontsize: 13)),
-                const SizedBox(height: 6),
+                Gap(6),
                 Text(collector.address, style: Tulisan.body(fontsize: 13)),
-                const SizedBox(height: 24),
+                Gap(24),
                 CardButtonOne(
                   textButton: "Pilih",
                   fontSized: 14,
@@ -102,7 +104,7 @@ class _SelectCollectorScreenState extends State<SelectCollectorScreen> {
                   horizontal: double.infinity,
                   vertical: 45,
                   onTap: () {
-                    Navigator.pop(context);
+                    router.pop(context);
                     ScaffoldMessenger.of(context).showSnackBar(
                       SnackBar(
                         behavior: SnackBarBehavior.floating,

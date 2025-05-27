@@ -24,3 +24,9 @@ export 'package:rijig_mobile/features/auth/presentation/screen/collector/cotp_sc
 export 'package:rijig_mobile/features/auth/presentation/screen/collector/clogin_screen.dart';
 export 'package:rijig_mobile/features/home/presentation/screen/collector/pickup_history_screen.dart';
 export 'package:rijig_mobile/features/pickup/presentation/screen/pickup_map_screen.dart';
+
+
+
+// remmovable
+export 'package:rijig_mobile/features/home/presentation/components/cart_test_screen.dart';
+export 'package:rijig_mobile/features/home/presentation/components/trash_testview.dart';

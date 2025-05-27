@@ -3,6 +3,8 @@ import 'package:rijig_mobile/core/utils/exportimportview.dart';
 final router = GoRouter(
   routes: [
     GoRoute(path: '/', builder: (context, state) => SplashScreen()),
+    GoRoute(path: '/trashview', builder: (context, state) => TestRequestPickScreen()),
+    GoRoute(path: '/ordersumary', builder: (context, state) => OrderSummaryScreen()),
     GoRoute(
       path: '/cmapview',
       builder: (context, state) => CollectorRouteMapScreen(),
