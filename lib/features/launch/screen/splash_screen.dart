@@ -80,8 +80,8 @@ class SplashScreenState extends State<SplashScreen> {
 
             if (_isCheckingConnection)
               Align(
-                alignment: Alignment.center,
-                child: CircularProgressIndicator(),
+                alignment: Alignment.bottomCenter,
+                child: CircularProgressIndicator(color: whiteColor,),
               ),
           ],
         ),

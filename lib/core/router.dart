@@ -3,17 +3,35 @@ import 'package:rijig_mobile/core/utils/exportimportview.dart';
 final router = GoRouter(
   routes: [
     GoRoute(path: '/', builder: (context, state) => SplashScreen()),
-    GoRoute(path: '/cmapview', builder: (context, state) => CollectorRouteMapScreen()),
+    GoRoute(
+      path: '/cmapview',
+      builder: (context, state) => CollectorRouteMapScreen(),
+    ),
     GoRoute(
       path: '/onboarding',
-      builder: (context, state) => OnboardingPageScreen(),
+      pageBuilder: (context, state) {
+        var key = state.pageKey;
+        return transisi(OnboardingPageScreen(), key);
+      },
     ),
     GoRoute(path: '/login', builder: (context, state) => LoginScreen()),
     GoRoute(path: '/clogin', builder: (context, state) => CloginScreen()),
-    GoRoute(path: '/welcomec', builder: (context, state) => WelcomeCollectorScreen()),
-    GoRoute(path: '/verifidentity', builder: (context, state) => UploadKtpScreen()),
-    GoRoute(path: '/berandapengepul', builder: (context, state) => ChomeCollectorScreen()),
-    GoRoute(path: '/cpickuphistory', builder: (context, state) => PickupHistoryScreen()),
+    GoRoute(
+      path: '/welcomec',
+      builder: (context, state) => WelcomeCollectorScreen(),
+    ),
+    GoRoute(
+      path: '/verifidentity',
+      builder: (context, state) => UploadKtpScreen(),
+    ),
+    GoRoute(
+      path: '/berandapengepul',
+      builder: (context, state) => ChomeCollectorScreen(),
+    ),
+    GoRoute(
+      path: '/cpickuphistory',
+      builder: (context, state) => PickupHistoryScreen(),
+    ),
 
     // Rute untuk verifikasi OTP dengan ekstraksi data dari path
     GoRoute(
@@ -45,7 +63,10 @@ final router = GoRouter(
 
     // Rute untuk halaman-halaman utama
     GoRoute(path: '/home', builder: (context, state) => HomeScreen()),
-    GoRoute(path: '/dataperforma', builder: (context, state) => DatavisualizedScreen()),
+    GoRoute(
+      path: '/dataperforma',
+      builder: (context, state) => DatavisualizedScreen(),
+    ),
     GoRoute(path: '/activity', builder: (context, state) => ActivityScreen()),
     GoRoute(
       path: '/requestpickup',
@@ -86,3 +107,17 @@ final router = GoRouter(
     ),
   ],
 );
+
+CustomTransitionPage transisi(Widget page, key) {
+  return CustomTransitionPage(
+    transitionDuration: const Duration(milliseconds: 1200),
+    child: page,
+    key: key,
+    transitionsBuilder: (key, animation, secondaryAnimation, page) {
+      return FadeTransition(
+        opacity: CurveTween(curve: Curves.easeInOut).animate(animation),
+        child: page,
+      );
+    },
+  );
+}
