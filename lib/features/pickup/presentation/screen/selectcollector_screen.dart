@@ -105,8 +105,15 @@ class _SelectCollectorScreenState extends State<SelectCollectorScreen> {
                     Navigator.pop(context);
                     ScaffoldMessenger.of(context).showSnackBar(
                       SnackBar(
-                        content: Text(
-                          "${collector.name} dipilih sebagai pengepul.",
+                        behavior: SnackBarBehavior.floating,
+                        content: Text('Data berhasil disimpan'),
+                        margin: const EdgeInsets.only(
+                          // bottom: 90,
+                          left: 16,
+                          right: 16,
+                        ),
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(12),
                         ),
                       ),
                     );

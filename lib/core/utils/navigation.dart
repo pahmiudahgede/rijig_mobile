@@ -73,6 +73,7 @@ class _NavigationPageState extends State<NavigationPage>
       child: SlideTransition(
         position: _slideAnimation,
         child: Scaffold(
+          resizeToAvoidBottomInset: false,
           extendBody: true,
           backgroundColor: whiteColor,
           body: IndexedStack(
@@ -159,6 +160,9 @@ class _NavigationPageState extends State<NavigationPage>
               border: Border.all(color: whiteColor, width: 4),
             ),
             child: RawMaterialButton(
+              disabledElevation: 0,
+              autofocus: false,
+              focusElevation: 0,
               onPressed: () => router.push("/requestpickup"),
               shape: const CircleBorder(),
               elevation: 0,
