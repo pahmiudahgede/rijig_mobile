@@ -13,7 +13,9 @@ import 'package:rijig_mobile/features/home/presentation/components/about_comp.da
 import 'package:rijig_mobile/features/home/presentation/components/article_list.dart';
 import 'package:rijig_mobile/globaldata/about/about_vmod.dart';
 import 'package:rijig_mobile/globaldata/article/article_vmod.dart';
+import 'package:rijig_mobile/widget/buttoncard.dart';
 import 'package:rijig_mobile/widget/card_withicon.dart';
+import 'package:rijig_mobile/widget/showmodal.dart';
 
 class HomeScreen extends StatefulWidget {
   const HomeScreen({super.key});
@@ -98,7 +100,40 @@ class _HomeScreenState extends State<HomeScreen> {
                     icon: Iconsax.timer,
                     text: 'Process',
                     number: '1',
-                    onTap: () {},
+                    onTap: () {
+                      CustomModalDialog.show(
+                        context: context,
+                        variant: ModalVariant.textVersion,
+                        title: 'Hapus Akun',
+                        content:
+                            'Lorem Ipsum is simply dummy text of the printing and typesetting industry.',
+                        buttonCount: 2,
+                        button1: CardButtonOne(
+                          textButton: "Ya, Hapus",
+                          onTap: () {},
+                          fontSized: 14,
+                          colorText: whiteColor,
+                          color: primaryColor,
+                          borderRadius: 10,
+                          horizontal: double.infinity,
+                          vertical: 50,
+                          loadingTrue: false,
+                          usingRow: false,
+                        ),
+                        button2: CardButtonOne(
+                          textButton: "Batal",
+                          onTap: () => router.pop(),
+                          fontSized: 14,
+                          colorText: primaryColor,
+                          color: Colors.transparent,
+                          borderRadius: 10,
+                          horizontal: double.infinity,
+                          vertical: 50,
+                          loadingTrue: false,
+                          usingRow: false,
+                        ),
+                      );
+                    },
                   ),
                 ],
               ),

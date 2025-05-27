@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:rijig_mobile/core/utils/guide.dart';
 import 'package:rijig_mobile/widget/tabbar_custom.dart';
+import 'package:rijig_mobile/widget/unhope_handler.dart';
 
 class ActivityScreen extends StatefulWidget {
   const ActivityScreen({super.key});
@@ -49,11 +50,11 @@ class _ActivityScreenState extends State<ActivityScreen> {
             ),
           ),
         ),
-        body: const TabBarView(
+        body: TabBarView(
           children: [
-            Center(child: Text('Proses Page')),
-            Center(child: Text('Gak Eroh Page')),
-            Center(child: Text('Dibatalkan Page')),
+            Center(child: InfoStateWidget(type: InfoStateType.emptyData)),
+            Center(child: InfoStateWidget(type: InfoStateType.emptyData)),
+            Center(child: InfoStateWidget(type: InfoStateType.emptyData)),
           ],
         ),
       ),

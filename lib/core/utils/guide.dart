@@ -24,10 +24,10 @@ FontWeight superBold = FontWeight.w900;
 
 // =====================text behavior=====================
 class Tulisan {
-  static TextStyle heading({Color? color}) {
+  static TextStyle heading({Color? color, double? fontsize}) {
     return GoogleFonts.spaceGrotesk(
-      fontSize: 24.sp,
-      fontWeight: FontWeight.bold,
+      fontSize: fontsize?.sp ?? 24.sp,
+      fontWeight: extraBold,
       color: color ?? blackNavyColor,
     );
   }
@@ -35,7 +35,7 @@ class Tulisan {
   static TextStyle body({Color? color, double? fontsize}) {
     return GoogleFonts.spaceMono(
       fontSize: fontsize?.sp ?? 16.sp,
-      fontWeight: FontWeight.w400,
+      fontWeight: regular,
       color: color ?? blackNavyColor,
     );
   }
@@ -43,7 +43,7 @@ class Tulisan {
   static TextStyle subheading({Color? color, double? fontsize}) {
     return GoogleFonts.spaceGrotesk(
       fontSize: fontsize?.sp ?? 18.sp,
-      fontWeight: FontWeight.w500,
+      fontWeight: medium,
       color: color ?? blackNavyColor,
     );
   }
@@ -55,7 +55,7 @@ class Tulisan {
   }) {
     return GoogleFonts.spaceGrotesk(
       fontSize: fontsize?.sp ?? 16.sp,
-      fontWeight: fontWeight ?? FontWeight.w400,
+      fontWeight: fontWeight ?? regular,
       color: color ?? blackNavyColor,
     );
   }
