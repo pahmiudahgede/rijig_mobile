@@ -1,5 +1,4 @@
 import 'package:rijig_mobile/core/utils/exportimportview.dart';
-import 'package:rijig_mobile/features/profil/components/secure_pin_input.dart';
 
 final router = GoRouter(
   routes: [
@@ -72,11 +71,6 @@ final router = GoRouter(
       builder: (context, state) => DatavisualizedScreen(),
     ),
     GoRoute(path: '/activity', builder: (context, state) => ActivityScreen()),
-    GoRoute(
-      path: '/requestpickup',
-      builder: (context, state) => RequestPickScreen(),
-    ),
-    GoRoute(path: '/cart', builder: (context, state) => CartScreen()),
     GoRoute(path: '/profil', builder: (context, state) => ProfilScreen()),
 
     GoRoute(

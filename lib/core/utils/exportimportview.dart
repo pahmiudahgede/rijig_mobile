@@ -2,11 +2,9 @@ export 'package:flutter/material.dart';
 export 'package:go_router/go_router.dart';
 export 'package:rijig_mobile/core/utils/navigation.dart';
 export 'package:rijig_mobile/features/activity/presentation/screen/activity_screen.dart';
-export 'package:rijig_mobile/features/cart/presentation/screens/cart_screen.dart';
 export 'package:rijig_mobile/features/home/presentation/screen/home_screen.dart';
 export 'package:rijig_mobile/features/home/datavisualized/presentation/screen/datavisualized_screen.dart';
 export 'package:rijig_mobile/features/profil/presentation/screen/profil_screen.dart';
-export 'package:rijig_mobile/features/requestpick/presentation/screen/requestpickup_screen.dart';
 export 'package:rijig_mobile/features/auth/presentation/screen/inputpin_screen.dart';
 export 'package:rijig_mobile/features/auth/presentation/screen/login_screen.dart';
 export 'package:rijig_mobile/features/auth/presentation/screen/otp_screen.dart';
@@ -28,5 +26,6 @@ export 'package:rijig_mobile/features/pickup/presentation/screen/pickup_map_scre
 
 
 // remmovable
-export 'package:rijig_mobile/features/home/presentation/components/cart_test_screen.dart';
-export 'package:rijig_mobile/features/home/presentation/components/trash_testview.dart';
+export 'package:rijig_mobile/features/cart/presentation/screens/cart_test_screen.dart';
+export 'package:rijig_mobile/features/profil/components/secure_pin_input.dart';
+export 'package:rijig_mobile/features/requestpick/presentation/screen/trash_testview.dart';

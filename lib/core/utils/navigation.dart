@@ -3,7 +3,8 @@ import 'package:iconsax_flutter/iconsax_flutter.dart';
 import 'package:rijig_mobile/core/utils/guide.dart';
 import 'package:rijig_mobile/core/router.dart';
 import 'package:rijig_mobile/features/activity/presentation/screen/activity_screen.dart';
-import 'package:rijig_mobile/features/cart/presentation/screens/cart_screen.dart';
+// import 'package:rijig_mobile/features/cart/presentation/screens/cart_screen.dart';
+import 'package:rijig_mobile/features/cart/presentation/screens/cart_test_screen.dart';
 import 'package:rijig_mobile/features/home/presentation/screen/home_screen.dart';
 import 'package:rijig_mobile/features/profil/presentation/screen/profil_screen.dart';
 import 'package:shared_preferences/shared_preferences.dart';
@@ -82,7 +83,8 @@ class _NavigationPageState extends State<NavigationPage>
               HomeScreen(),
               ActivityScreen(),
               Text(""),
-              CartScreen(),
+              // CartScreen(),
+              OrderSummaryScreen(),
               ProfilScreen(),
             ],
           ),
@@ -163,7 +165,8 @@ class _NavigationPageState extends State<NavigationPage>
               disabledElevation: 0,
               autofocus: false,
               focusElevation: 0,
-              onPressed: () => router.push("/requestpickup"),
+              onPressed: () => router.push("/trashview"),
+              // onPressed: () => router.push("/requestpickup"),
               shape: const CircleBorder(),
               elevation: 0,
               child: Column(

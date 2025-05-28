@@ -48,19 +48,6 @@ class _ProfilScreenState extends State<ProfilScreen> {
                           ),
                         ),
                       ),
-                      // Positioned(
-                      //   bottom: 5,
-                      //   right: 5,
-                      //   child: Container(
-                      //     width: 24,
-                      //     height: 24,
-                      //     decoration: const BoxDecoration(
-                      //       color: Color(0xFF3B82F6),
-                      //       shape: BoxShape.circle,
-                      //     ),
-                      //     child: Icon(Icons.check, color: whiteColor, size: 14),
-                      //   ),
-                      // ),
                     ],
                   ),
                   Gap(16),
@@ -227,7 +214,6 @@ class _ProfilScreenState extends State<ProfilScreen> {
                 ),
               ],
             ),
-
             if (showDivider) ...[
               Gap(20),
               Divider(height: 1, color: Colors.grey.shade200),
@@ -247,7 +233,8 @@ class _ProfilScreenState extends State<ProfilScreen> {
         break;
 
       case 'Ubah Pin':
-        debugPrint('Uabh Pin');
+        debugPrint('Ubah Pin');
+        router.push('/pinsecureinput');
         break;
 
       case 'Alamat':
@@ -263,7 +250,6 @@ class _ProfilScreenState extends State<ProfilScreen> {
         break;
 
       case 'Keluar':
-        // _showLogoutDialog();
         CustomBottomSheet.show(
           context: context,
           title: "Logout Sekarang?",
@@ -275,18 +261,6 @@ class _ProfilScreenState extends State<ProfilScreen> {
             ],
           ),
           button1: ButtonLogout(),
-          // button1: CardButtonOne(
-          //   textButton: "Logout",
-          //   onTap: () {},
-          //   fontSized: 14,
-          //   colorText: Colors.white,
-          //   color: Colors.red,
-          //   borderRadius: 10,
-          //   horizontal: double.infinity,
-          //   vertical: 50,
-          //   loadingTrue: false,
-          //   usingRow: false,
-          // ),
           button2: CardButtonOne(
             textButton: "Gak jadi..",
             onTap: () => router.pop(),

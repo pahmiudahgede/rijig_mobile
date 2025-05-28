@@ -14,6 +14,7 @@ import 'package:rijig_mobile/globaldata/about/about_vmod.dart';
 import 'package:rijig_mobile/globaldata/article/article_vmod.dart';
 import 'package:rijig_mobile/widget/buttoncard.dart';
 import 'package:rijig_mobile/widget/card_withicon.dart';
+import 'package:rijig_mobile/widget/formfiled.dart';
 import 'package:rijig_mobile/widget/showmodal.dart';
 
 class HomeScreen extends StatefulWidget {
@@ -59,40 +60,24 @@ class _HomeScreenState extends State<HomeScreen> {
               Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
-                  Expanded(
-                    child: Row(
-                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                      children: [
-                        Text(
-                          "Rijig",
-                          style: Tulisan.heading(color: primaryColor),
+                  Text("Rijig", style: Tulisan.heading(color: primaryColor)),
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.end,
+                    children: [
+                      IconButton(
+                        onPressed: () => router.push('/trashview'),
+                        icon: Icon(
+                          Iconsax.notification_copy,
+                          color: primaryColor,
                         ),
-                        Row(
-                          mainAxisAlignment: MainAxisAlignment.end,
-                          children: [
-                            IconButton(
-                              onPressed: () => router.push('/trashview'),
-                              icon: Icon(
-                                Iconsax.notification_copy,
-                                color: primaryColor,
-                              ),
-                            ),
-
-                            Gap(10),
-
-                            IconButton(
-                              onPressed: () {
-                                debugPrint('message tapped');
-                              },
-                              icon: Icon(
-                                Iconsax.message_copy,
-                                color: primaryColor,
-                              ),
-                            ),
-                          ],
-                        ),
-                      ],
-                    ),
+                      ),
+                      IconButton(
+                        onPressed: () {
+                          debugPrint('message icon tapped');
+                        },
+                        icon: Icon(Iconsax.message_copy, color: primaryColor),
+                      ),
+                    ],
                   ),
                 ],
               ),
@@ -113,14 +98,29 @@ class _HomeScreenState extends State<HomeScreen> {
                     text: 'Process',
                     number: '1',
                     onTap: () {
-                      CustomModalDialog.show(
+                      CustomModalDialog.showWidget(
+                        customWidget: FormFieldOne(
+                          // controllers: cPhoneController,
+                          hintText: 'Masukkan nomor whatsapp anda!',
+                          placeholder: "cth.62..",
+                          isRequired: true,
+                          textInputAction: TextInputAction.done,
+                          keyboardType: TextInputType.phone,
+                          onTap: () {},
+                          onChanged: (value) {},
+                          fontSize: 14,
+                          fontSizeField: 16,
+                          onFieldSubmitted: (value) {},
+                          readOnly: false,
+                          enabled: true,
+                        ),
                         context: context,
-                        variant: ModalVariant.textVersion,
-                        title: 'Belum Tersedia',
-                        content: 'Maaf, fitur ini belum tersedia',
+                        // variant: ModalVariant.textVersion,
+                        // title: 'Belum Tersedia',
+                        // content: 'Maaf, fitur ini belum tersedia',
                         buttonCount: 2,
                         button1: CardButtonOne(
-                          textButton: "Ya, Hapus",
+                          textButton: "oke, deh",
                           onTap: () {},
                           fontSized: 14,
                           colorText: whiteColor,

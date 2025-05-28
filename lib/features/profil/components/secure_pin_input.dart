@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_screenutil/flutter_screenutil.dart';
+import 'package:gap/gap.dart';
 import 'package:pin_code_fields/pin_code_fields.dart';
 import 'package:rijig_mobile/core/utils/guide.dart';
 
@@ -46,56 +48,47 @@ class _SecurityCodeScreenState extends State<SecurityCodeScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      body: Container(
-        decoration: BoxDecoration(
-          gradient: LinearGradient(
-            begin: Alignment.topLeft,
-            end: Alignment.bottomRight,
-            colors: [secondaryColor, primaryColor],
-          ),
-        ),
-        child: SafeArea(
-          child: Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 24.0),
-            child: Column(
-              children: [
-                const SizedBox(height: 60),
-
-                Text(
-                  'Masukkan Security Code Kamu',
-                  style: TextStyle(
-                    fontSize: 20,
-                    fontWeight: FontWeight.w600,
-                    color: whiteColor,
-                  ),
-                  textAlign: TextAlign.center,
-                ),
-
-                const SizedBox(height: 60),
-
-                PinCodeTextField(
+      backgroundColor: whiteColor,
+      body: SafeArea(
+        child: Padding(
+          padding: PaddingCustom().paddingHorizontal(24),
+          child: Column(
+            children: [
+              Gap(60),
+              Text(
+                'Masukkan PIN Kamu',
+                style: Tulisan.heading(fontsize: 20, color: primaryColor),
+                // style: TextStyle(
+                //   fontSize: 20,
+                //   fontWeight: FontWeight.w600,
+                //   color: primaryColor,
+                // ),
+                textAlign: TextAlign.center,
+              ),
+              Gap(60),
+              Padding(
+                padding: PaddingCustom().paddingHorizontal(27),
+                child: PinCodeTextField(
                   appContext: context,
                   length: 6,
                   controller: textEditingController,
                   readOnly: true,
                   obscureText: true,
-
                   obscuringCharacter: '.',
-                  animationType: AnimationType.fade,
+                  animationType: AnimationType.slide,
                   pinTheme: PinTheme(
                     shape: PinCodeFieldShape.circle,
                     borderRadius: BorderRadius.circular(25),
                     fieldHeight: 20,
                     fieldWidth: 20,
-                    activeFillColor: whiteColor,
-                    inactiveFillColor: whiteColor.withValues(alpha: 0.3),
-                    selectedFillColor: whiteColor.withValues(alpha: 0.7),
-                    activeColor: Colors.transparent,
-                    inactiveColor: Colors.transparent,
-                    selectedColor: Colors.transparent,
+                    activeFillColor: primaryColor,
+                    inactiveFillColor: greyColor,
+                    selectedFillColor: primaryColor,
+                    activeColor: primaryColor,
+                    inactiveColor: greyColor,
+                    selectedColor: blackNavyColor,
                   ),
-                  animationDuration: const Duration(milliseconds: 300),
-                  backgroundColor: Colors.transparent,
+                  animationDuration: const Duration(milliseconds: 200),
                   enableActiveFill: true,
                   onCompleted: (v) {
                     _validatePin();
@@ -104,26 +97,21 @@ class _SecurityCodeScreenState extends State<SecurityCodeScreen> {
                     currentText = value;
                   },
                 ),
-
-                const SizedBox(height: 40),
-
-                Text(
-                  'Lupa Security Code',
-                  style: TextStyle(
-                    fontSize: 16,
-                    color: whiteColor,
-                    decoration: TextDecoration.underline,
-                    decorationColor: whiteColor,
-                  ),
+              ),
+              Gap(40),
+              Text(
+                'Lupa PIN kamu?',
+                style: TextStyle(
+                  fontSize: 16.sp,
+                  color: blackNavyColor,
+                  decoration: TextDecoration.underline,
+                  decorationColor: primaryColor,
                 ),
-
-                const Spacer(),
-
-                _buildKeypad(),
-
-                const SizedBox(height: 40),
-              ],
-            ),
+              ),
+              const Spacer(),
+              _buildKeypad(),
+              Gap(40),
+            ],
           ),
         ),
       ),
@@ -143,8 +131,7 @@ class _SecurityCodeScreenState extends State<SecurityCodeScreen> {
               _buildKeypadButton('3'),
             ],
           ),
-          const SizedBox(height: 20),
-
+          Gap(20),
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
@@ -153,8 +140,7 @@ class _SecurityCodeScreenState extends State<SecurityCodeScreen> {
               _buildKeypadButton('6'),
             ],
           ),
-          const SizedBox(height: 20),
-
+          Gap(20),
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
@@ -163,15 +149,10 @@ class _SecurityCodeScreenState extends State<SecurityCodeScreen> {
               _buildKeypadButton('9'),
             ],
           ),
-          const SizedBox(height: 20),
-
+          Gap(20),
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            children: [
-              const SizedBox(width: 80),
-              _buildKeypadButton('0'),
-              _buildDeleteButton(),
-            ],
+            children: [Gap(80), _buildKeypadButton('0'), _buildDeleteButton()],
           ),
         ],
       ),
@@ -184,21 +165,14 @@ class _SecurityCodeScreenState extends State<SecurityCodeScreen> {
       child: Container(
         width: 80,
         height: 80,
-        decoration: BoxDecoration(
-          color: whiteColor.withValues(alpha: 0.1),
-          shape: BoxShape.circle,
-          border: Border.all(
-            color: whiteColor.withValues(alpha: 0.3),
-            width: 1,
-          ),
-        ),
+        decoration: BoxDecoration(color: primaryColor, shape: BoxShape.circle),
         child: Center(
           child: Text(
             number,
-            style: TextStyle(
-              fontSize: 28,
-              fontWeight: FontWeight.w400,
+            style: Tulisan.customText(
               color: whiteColor,
+              fontWeight: extraBold,
+              fontsize: 30,
             ),
           ),
         ),
@@ -213,15 +187,11 @@ class _SecurityCodeScreenState extends State<SecurityCodeScreen> {
         width: 80,
         height: 80,
         decoration: BoxDecoration(
-          color: whiteColor.withValues(alpha: 0.1),
           shape: BoxShape.circle,
-          border: Border.all(
-            color: whiteColor.withValues(alpha: 0.3),
-            width: 1,
-          ),
+          border: Border.all(color: primaryColor, width: 1),
         ),
         child: Center(
-          child: Icon(Icons.backspace_outlined, color: whiteColor, size: 24),
+          child: Icon(Icons.backspace_outlined, color: primaryColor, size: 28),
         ),
       ),
     );

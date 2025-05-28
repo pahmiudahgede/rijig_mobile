@@ -17,5 +17,9 @@ export 'package:rijig_mobile/globaldata/about/about_service.dart';
 export 'package:rijig_mobile/globaldata/article/article_repository.dart';
 export 'package:rijig_mobile/globaldata/article/article_service.dart';
 export 'package:rijig_mobile/globaldata/article/article_vmod.dart';
-export 'package:rijig_mobile/features/cart/presentation/viewmodel/cartitem_vmod.dart';
-export 'package:rijig_mobile/features/cart/repositories/cartitem_repo.dart';
+
+export 'package:rijig_mobile/features/cart/presentation/viewmodel/trashcart_vmod.dart';
+export 'package:rijig_mobile/features/cart/repositories/trashcart_repo.dart';
+export 'package:rijig_mobile/features/cart/service/trashcart_service.dart';
+// export 'package:rijig_mobile/features/cart/presentation/viewmodel/cartitem_vmod.dart';
+// export 'package:rijig_mobile/features/cart/repositories/cartitem_repo.dart';

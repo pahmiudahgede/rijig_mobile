@@ -1,16 +1,37 @@
 import 'package:rijig_mobile/globaldata/trash/trash_model.dart';
 import 'package:rijig_mobile/globaldata/trash/trash_repository.dart';
 
-class TrashCategoryService {
-  final TrashCategoryRepository _trashCategoryRepository;
+abstract class ITrashCategoryService {
+  Future<TrashCategoryResponse> getCategories();
+}
 
-  TrashCategoryService(this._trashCategoryRepository);
+class TrashCategoryService implements ITrashCategoryService {
+  final ITrashCategoryRepository _repository;
 
+  TrashCategoryService(this._repository);
+
+  @override
   Future<TrashCategoryResponse> getCategories() async {
     try {
-      return await _trashCategoryRepository.fetchCategories();
+      final response = await _repository.fetchCategories();
+
+      return response;
     } catch (e) {
-      throw Exception('Failed to load categories: $e');
+      throw TrashCategoryServiceException(
+        'Service Error: Failed to load categories - $e',
+        500,
+      );
     }
   }
+}
+
+class TrashCategoryServiceException implements Exception {
+  final String message;
+  final int statusCode;
+
+  TrashCategoryServiceException(this.message, this.statusCode);
+
+  @override
+  String toString() =>
+      'TrashCategoryServiceException: $message (Status: $statusCode)';
 }

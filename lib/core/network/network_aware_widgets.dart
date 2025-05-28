@@ -177,10 +177,10 @@ class NetworkDialogManager {
     required VoidCallback onRetry,
     required VoidCallback onExit,
   }) {
-    CustomModalDialog.show(
+    CustomModalDialog.showImage(
       context: context,
       showCloseIcon: false,
-      variant: ModalVariant.imageVersion,
+      // variant: ModalVariant.imageVersion,
       title: 'Tidak Ada Koneksi Internet',
       content:
           'Sepertinya koneksi internet Anda bermasalah. Periksa koneksi WiFi atau data seluler Anda, lalu coba lagi.',
@@ -209,10 +209,10 @@ class NetworkDialogManager {
     required BuildContext context,
     required VoidCallback onRetry,
   }) {
-    CustomModalDialog.show(
+    CustomModalDialog.showImage(
       context: context,
       showCloseIcon: false,
-      variant: ModalVariant.imageVersion,
+      // variant: ModalVariant.imageVersion,
       title: 'Koneksi Timeout',
       content:
           'Permintaan memakan waktu terlalu lama. Periksa koneksi internet Anda dan coba lagi.',
@@ -241,10 +241,10 @@ class NetworkDialogManager {
     required BuildContext context,
     required VoidCallback onRetry,
   }) {
-    CustomModalDialog.show(
+    CustomModalDialog.showImage(
       context: context,
       showCloseIcon: false,
-      variant: ModalVariant.imageVersion,
+      // variant: ModalVariant.imageVersion,
       title: 'Koneksi Gagal',
       content:
           'Tidak dapat terhubung ke server. Pastikan koneksi internet Anda stabil.',
@@ -274,15 +274,14 @@ class NetworkDialogManager {
     required BuildContext context,
     required VoidCallback onContinue,
   }) {
-    CustomModalDialog.show(
+    CustomModalDialog.showImage(
       context: context,
       showCloseIcon: false,
-      variant: ModalVariant.imageVersion,
+      // variant: ModalVariant.imageVersion,
       title: 'Koneksi Lambat',
       content:
           'Koneksi internet Anda lambat. Beberapa fitur mungkin tidak berfungsi optimal.',
-      imageAsset:
-          'assets/images/poor_connection.png',
+      imageAsset: 'assets/images/poor_connection.png',
       buttonCount: 2,
       button1: ElevatedButton(
         onPressed: onContinue,
