@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
+import 'package:gap/gap.dart';
 import 'package:rijig_mobile/core/router.dart';
 import 'package:rijig_mobile/core/utils/guide.dart';
+import 'package:rijig_mobile/widget/appbar.dart';
 
 class TestRequestPickScreen extends StatefulWidget {
   const TestRequestPickScreen({super.key});
@@ -143,40 +145,41 @@ class _TestRequestPickScreenState extends State<TestRequestPickScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: Colors.grey.shade50,
-      appBar: AppBar(
-        backgroundColor: whiteColor,
-        elevation: 0,
-        leading: IconButton(
-          icon: Icon(Icons.arrow_back, color: Colors.black),
-          onPressed: () => Navigator.pop(context),
-        ),
-        title: Row(
-          children: [
-            Icon(Icons.location_on, color: Colors.grey),
-            SizedBox(width: 8),
-            Text(
-              'Purbalingga',
-              style: TextStyle(
-                color: Colors.black,
-                fontSize: 16,
-                fontWeight: FontWeight.w500,
-              ),
-            ),
-            Spacer(),
-            TextButton(
-              onPressed: () {},
-              child: Text('Ganti', style: TextStyle(color: Colors.blue)),
-            ),
-          ],
-        ),
-      ),
+      backgroundColor: whiteColor,
+      appBar: CustomAppBar(judul: "Pilih Sampah"),
+      // appBar: AppBar(
+      //   backgroundColor: whiteColor,
+      //   elevation: 0,
+      //   leading: IconButton(
+      //     icon: Icon(Icons.arrow_back, color: Colors.black),
+      //     onPressed: () => Navigator.pop(context),
+      //   ),
+      //   title: Row(
+      //     children: [
+      //       Icon(Icons.location_on, color: Colors.grey),
+      //       Gap(8),
+      //       Text(
+      //         'Purbalingga',
+      //         style: TextStyle(
+      //           color: Colors.black,
+      //           fontSize: 16,
+      //           fontWeight: FontWeight.w500,
+      //         ),
+      //       ),
+      //       Spacer(),
+      //       TextButton(
+      //         onPressed: () {},
+      //         child: Text('Ganti', style: TextStyle(color: Colors.blue)),
+      //       ),
+      //     ],
+      //   ),
+      // ),
       body: Column(
         children: [
           // Header
           Container(
             width: double.infinity,
-            padding: EdgeInsets.all(16),
+            padding: PaddingCustom().paddingAll(16),
             color: whiteColor,
             child: Text(
               'Pilih Sampah',
@@ -191,7 +194,7 @@ class _TestRequestPickScreenState extends State<TestRequestPickScreen> {
           // List Items
           Expanded(
             child: ListView.builder(
-              padding: EdgeInsets.all(16),
+              padding: PaddingCustom().paddingAll(16),
               itemCount: quantities.keys.length,
               itemBuilder: (context, index) {
                 String itemName = quantities.keys.elementAt(index);
@@ -200,7 +203,7 @@ class _TestRequestPickScreenState extends State<TestRequestPickScreen> {
 
                 return Container(
                   margin: EdgeInsets.only(bottom: 12),
-                  padding: EdgeInsets.all(16),
+                  padding: PaddingCustom().paddingAll(16),
                   decoration: BoxDecoration(
                     color: whiteColor,
                     borderRadius: BorderRadius.circular(12),
@@ -229,7 +232,7 @@ class _TestRequestPickScreenState extends State<TestRequestPickScreen> {
                           size: 24,
                         ),
                       ),
-                      SizedBox(width: 16),
+                      Gap(16),
 
                       // Item info
                       Expanded(
@@ -245,7 +248,7 @@ class _TestRequestPickScreenState extends State<TestRequestPickScreen> {
                                 color: Colors.black,
                               ),
                             ),
-                            SizedBox(height: 4),
+                            Gap(4),
                             Container(
                               padding: EdgeInsets.symmetric(
                                 horizontal: 8,
@@ -265,7 +268,7 @@ class _TestRequestPickScreenState extends State<TestRequestPickScreen> {
                               ),
                             ),
                             // Show delete icon when quantity > 0 (below price)
-                            SizedBox(height: 4),
+                            Gap(4),
                             SizedBox(
                               height: 24, // Fixed height untuk consistency
                               child:
@@ -273,7 +276,9 @@ class _TestRequestPickScreenState extends State<TestRequestPickScreen> {
                                       ? GestureDetector(
                                         onTap: () => _resetQuantity(itemName),
                                         child: Container(
-                                          padding: EdgeInsets.all(4),
+                                          padding: PaddingCustom().paddingAll(
+                                            4,
+                                          ),
                                           decoration: BoxDecoration(
                                             color: Colors.red.shade50,
                                             borderRadius: BorderRadius.circular(
@@ -314,7 +319,7 @@ class _TestRequestPickScreenState extends State<TestRequestPickScreen> {
                                   ),
                                 ),
                               ),
-                              SizedBox(width: 12),
+                              Gap(12),
 
                               // Quantity display (clickable)
                               GestureDetector(
@@ -339,8 +344,7 @@ class _TestRequestPickScreenState extends State<TestRequestPickScreen> {
                                   ),
                                 ),
                               ),
-                              SizedBox(width: 12),
-
+                              Gap(12),
                               // Increase button
                               GestureDetector(
                                 onTap: () => _incrementQuantity(itemName),
@@ -395,7 +399,8 @@ class _TestRequestPickScreenState extends State<TestRequestPickScreen> {
 
           // Bottom summary
           Container(
-            padding: EdgeInsets.all(16),
+            // padding: PaddingCustom().paddingAll(16),
+            padding: PaddingCustom().paddingAll(16),
             decoration: BoxDecoration(
               color: whiteColor,
               borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
@@ -422,7 +427,7 @@ class _TestRequestPickScreenState extends State<TestRequestPickScreen> {
                           color: Colors.grey.shade700,
                         ),
                       ),
-                      SizedBox(height: 4),
+                      Gap(4),
                       Row(
                         children: [
                           Text(
@@ -452,7 +457,7 @@ class _TestRequestPickScreenState extends State<TestRequestPickScreen> {
                           ),
                         ],
                       ),
-                      SizedBox(height: 4),
+                      Gap(4),
                       Text(
                         'Minimum total berat 3kg',
                         style: TextStyle(fontSize: 12, color: Colors.red),
@@ -460,18 +465,12 @@ class _TestRequestPickScreenState extends State<TestRequestPickScreen> {
                     ],
                   ),
                 ),
-                SizedBox(width: 16),
+                Gap(16),
                 ElevatedButton(
                   onPressed:
                       totalWeight >= 3
                           ? () {
-                            // Handle continue action
                             router.push('/ordersumary');
-                            // ScaffoldMessenger.of(context).showSnackBar(
-                            //   SnackBar(
-                            //     content: Text('Lanjut ke proses selanjutnya'),
-                            //   ),
-                            // );
                           }
                           : null,
                   style: ElevatedButton.styleFrom(

@@ -1,5 +1,4 @@
 // ignore_for_file: use_build_context_synchronously
-
 import 'dart:math' as math;
 
 import 'package:custom_refresh_indicator/custom_refresh_indicator.dart';
@@ -71,16 +70,25 @@ class _HomeScreenState extends State<HomeScreen> {
                         Row(
                           mainAxisAlignment: MainAxisAlignment.end,
                           children: [
-                            IconButton(onPressed: ()=>router.push('/trashview'), icon: Icon(
-                              Iconsax.notification_copy,
-                              color: primaryColor,
-                            ),),
-                            // Icon(
-                            //   Iconsax.notification_copy,
-                            //   color: primaryColor,
-                            // ),
+                            IconButton(
+                              onPressed: () => router.push('/trashview'),
+                              icon: Icon(
+                                Iconsax.notification_copy,
+                                color: primaryColor,
+                              ),
+                            ),
+
                             Gap(10),
-                            Icon(Iconsax.message_copy, color: primaryColor),
+
+                            IconButton(
+                              onPressed: () {
+                                debugPrint('message tapped');
+                              },
+                              icon: Icon(
+                                Iconsax.message_copy,
+                                color: primaryColor,
+                              ),
+                            ),
                           ],
                         ),
                       ],
@@ -108,9 +116,8 @@ class _HomeScreenState extends State<HomeScreen> {
                       CustomModalDialog.show(
                         context: context,
                         variant: ModalVariant.textVersion,
-                        title: 'Hapus Akun',
-                        content:
-                            'Lorem Ipsum is simply dummy text of the printing and typesetting industry.',
+                        title: 'Belum Tersedia',
+                        content: 'Maaf, fitur ini belum tersedia',
                         buttonCount: 2,
                         button1: CardButtonOne(
                           textButton: "Ya, Hapus",
@@ -181,7 +188,6 @@ class _HomeScreenState extends State<HomeScreen> {
                   ArticleScreen(),
                 ],
               ),
-              // Gap(20),
             ],
           ),
         ),

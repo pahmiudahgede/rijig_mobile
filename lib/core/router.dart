@@ -1,10 +1,12 @@
 import 'package:rijig_mobile/core/utils/exportimportview.dart';
+import 'package:rijig_mobile/features/profil/components/secure_pin_input.dart';
 
 final router = GoRouter(
   routes: [
     GoRoute(path: '/', builder: (context, state) => SplashScreen()),
     GoRoute(path: '/trashview', builder: (context, state) => TestRequestPickScreen()),
     GoRoute(path: '/ordersumary', builder: (context, state) => OrderSummaryScreen()),
+    GoRoute(path: '/pinsecureinput', builder: (context, state) => SecurityCodeScreen()),
     GoRoute(
       path: '/cmapview',
       builder: (context, state) => CollectorRouteMapScreen(),

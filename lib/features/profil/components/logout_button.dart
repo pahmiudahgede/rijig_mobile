@@ -1,12 +1,10 @@
-// ignore_for_file: use_build_context_synchronously
-
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:rijig_mobile/core/router.dart';
 import 'package:rijig_mobile/core/utils/guide.dart';
 import 'package:rijig_mobile/features/auth/presentation/viewmodel/logout_vmod.dart';
 import 'package:rijig_mobile/widget/buttoncard.dart';
-import 'package:rijig_mobile/widget/custom_bottom_sheet.dart';
+import 'package:toastification/toastification.dart';
 
 class ButtonLogout extends StatefulWidget {
   const ButtonLogout({super.key});
@@ -26,58 +24,25 @@ class _ButtonLogoutState extends State<ButtonLogout> {
               textButton: viewModel.isLoading ? 'Logging out...' : 'Logout',
               fontSized: 16,
               colorText: whiteColor,
-              color: redColor,
+              color: primaryColor,
               borderRadius: 10,
               horizontal: double.infinity,
               vertical: 50,
-              onTap:
-                  () => CustomBottomSheet.show(
-                    context: context,
-                    title: "Logout Sekarang?",
-                    content: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Text("Yakin ingin logout dari akun ini?"),
-                        // tambahan konten
-                      ],
-                    ),
-                    button1: CardButtonOne(
-                      textButton: "Logout",
-                      onTap: () {},
-                      fontSized: 14,
-                      colorText: Colors.white,
-                      color: Colors.red,
-                      borderRadius: 10,
-                      horizontal: double.infinity,
-                      vertical: 50,
-                      loadingTrue: false,
-                      usingRow: false,
-                    ),
-                    button2: CardButtonOne(
-                      textButton: "Batal",
-                      onTap: () => router.pop(),
-                      fontSized: 14,
-                      colorText: Colors.red,
-                      color: Colors.white,
-                      borderRadius: 10,
-                      horizontal: double.infinity,
-                      vertical: 50,
-                      loadingTrue: false,
-                      usingRow: false,
-                    ),
-                  ),
 
-              // onTap: () async {
-              //   await viewModel.logout();
+              onTap: () async {
+                await viewModel.logout();
 
-              //   if (viewModel.errorMessage == null) {
-              //     router.go("/login");
-              //   } else {
-              //     ScaffoldMessenger.of(context).showSnackBar(
-              //       SnackBar(content: Text(viewModel.errorMessage!)),
-              //     );
-              //   }
-              // },
+                if (viewModel.errorMessage == null) {
+                  router.go("/login");
+                } else {
+                  toastification.show(
+                    type: ToastificationType.error,
+                    title: Text("Belum berhsail logout"),
+                    autoCloseDuration: const Duration(seconds: 3),
+                    showProgressBar: true,
+                  );
+                }
+              },
               loadingTrue: viewModel.isLoading,
               usingRow: false,
             ),

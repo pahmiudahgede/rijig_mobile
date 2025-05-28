@@ -15,6 +15,9 @@ class CustomModalDialog extends StatelessWidget {
   final int buttonCount;
   final Widget? button1;
   final Widget? button2;
+  
+  // Parameter boolean untuk mengontrol tampilan close icon
+  final bool showCloseIcon;
 
   const CustomModalDialog({
     super.key,
@@ -25,6 +28,7 @@ class CustomModalDialog extends StatelessWidget {
     this.buttonCount = 0,
     this.button1,
     this.button2,
+    this.showCloseIcon = true, // Default true untuk backward compatibility
   });
 
   static void show({
@@ -36,6 +40,7 @@ class CustomModalDialog extends StatelessWidget {
     int buttonCount = 0,
     Widget? button1,
     Widget? button2,
+    bool showCloseIcon = true, // Parameter baru di static method
   }) {
     showGeneralDialog(
       context: context,
@@ -64,6 +69,7 @@ class CustomModalDialog extends StatelessWidget {
                   buttonCount: buttonCount,
                   button1: button1,
                   button2: button2,
+                  showCloseIcon: showCloseIcon, // Pass parameter ke constructor
                 ),
               ),
             ),
@@ -122,18 +128,20 @@ class CustomModalDialog extends StatelessWidget {
       clipBehavior: Clip.none,
       children: [
         modalContent,
-        Positioned(
-          top: -15,
-          right: 5,
-          child: GestureDetector(
-            onTap: () => router.pop(),
-            child: CircleAvatar(
-              radius: 18,
-              backgroundColor: whiteColor,
-              child: Icon(Icons.close, color: blackNavyColor),
+        // Kondisional untuk menampilkan close icon
+        if (showCloseIcon)
+          Positioned(
+            top: -15,
+            right: 5,
+            child: GestureDetector(
+              onTap: () => router.pop(),
+              child: CircleAvatar(
+                radius: 18,
+                backgroundColor: whiteColor,
+                child: Icon(Icons.close, color: blackNavyColor),
+              ),
             ),
           ),
-        ),
       ],
     );
   }

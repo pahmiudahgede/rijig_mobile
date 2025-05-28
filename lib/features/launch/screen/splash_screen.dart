@@ -1,6 +1,10 @@
+import 'dart:async';
+
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_svg/flutter_svg.dart';
-import 'package:rijig_mobile/core/network/network_info.dart';
+import 'package:rijig_mobile/core/network/network_aware_widgets.dart';
+import 'package:rijig_mobile/core/network/network_service.dart';
 import 'package:rijig_mobile/core/router.dart';
 import 'package:rijig_mobile/core/storage/expired_token.dart';
 import 'package:rijig_mobile/core/utils/guide.dart';
@@ -9,21 +13,48 @@ class SplashScreen extends StatefulWidget {
   const SplashScreen({super.key});
 
   @override
-  SplashScreenState createState() => SplashScreenState();
+  UpdatedSplashScreenState createState() => UpdatedSplashScreenState();
 }
 
-class SplashScreenState extends State<SplashScreen> {
+class UpdatedSplashScreenState extends State<SplashScreen>
+    with SingleTickerProviderStateMixin {
   bool _isCheckingConnection = true;
+  late AnimationController _animationController;
+  late Animation<double> _fadeAnimation;
+  final NetworkService _networkService = NetworkService();
 
   @override
   void initState() {
     super.initState();
-    _checkNetworkConnection();
-    _checkLoginStatus();
+    _initializeAnimations();
+    _startAppInitialization();
   }
 
-  Future<void> _checkNetworkConnection() async {
-    bool isConnected = await NetworkInfo().checkConnection();
+  void _initializeAnimations() {
+    _animationController = AnimationController(
+      duration: const Duration(milliseconds: 1500),
+      vsync: this,
+    );
+    _fadeAnimation = Tween<double>(begin: 0.0, end: 1.0).animate(
+      CurvedAnimation(parent: _animationController, curve: Curves.easeInOut),
+    );
+    _animationController.forward();
+  }
+
+  Future<void> _startAppInitialization() async {
+    // Initialize network service
+    await _networkService.initialize();
+    
+    await Future.delayed(const Duration(milliseconds: 3000));
+    await _checkNetworkAndProceed();
+  }
+
+  Future<void> _checkNetworkAndProceed() async {
+    setState(() {
+      _isCheckingConnection = true;
+    });
+
+    bool isConnected = await _networkService.checkConnection();
 
     setState(() {
       _isCheckingConnection = false;
@@ -33,57 +64,85 @@ class SplashScreenState extends State<SplashScreen> {
       _showNoInternetDialog();
       return;
     }
+
+    await _checkLoginStatus();
   }
 
   Future<void> _checkLoginStatus() async {
-    bool expired = await isTokenExpired();
-    if (expired) {
-      debugPrint("tets expired");
+    try {
+      bool expired = await isTokenExpired();
+      if (expired) {
+        debugPrint("Token expired - redirecting to onboarding");
+        router.go("/onboarding");
+      } else {
+        debugPrint("Token valid - redirecting to navigation");
+        router.go("/navigasi");
+      }
+    } catch (e) {
+      debugPrint("Login status check error: $e");
       router.go("/onboarding");
-    } else {
-      debugPrint("test not expired");
-      router.go("/navigasi");
     }
   }
 
   void _showNoInternetDialog() {
-    showDialog(
+    NetworkDialogManager.showNoInternetDialog(
       context: context,
-      builder:
-          (context) => AlertDialog(
-            title: Text('No Internet'),
-            content: Text('Mohon periksa koneksi internet anda, dan coba lagi'),
-            actions: [
-              TextButton(
-                onPressed: () {
-                  Navigator.of(context).pop();
-                },
-                child: Text('OK'),
-              ),
-            ],
-          ),
+      onRetry: () {
+        Navigator.of(context).pop();
+        _checkNetworkAndProceed();
+      },
+      onExit: () {
+        SystemNavigator.pop();
+      },
     );
   }
 
   @override
-  Widget build(BuildContext context) {
-    const String assetName = 'assets/icon/logorijig.svg';
-    return Scaffold(
-      backgroundColor: primaryColor,
-      body: Center(
-        child: Stack(
-          children: [
-            Align(
-              alignment: Alignment.center,
-              child: SvgPicture.asset(assetName, height: 120),
-            ),
+  void dispose() {
+    _animationController.dispose();
+    super.dispose();
+  }
 
-            if (_isCheckingConnection)
-              Align(
-                alignment: Alignment.bottomCenter,
-                child: CircularProgressIndicator(color: whiteColor,),
+  @override
+  Widget build(BuildContext context) {
+    return NetworkStatusIndicator(
+      child: Scaffold(
+        backgroundColor: primaryColor,
+        body: AnimatedBuilder(
+          animation: _fadeAnimation,
+          builder: (context, child) {
+            return Opacity(
+              opacity: _fadeAnimation.value,
+              child: Center(
+                child: Column(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    SvgPicture.asset('assets/icon/logorijig.svg', height: 120),
+                    const SizedBox(height: 60),
+                    if (_isCheckingConnection) ...[
+                      SizedBox(
+                        width: 24,
+                        height: 24,
+                        child: CircularProgressIndicator(
+                          color: whiteColor,
+                          strokeWidth: 2.5,
+                        ),
+                      ),
+                      const SizedBox(height: 16),
+                      Text(
+                        'Memeriksa koneksi...',
+                        style: TextStyle(
+                          color: whiteColor,
+                          fontSize: 14,
+                          fontWeight: FontWeight.w400,
+                        ),
+                      ),
+                    ],
+                  ],
+                ),
               ),
-          ],
+            );
+          },
         ),
       ),
     );
