@@ -80,6 +80,10 @@ final router = GoRouter(
 
     // Rute untuk halaman-halaman utama
     GoRoute(path: '/home', builder: (context, state) => HomeScreen()),
+    GoRoute(
+      path: '/notifikasi',
+      builder: (context, state) => NotificationScreen(),
+    ),
     GoRoute(path: '/chatlist', builder: (context, state) => ChatListScreen()),
     // Router config
     GoRoute(
