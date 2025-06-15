@@ -85,18 +85,22 @@ class CloginScreenState extends State<CloginScreen> {
                         horizontal: double.infinity,
                         vertical: 50,
                         onTap: () {
-                          // if (cPhoneController.text.isNotEmpty) {
-                          //   debugPrint("send otp dipencet");
-                          //   await viewModel.loginOrRegister(
-                          //     cPhoneController.text,
-                          //   );
-                          //   if (viewModel.loginResponse != null) {
-                          //     router.go(
-                          //       "/verif-otp",
-                          //       extra: cPhoneController.text,
-                          //     );
-                          //   }
-                          // }
+                          if (cPhoneController.text.isNotEmpty) {
+                            debugPrint("send otp dipencet");
+                            router.go(
+                              "/cverif-otp",
+                              extra: cPhoneController.text,
+                            );
+                            // await viewModel.loginOrRegister(
+                            //   cPhoneController.text,
+                            // );
+                            // if (viewModel.loginResponse != null) {
+                            //   router.go(
+                            //     "/verif-otp",
+                            //     extra: cPhoneController.text,
+                            //   );
+                            // }
+                          }
                         },
                         // loadingTrue: viewModel.isLoading,
                         usingRow: false,

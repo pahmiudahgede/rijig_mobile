@@ -5,6 +5,7 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:gap/gap.dart';
 import 'package:flutter_slidable/flutter_slidable.dart';
+import 'package:rijig_mobile/core/router.dart';
 import 'package:rijig_mobile/features/cart/presentation/viewmodel/trashcart_vmod.dart';
 import 'package:rijig_mobile/features/cart/model/trashcart_model.dart';
 
@@ -868,6 +869,7 @@ class _OrderSummaryScreenState extends State<OrderSummaryScreen>
                 : hasItems
                     ? () {
                         _showSnackbar('Lanjut ke proses selanjutnya');
+                        router.push('/pickupmethod');
                       }
                     : () => Navigator.of(context).pop(),
             style: ElevatedButton.styleFrom(

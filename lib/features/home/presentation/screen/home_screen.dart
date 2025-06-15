@@ -65,7 +65,8 @@ class _HomeScreenState extends State<HomeScreen> {
                     mainAxisAlignment: MainAxisAlignment.end,
                     children: [
                       IconButton(
-                        onPressed: () => router.push('/trashview'),
+                        // onPressed: () => router.push('/trashview'),
+                        onPressed: () => router.push('/notifikasi'),
                         icon: Icon(
                           Iconsax.notification_copy,
                           color: primaryColor,
@@ -74,6 +75,8 @@ class _HomeScreenState extends State<HomeScreen> {
                       IconButton(
                         onPressed: () {
                           debugPrint('message icon tapped');
+                          // router.push('/cmapview');
+                          router.push('/chatlist');
                         },
                         icon: Icon(Iconsax.message_copy, color: primaryColor),
                       ),

@@ -1,178 +1,684 @@
 import 'dart:io';
+
 import 'package:flutter/material.dart';
-import 'package:google_mlkit_text_recognition/google_mlkit_text_recognition.dart';
-import 'package:image_picker/image_picker.dart';
-import 'package:image/image.dart' as img;
-import 'package:path_provider/path_provider.dart';
+import 'package:flutter_screenutil/flutter_screenutil.dart';
+import 'package:google_fonts/google_fonts.dart';
+import 'package:provider/provider.dart';
 import 'package:rijig_mobile/core/router.dart';
 import 'package:rijig_mobile/core/utils/guide.dart';
 import 'package:rijig_mobile/widget/buttoncard.dart';
+import 'package:rijig_mobile/widget/formfiled.dart';
+import 'package:rijig_mobile/features/auth/presentation/screen/collector/controller/ktp_validator_controller.dart';
 
-class UploadKtpScreen extends StatefulWidget {
-  const UploadKtpScreen({super.key});
+class IdentityValidationScreen extends StatefulWidget {
+  const IdentityValidationScreen({super.key});
 
   @override
-  State<UploadKtpScreen> createState() => _UploadKtpScreenState();
+  State<IdentityValidationScreen> createState() =>
+      _IdentityValidationScreenState();
 }
 
-class _UploadKtpScreenState extends State<UploadKtpScreen> {
-  File? _ktpImage;
-  bool isLoading = false;
-
-  final Map<String, TextEditingController> controllers = {
-    "NIK": TextEditingController(),
-    "Nama": TextEditingController(),
-    "Tempat/Tgl Lahir": TextEditingController(),
-    "Alamat": TextEditingController(),
-    "RT/RW": TextEditingController(),
-    "Kel/Desa": TextEditingController(),
-    "Kecamatan": TextEditingController(),
-    "Agama": TextEditingController(),
-    "Status Perkawinan": TextEditingController(),
-    "Pekerjaan": TextEditingController(),
-    "Kewarganegaraan": TextEditingController(),
-    "Berlaku Hingga": TextEditingController(),
-  };
-
-  final Map<String, List<String>> labelSynonyms = {
-    "NIK": ["nik"],
-    "Nama": ["nama", "nama lengkap"],
-    "Tempat/Tgl Lahir": ["tempat/tgl lahir", "tempat lahir", "tgl lahir"],
-    "Alamat": ["alamat"],
-    "RT/RW": ["rt/rw", "rtrw", "rt rw"],
-    "Kel/Desa": ["kelurahan", "desa", "kel/desa"],
-    "Kecamatan": ["kecamatan"],
-    "Agama": ["agama"],
-    "Status Perkawinan": ["status", "status perkawinan", "perkawinan"],
-    "Pekerjaan": ["pekerjaan"],
-    "Kewarganegaraan": ["kewarganegaraan", "warga negara"],
-    "Berlaku Hingga": ["berlaku", "berlaku hingga"],
-  };
-
-  Future<void> _pickImage() async {
-    final pickedFile = await ImagePicker().pickImage(
-      source: ImageSource.camera,
-    );
-    if (pickedFile != null) {
-      setState(() {
-        isLoading = true;
-        _ktpImage = File(pickedFile.path);
-      });
-      await _processImageWithEnhancements(File(pickedFile.path));
-      setState(() => isLoading = false);
-    }
-  }
-
-  Future<void> _processImageWithEnhancements(File imageFile) async {
-    final rawBytes = await imageFile.readAsBytes();
-    final originalImage = img.decodeImage(rawBytes);
-    if (originalImage == null) return;
-
-    // Enhance image: grayscale + auto rotate + thresholding
-    var processedImage = img.grayscale(originalImage);
-    if (processedImage.width > processedImage.height) {
-      processedImage = img.copyRotate(processedImage, angle: -90);
-    }
-    // processedImage = img.threshold(processedImage, threshold: 128);
-
-    final tempDir = await getTemporaryDirectory();
-    final enhancedPath = '${tempDir.path}/enhanced_ktp.jpg';
-    final enhancedFile = File(enhancedPath)
-      ..writeAsBytesSync(img.encodeJpg(processedImage));
-
-    final inputImage = InputImage.fromFile(enhancedFile);
-    final textRecognizer = TextRecognizer(script: TextRecognitionScript.latin);
-    final RecognizedText recognizedText = await textRecognizer.processImage(
-      inputImage,
-    );
-    await textRecognizer.close();
-
-    final lines = recognizedText.text.split('\n');
-    debugPrint("[OCR Result]\n${recognizedText.text}");
-
-    setState(() {
-      for (var key in controllers.keys) {
-        final value = _extractMultilineValue(key, lines);
-        controllers[key]?.text = value;
-      }
-    });
-  }
-
-  String _extractMultilineValue(String key, List<String> lines) {
-    final List<String> keywords = labelSynonyms[key] ?? [key];
-    for (int i = 0; i < lines.length; i++) {
-      final line = lines[i].toLowerCase();
-      for (final kw in keywords) {
-        if (line.contains(kw.toLowerCase())) {
-          if (lines[i].contains(":")) {
-            return lines[i].split(":").last.trim();
-          } else if (i + 1 < lines.length) {
-            return lines[i + 1].trim();
-          }
-        }
-      }
-    }
-    return '';
-  }
+class _IdentityValidationScreenState extends State<IdentityValidationScreen>
+    with AutomaticKeepAliveClientMixin {
+  final GlobalKey<FormState> _formKey = GlobalKey<FormState>();
+  late KtpValidatorController _controller;
 
   @override
-  void dispose() {
-    for (final controller in controllers.values) {
-      controller.dispose();
-    }
-    super.dispose();
+  bool get wantKeepAlive => true;
+
+  @override
+  void initState() {
+    super.initState();
+    _controller = context.read<KtpValidatorController>();
+    _controller.initialize();
   }
 
   @override
   Widget build(BuildContext context) {
+    super.build(context);
+
     return Scaffold(
       backgroundColor: whiteColor,
-      appBar: AppBar(
-        title: const Text("Upload KTP"),
-        backgroundColor: primaryColor,
-        foregroundColor: whiteColor,
+      appBar: _buildAppBar(),
+      body: _buildBody(),
+    );
+  }
+
+  PreferredSizeWidget _buildAppBar() {
+    return AppBar(
+      title: Text(
+        'Validasi Identitas KTP',
+        style: GoogleFonts.dmSans(
+          fontSize: 18.sp,
+          fontWeight: bold,
+          color: whiteColor,
+        ),
       ),
-      body: SafeArea(
-        child: SingleChildScrollView(
-          padding: const EdgeInsets.all(20),
+      backgroundColor: primaryColor,
+      elevation: 0,
+      centerTitle: true,
+      leading: IconButton(
+        icon: Icon(Icons.arrow_back_ios, color: whiteColor),
+        onPressed: () => router.pop(),
+      ),
+    );
+  }
+
+  Widget _buildBody() {
+    return Consumer<KtpValidatorController>(
+      builder: (context, controller, child) {
+        return SingleChildScrollView(
+          padding: EdgeInsets.all(20.w),
           child: Column(
-            crossAxisAlignment: CrossAxisAlignment.center,
+            crossAxisAlignment: CrossAxisAlignment.stretch,
             children: [
-              _ktpImage != null
-                  ? Image.file(_ktpImage!, height: 200)
-                  : Container(
-                    height: 200,
-                    color: Colors.grey.shade300,
-                    child: const Center(child: Text("Belum ada gambar KTP")),
-                  ),
-              const SizedBox(height: 20),
-              isLoading
-                  ? const CircularProgressIndicator()
-                  : CardButtonOne(
-                    textButton: "Upload Foto KTP",
-                    fontSized: 16,
-                    colorText: whiteColor,
-                    color: primaryColor,
-                    borderRadius: 10,
-                    horizontal: double.infinity,
-                    vertical: 50,
-                    onTap: _pickImage,
-                    usingRow: false,
-                  ),
-              const SizedBox(height: 30),
-              for (var key in controllers.keys)
-                Padding(
-                  padding: const EdgeInsets.only(bottom: 12),
-                  child: TextField(
-                    decoration: InputDecoration(labelText: key),
-                    controller: controllers[key],
-                  ),
+              _buildImageUploadSection(controller),
+              SizedBox(height: 24.h),
+              if (controller.hasData) _buildFormSection(controller),
+              _buildMessages(controller),
+            ],
+          ),
+        );
+      },
+    );
+  }
+
+  Widget _buildImageUploadSection(KtpValidatorController controller) {
+    return Container(
+      padding: EdgeInsets.all(20.w),
+      decoration: BoxDecoration(
+        color: whiteColor,
+        borderRadius: BorderRadius.circular(16.r),
+        boxShadow: [
+          BoxShadow(
+            color: Colors.black.withValues(alpha: 0.05),
+            blurRadius: 10,
+            offset: const Offset(0, 2),
+          ),
+        ],
+      ),
+      child: Column(
+        children: [
+          _buildUploadHeader(),
+          SizedBox(height: 20.h),
+          if (controller.selectedImage != null)
+            _buildImagePreview(controller.selectedImage!),
+          SizedBox(height: 20.h),
+          _buildImageSourceButtons(controller),
+          SizedBox(height: 20.h),
+          _buildProcessButton(controller),
+          if (controller.isProcessing) _buildProcessingIndicator(controller),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildUploadHeader() {
+    return Row(
+      children: [
+        Container(
+          padding: EdgeInsets.all(12.w),
+          decoration: BoxDecoration(
+            color: primaryColor.withValues(alpha: 0.1),
+            borderRadius: BorderRadius.circular(12.r),
+          ),
+          child: Icon(Icons.camera_alt, color: primaryColor, size: 24.w),
+        ),
+        SizedBox(width: 16.w),
+        Expanded(
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Text(
+                'Upload Foto KTP',
+                style: GoogleFonts.dmSans(
+                  fontSize: 16.sp,
+                  fontWeight: bold,
+                  color: blackNavyColor,
                 ),
-                TextButton(onPressed: ()=> router.go("/berandapengepul"), child: Text("ke home collector"))
+              ),
+              SizedBox(height: 4.h),
+              Text(
+                'Pastikan foto jelas dan tidak buram',
+                style: GoogleFonts.dmSans(fontSize: 12.sp, color: greyColor),
+              ),
             ],
           ),
         ),
+      ],
+    );
+  }
+
+  Widget _buildImagePreview(File image) {
+    return Container(
+      height: 180.h,
+      width: double.infinity,
+      decoration: BoxDecoration(
+        borderRadius: BorderRadius.circular(12.r),
+        border: Border.all(color: greyColor.withValues(alpha: 0.3)),
       ),
+      child: ClipRRect(
+        borderRadius: BorderRadius.circular(12.r),
+        child: Image.file(image, fit: BoxFit.cover),
+      ),
+    );
+  }
+
+  Widget _buildImageSourceButtons(KtpValidatorController controller) {
+    return Row(
+      children: [
+        Expanded(
+          child: CardButtonOne(
+            textButton: 'Kamera',
+            fontSized: 14,
+            colorText: primaryColor,
+            borderRadius: 12,
+            horizontal: double.infinity,
+            vertical: 48.h,
+            color: whiteColor,
+            borderAll: Border.all(color: primaryColor, width: 1),
+            onTap: controller.pickImageFromCamera,
+            usingRow: true,
+            child: Icon(Icons.camera_alt, color: primaryColor, size: 18.w),
+          ),
+        ),
+        SizedBox(width: 16.w),
+        Expanded(
+          child: CardButtonOne(
+            textButton: 'Galeri',
+            fontSized: 14,
+            colorText: primaryColor,
+            borderRadius: 12,
+            horizontal: double.infinity,
+            vertical: 48.h,
+            color: whiteColor,
+            borderAll: Border.all(color: primaryColor, width: 1),
+            onTap: controller.pickImageFromGallery,
+            usingRow: true,
+            child: Icon(Icons.photo_library, color: primaryColor, size: 18.w),
+          ),
+        ),
+      ],
+    );
+  }
+
+  Widget _buildProcessButton(KtpValidatorController controller) {
+    return CardButtonOne(
+      textButton: controller.isProcessing ? 'Memproses...' : 'SCAN KTP',
+      fontSized: 16,
+      colorText: whiteColor,
+      borderRadius: 12,
+      horizontal: double.infinity,
+      vertical: 52.h,
+      color: controller.canProcessImage ? primaryColor : greyColor,
+      loadingTrue: controller.isProcessing,
+      onTap: controller.canProcessImage ? controller.processImage : () {},
+    );
+  }
+
+  Widget _buildProcessingIndicator(KtpValidatorController controller) {
+    String statusText = '';
+    double progress = 0.0;
+
+    switch (controller.processingStatus) {
+      case ProcessingStatus.preprocessing:
+        statusText = 'Memproses gambar...';
+        progress = 0.25;
+        break;
+      case ProcessingStatus.extracting:
+        statusText = 'Membaca teks...';
+        progress = 0.5;
+        break;
+      case ProcessingStatus.validating:
+        statusText = 'Validasi NIK...';
+        progress = 0.75;
+        break;
+      case ProcessingStatus.completed:
+        statusText = 'Selesai!';
+        progress = 1.0;
+        break;
+      default:
+        statusText = 'Memulai...';
+        progress = 0.1;
+    }
+
+    return Container(
+      margin: EdgeInsets.only(top: 16.h),
+      padding: EdgeInsets.all(16.w),
+      decoration: BoxDecoration(
+        color: primaryColor.withValues(alpha: 0.1),
+        borderRadius: BorderRadius.circular(12.r),
+      ),
+      child: Column(
+        children: [
+          Text(
+            statusText,
+            style: GoogleFonts.dmSans(
+              fontSize: 14.sp,
+              fontWeight: medium,
+              color: primaryColor,
+            ),
+          ),
+          SizedBox(height: 8.h),
+          LinearProgressIndicator(
+            value: progress,
+            backgroundColor: greyColor.withValues(alpha: 0.3),
+            valueColor: AlwaysStoppedAnimation<Color>(primaryColor),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildFormSection(KtpValidatorController controller) {
+    return Container(
+      padding: EdgeInsets.all(20.w),
+      decoration: BoxDecoration(
+        color: whiteColor,
+        borderRadius: BorderRadius.circular(16.r),
+        boxShadow: [
+          BoxShadow(
+            color: Colors.black.withValues(alpha: 0.05),
+            blurRadius: 10,
+            offset: const Offset(0, 2),
+          ),
+        ],
+      ),
+      child: Form(
+        key: _formKey,
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            _buildFormHeader(),
+            SizedBox(height: 24.h),
+            ..._buildFormFields(controller),
+            SizedBox(height: 24.h),
+            _buildSaveButton(controller),
+          ],
+        ),
+      ),
+    );
+  }
+
+  Widget _buildFormHeader() {
+    return Row(
+      children: [
+        Container(
+          padding: EdgeInsets.all(12.w),
+          decoration: BoxDecoration(
+            color: Colors.green.withValues(alpha: 0.1),
+            borderRadius: BorderRadius.circular(12.r),
+          ),
+          child: Icon(Icons.edit_document, color: Colors.green, size: 24.w),
+        ),
+        SizedBox(width: 16.w),
+        Expanded(
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Text(
+                'Data KTP Terdeteksi',
+                style: GoogleFonts.dmSans(
+                  fontSize: 18.sp,
+                  fontWeight: bold,
+                  color: blackNavyColor,
+                ),
+              ),
+              SizedBox(height: 4.h),
+              Text(
+                'Silakan periksa dan edit data jika diperlukan',
+                style: GoogleFonts.dmSans(fontSize: 12.sp, color: greyColor),
+              ),
+            ],
+          ),
+        ),
+      ],
+    );
+  }
+
+  List<Widget> _buildFormFields(KtpValidatorController controller) {
+    return [
+      _buildSectionTitle('Data Utama'),
+      SizedBox(height: 12.h),
+
+      FormFieldOne(
+        hintText: 'NIK',
+        controllers: controller.controllers['nik'],
+        isRequired: true,
+        keyboardType: TextInputType.number,
+        maxLength: 16,
+        onTap: () {},
+        validator: (value) {
+          if (value == null || value.length != 16) {
+            return 'NIK harus 16 digit';
+          }
+          return null;
+        },
+      ),
+
+      FormFieldOne(
+        hintText: 'Nama Lengkap',
+        controllers: controller.controllers['name'],
+        isRequired: true,
+        onTap: () {},
+        validator: (value) {
+          if (value == null || value.isEmpty) {
+            return 'Nama lengkap harus diisi';
+          }
+          return null;
+        },
+      ),
+
+      SizedBox(height: 20.h),
+      _buildSectionTitle('Informasi Personal'),
+      SizedBox(height: 12.h),
+
+      Row(
+        children: [
+          Expanded(
+            child: FormFieldOne(
+              hintText: 'Tempat Lahir',
+              controllers: controller.controllers['placeOfBirth'],
+              isRequired: false,
+              onTap: () {},
+            ),
+          ),
+          SizedBox(width: 12.w),
+          Expanded(
+            child: FormFieldOne(
+              hintText: 'Tanggal Lahir',
+              controllers: controller.controllers['dateOfBirth'],
+              isRequired: false,
+              onTap: () {},
+              placeholder: 'DD-MM-YYYY',
+            ),
+          ),
+        ],
+      ),
+
+      Row(
+        children: [
+          Expanded(
+            child: FormFieldOne(
+              hintText: 'Jenis Kelamin',
+              controllers: controller.controllers['gender'],
+              isRequired: false,
+              onTap: () {},
+              placeholder: 'LAKI-LAKI / PEREMPUAN',
+            ),
+          ),
+          SizedBox(width: 12.w),
+          Expanded(
+            child: FormFieldOne(
+              hintText: 'Golongan Darah',
+              controllers: controller.controllers['bloodType'],
+              isRequired: false,
+              onTap: () {},
+              placeholder: 'A, B, AB, O',
+            ),
+          ),
+        ],
+      ),
+
+      SizedBox(height: 20.h),
+      _buildSectionTitle('Alamat'),
+      SizedBox(height: 12.h),
+
+      FormFieldOne(
+        hintText: 'RT/RW',
+        controllers: controller.controllers['neighbourhood'],
+        isRequired: false,
+        onTap: () {},
+        placeholder: 'Contoh: 001/002',
+      ),
+
+      Row(
+        children: [
+          Expanded(
+            child: FormFieldOne(
+              hintText: 'Desa/Kelurahan',
+              controllers: controller.controllers['village'],
+              isRequired: false,
+              onTap: () {},
+            ),
+          ),
+          SizedBox(width: 12.w),
+          Expanded(
+            child: FormFieldOne(
+              hintText: 'Kecamatan',
+              controllers: controller.controllers['subDistrict'],
+              isRequired: false,
+              enabled: false,
+              inputColor: greyColor.withValues(alpha: 0.1),
+              onTap: () {},
+            ),
+          ),
+        ],
+      ),
+
+      SizedBox(height: 20.h),
+      _buildSectionTitle('Informasi Lainnya'),
+      SizedBox(height: 12.h),
+
+      FormFieldOne(
+        hintText: 'Agama',
+        controllers: controller.controllers['religion'],
+        isRequired: false,
+        onTap: () {},
+      ),
+
+      FormFieldOne(
+        hintText: 'Status Perkawinan',
+        controllers: controller.controllers['maritalStatus'],
+        isRequired: false,
+        onTap: () {},
+        placeholder: 'BELUM KAWIN / KAWIN / CERAI',
+      ),
+
+      FormFieldOne(
+        hintText: 'Pekerjaan',
+        controllers: controller.controllers['job'],
+        isRequired: false,
+        onTap: () {},
+      ),
+
+      Row(
+        children: [
+          Expanded(
+            child: FormFieldOne(
+              hintText: 'Kewarganegaraan',
+              controllers: controller.controllers['citizenship'],
+              isRequired: false,
+              onTap: () {},
+              placeholder: 'WNI / WNA',
+            ),
+          ),
+          SizedBox(width: 12.w),
+          Expanded(
+            child: FormFieldOne(
+              hintText: 'Berlaku Hingga',
+              controllers: controller.controllers['validUntil'],
+              isRequired: false,
+              onTap: () {},
+              placeholder: 'SEUMUR HIDUP',
+            ),
+          ),
+        ],
+      ),
+
+      SizedBox(height: 20.h),
+      _buildSectionTitle('Data dari NIK Validator'),
+      SizedBox(height: 12.h),
+
+      FormFieldOne(
+        hintText: 'Provinsi',
+        controllers: controller.controllers['province'],
+        isRequired: false,
+        enabled: false,
+        inputColor: greyColor.withValues(alpha: 0.1),
+        onTap: () {},
+      ),
+
+      Row(
+        children: [
+          Expanded(
+            child: FormFieldOne(
+              hintText: 'Kabupaten/Kota',
+              controllers: controller.controllers['district'],
+              isRequired: false,
+              enabled: false,
+              inputColor: greyColor.withValues(alpha: 0.1),
+              onTap: () {},
+            ),
+          ),
+          SizedBox(width: 12.w),
+          Expanded(
+            child: FormFieldOne(
+              hintText: 'Kode Pos',
+              controllers: controller.controllers['postalCode'],
+              isRequired: false,
+              enabled: false,
+              inputColor: greyColor.withValues(alpha: 0.1),
+              onTap: () {},
+            ),
+          ),
+        ],
+      ),
+    ];
+  }
+
+  Widget _buildSectionTitle(String title) {
+    return Text(
+      title,
+      style: GoogleFonts.dmSans(
+        fontSize: 16.sp,
+        fontWeight: bold,
+        color: blackNavyColor,
+      ),
+    );
+  }
+
+  Widget _buildSaveButton(KtpValidatorController controller) {
+    return CardButtonOne(
+      textButton: 'SIMPAN DATA KTP',
+      fontSized: 16,
+      colorText: whiteColor,
+      borderRadius: 12,
+      horizontal: double.infinity,
+      vertical: 52.h,
+      color: primaryColor,
+      onTap: () => _handleSaveData(controller),
+    );
+  }
+
+  Widget _buildMessages(KtpValidatorController controller) {
+    if (controller.errorMessage.isNotEmpty) {
+      return Container(
+        margin: EdgeInsets.only(top: 16.h),
+        padding: EdgeInsets.all(16.w),
+        decoration: BoxDecoration(
+          color: redColor.withValues(alpha: 0.1),
+          borderRadius: BorderRadius.circular(12.r),
+          border: Border.all(color: redColor.withValues(alpha: 0.3)),
+        ),
+        child: Row(
+          children: [
+            Icon(Icons.error_outline, color: redColor, size: 20.w),
+            SizedBox(width: 12.w),
+            Expanded(
+              child: Text(
+                controller.errorMessage,
+                style: GoogleFonts.dmSans(
+                  fontSize: 14.sp,
+                  color: redColor,
+                  fontWeight: medium,
+                ),
+              ),
+            ),
+            IconButton(
+              onPressed: controller.clearError,
+              icon: Icon(Icons.close, color: redColor, size: 20.w),
+            ),
+          ],
+        ),
+      );
+    }
+
+    if (controller.successMessage.isNotEmpty) {
+      return Container(
+        margin: EdgeInsets.only(top: 16.h),
+        padding: EdgeInsets.all(16.w),
+        decoration: BoxDecoration(
+          color: Colors.green.withValues(alpha: 0.1),
+          borderRadius: BorderRadius.circular(12.r),
+          border: Border.all(color: Colors.green.withValues(alpha: 0.3)),
+        ),
+        child: Row(
+          children: [
+            Icon(Icons.check_circle_outline, color: Colors.green, size: 20.w),
+            SizedBox(width: 12.w),
+            Expanded(
+              child: Text(
+                controller.successMessage,
+                style: GoogleFonts.dmSans(
+                  fontSize: 14.sp,
+                  color: Colors.green,
+                  fontWeight: medium,
+                ),
+              ),
+            ),
+          ],
+        ),
+      );
+    }
+
+    return const SizedBox.shrink();
+  }
+
+  Future<void> _handleSaveData(KtpValidatorController controller) async {
+    if (_formKey.currentState!.validate()) {
+      final success = await controller.saveData();
+
+      if (success && mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Row(
+              children: [
+                Icon(Icons.check_circle, color: whiteColor),
+                SizedBox(width: 12.w),
+                Expanded(
+                  child: Text(
+                    'Data KTP berhasil disimpan!',
+                    style: GoogleFonts.dmSans(
+                      fontSize: 14.sp,
+                      fontWeight: medium,
+                      color: whiteColor,
+                    ),
+                  ),
+                ),
+              ],
+            ),
+            backgroundColor: Colors.green,
+            behavior: SnackBarBehavior.floating,
+            shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(12.r),
+            ),
+            duration: const Duration(seconds: 3),
+          ),
+        );
+      }
+    }
+  }
+}
+
+class UploadKtpScreen extends StatelessWidget {
+  const UploadKtpScreen({super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    return ChangeNotifierProvider(
+      create: (context) => KtpValidatorController(),
+      child: const IdentityValidationScreen(),
     );
   }
 }

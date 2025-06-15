@@ -3,8 +3,12 @@ export 'package:go_router/go_router.dart';
 export 'package:rijig_mobile/core/utils/navigation.dart';
 export 'package:rijig_mobile/features/activity/presentation/screen/activity_screen.dart';
 export 'package:rijig_mobile/features/home/presentation/screen/home_screen.dart';
+export 'package:rijig_mobile/features/home/notification/presentation/screen/notification_screen.dart';
 export 'package:rijig_mobile/features/home/datavisualized/presentation/screen/datavisualized_screen.dart';
 export 'package:rijig_mobile/features/profil/presentation/screen/profil_screen.dart';
+export 'package:rijig_mobile/features/profil/address/presentation/screen/address_screen.dart';
+export 'package:rijig_mobile/features/profil/address/presentation/screen/add_address_screen.dart';
+export 'package:rijig_mobile/features/profil/address/presentation/screen/edit_address_screen.dart';
 export 'package:rijig_mobile/features/auth/presentation/screen/inputpin_screen.dart';
 export 'package:rijig_mobile/features/auth/presentation/screen/login_screen.dart';
 export 'package:rijig_mobile/features/auth/presentation/screen/otp_screen.dart';
@@ -22,6 +26,8 @@ export 'package:rijig_mobile/features/auth/presentation/screen/collector/cotp_sc
 export 'package:rijig_mobile/features/auth/presentation/screen/collector/clogin_screen.dart';
 export 'package:rijig_mobile/features/home/presentation/screen/collector/pickup_history_screen.dart';
 export 'package:rijig_mobile/features/pickup/presentation/screen/pickup_map_screen.dart';
+export 'package:rijig_mobile/features/chat/presentation/screen/chatlist_screen.dart';
+export 'package:rijig_mobile/features/profil/account/presentation/screen/account_screen.dart';
 
 
 

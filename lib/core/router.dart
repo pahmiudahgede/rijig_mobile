@@ -1,11 +1,25 @@
 import 'package:rijig_mobile/core/utils/exportimportview.dart';
+import 'package:rijig_mobile/features/chat/presentation/screen/chatroom_screen.dart';
 
 final router = GoRouter(
   routes: [
     GoRoute(path: '/', builder: (context, state) => SplashScreen()),
-    GoRoute(path: '/trashview', builder: (context, state) => TestRequestPickScreen()),
-    GoRoute(path: '/ordersumary', builder: (context, state) => OrderSummaryScreen()),
-    GoRoute(path: '/pinsecureinput', builder: (context, state) => SecurityCodeScreen()),
+    // GoRoute(
+    //   path: '/',
+    //   builder: (context, state) => UploadKtpScreen(),
+    // ),
+    GoRoute(
+      path: '/trashview',
+      builder: (context, state) => TestRequestPickScreen(),
+    ),
+    GoRoute(
+      path: '/ordersumary',
+      builder: (context, state) => OrderSummaryScreen(),
+    ),
+    GoRoute(
+      path: '/pinsecureinput',
+      builder: (context, state) => SecurityCodeScreen(),
+    ),
     GoRoute(
       path: '/cmapview',
       builder: (context, state) => CollectorRouteMapScreen(),
@@ -66,12 +80,42 @@ final router = GoRouter(
 
     // Rute untuk halaman-halaman utama
     GoRoute(path: '/home', builder: (context, state) => HomeScreen()),
+    GoRoute(path: '/chatlist', builder: (context, state) => ChatListScreen()),
+    // Router config
+    GoRoute(
+      path: '/chatroom/:contactId',
+      builder: (context, state) {
+        final contactName = state.uri.queryParameters['name'] ?? 'Unknown';
+        final contactImage = state.uri.queryParameters['image'] ?? '';
+        final isOnline = state.uri.queryParameters['online'] == 'true';
+
+        return ChatRoomScreen(
+          contactName: contactName,
+          contactImage: contactImage,
+          isOnline: isOnline,
+        );
+      },
+    ),
+
     GoRoute(
       path: '/dataperforma',
       builder: (context, state) => DatavisualizedScreen(),
     ),
     GoRoute(path: '/activity', builder: (context, state) => ActivityScreen()),
     GoRoute(path: '/profil', builder: (context, state) => ProfilScreen()),
+    GoRoute(path: '/akunprofil', builder: (context, state) => AccountScreen()),
+    GoRoute(path: '/address', builder: (context, state) => AddressScreen()),
+    GoRoute(
+      path: '/addaddress',
+      builder: (context, state) => AddAddressScreen(),
+    ),
+    GoRoute(
+      path: '/editaddress',
+      builder: (context, state) {
+        dynamic address = state.extra;
+        return EditAddressScreen(address: address);
+      },
+    ),
 
     GoRoute(
       path: '/aboutdetail',

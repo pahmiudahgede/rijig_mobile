@@ -400,6 +400,14 @@ packages:
     description: flutter
     source: sdk
     version: "0.0.0"
+  fuzzywuzzy:
+    dependency: "direct main"
+    description:
+      name: fuzzywuzzy
+      sha256: "3004379ffd6e7f476a0c2091f38f16588dc45f67de7adf7c41aa85dec06b432c"
+      url: "https://pub.dev"
+    source: hosted
+    version: "1.2.0"
   gap:
     dependency: "direct main"
     description:
@@ -744,6 +752,14 @@ packages:
       url: "https://pub.dev"
     source: hosted
     version: "1.0.0"
+  nik_validator:
+    dependency: "direct main"
+    description:
+      name: nik_validator
+      sha256: "7c24d2a396468177a689561fafd8bb59d3366e6795514a6db124441c0ad68107"
+      url: "https://pub.dev"
+    source: hosted
+    version: "1.1.2"
   nm:
     dependency: transitive
     description:
@@ -1069,6 +1085,14 @@ packages:
       url: "https://pub.dev"
     source: hosted
     version: "0.7.4"
+  timelines_plus:
+    dependency: "direct main"
+    description:
+      name: timelines_plus
+      sha256: "335cd832e0aed7035458a5f336bc2c882dc70dcfa4d500d3bcadd764f1ac6553"
+      url: "https://pub.dev"
+    source: hosted
+    version: "1.0.7"
   toastification:
     dependency: "direct main"
     description:

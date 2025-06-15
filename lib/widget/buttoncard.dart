@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
-import 'package:google_fonts/google_fonts.dart';
 import 'package:rijig_mobile/core/utils/guide.dart';
 
 class CardButtonOne extends StatelessWidget {
@@ -53,25 +52,21 @@ class CardButtonOne extends StatelessWidget {
                   ? usingRow == false
                       ? Text(
                         textButton,
-                        style: GoogleFonts.roboto(
-                          textStyle: TextStyle(
-                            fontWeight: bold,
-                            fontSize: fontSized.sp,
-                            color: colorText,
-                          ),
+                        style: Tulisan.customText(
+                          color: colorText,
+                          fontWeight: extraBold,
+                          fontsize: 16,
                         ),
                       )
                       : Row(
                         mainAxisSize: mainAxisSize,
+                        mainAxisAlignment: MainAxisAlignment.center,
                         children: [
                           Text(
                             textButton,
-                            style: GoogleFonts.roboto(
-                              textStyle: TextStyle(
-                                fontWeight: medium,
-                                fontSize: fontSized.sp,
-                                color: colorText,
-                              ),
+                            style: Tulisan.customText(
+                              color: colorText,
+                              fontsize: 14,
                             ),
                           ),
                           GapCustom().gapValue(10, false),

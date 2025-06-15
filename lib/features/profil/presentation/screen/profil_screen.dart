@@ -230,6 +230,7 @@ class _ProfilScreenState extends State<ProfilScreen> {
     switch (menuTitle) {
       case 'Profil':
         debugPrint('Profil');
+        router.push('/akunprofil');
         break;
 
       case 'Ubah Pin':
@@ -239,6 +240,7 @@ class _ProfilScreenState extends State<ProfilScreen> {
 
       case 'Alamat':
         debugPrint('Alamat');
+        router.push('/address');
         break;
 
       case 'Bantuan':
