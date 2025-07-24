@@ -29,9 +29,21 @@ export 'package:rijig_mobile/features/pickup/presentation/screen/pickup_map_scre
 export 'package:rijig_mobile/features/chat/presentation/screen/chatlist_screen.dart';
 export 'package:rijig_mobile/features/profil/account/presentation/screen/account_screen.dart';
 
+export 'package:rijig_mobile/features/auth/presentation/screen/collector/identity_facedetec_screen.dart';
+export 'package:rijig_mobile/features/chat/presentation/screen/chatroom_screen.dart';
+
 
 
 // remmovable
-export 'package:rijig_mobile/features/cart/presentation/screens/cart_test_screen.dart';
+export 'package:rijig_mobile/features/cart/presentation/screens/cart_screen.dart';
 export 'package:rijig_mobile/features/profil/components/secure_pin_input.dart';
-export 'package:rijig_mobile/features/requestpick/presentation/screen/trash_testview.dart';
+export 'package:rijig_mobile/features/item/presentation/screen/trash_screen.dart';
+
+
+export 'package:rijig_mobile/features/auth/presentation/screen/otp_verification_screen.dart';
+export 'package:rijig_mobile/features/auth/presentation/screen/phone_input_screen.dart';
+export 'package:rijig_mobile/features/auth/presentation/screen/pin_input_screen.dart';
+export 'package:rijig_mobile/features/auth/presentation/screen/profile_form_screen.dart';
+export 'package:rijig_mobile/features/pengepul/catatanpembelian/presentation/screens/riwayat_pembelian_screen.dart';
+export 'package:rijig_mobile/features/pengepul/setor/presentation/screens/penyetoran_screen.dart';
+export 'package:rijig_mobile/features/pengepul/stok/presentation/screens/stok_sampah_screen.dart';

@@ -1,83 +1,67 @@
 import 'package:flutter/material.dart';
 import 'package:rijig_mobile/globaldata/trash/trash_model.dart';
-import 'package:rijig_mobile/globaldata/trash/trash_service.dart';
+import 'package:rijig_mobile/globaldata/trash/trash_repository.dart';
 
-enum TrashCategoryState { initial, loading, loaded, error }
+enum TrashState { initial, loading, loaded, error }
 
 class TrashViewModel extends ChangeNotifier {
-  final ITrashCategoryService _service;
+  final TrashRepository _repository;
 
-  TrashViewModel(this._service);
+  TrashViewModel(this._repository);
 
-  TrashCategoryState _state = TrashCategoryState.initial;
+  TrashState _state = TrashState.initial;
+  List<TrashCategory> _categories = [];
   String? _errorMessage;
-  TrashCategoryResponse? _trashCategoryResponse;
 
-  TrashCategoryState get state => _state;
-  bool get isLoading => _state == TrashCategoryState.loading;
-  bool get hasError => _state == TrashCategoryState.error;
-  bool get hasData =>
-      _state == TrashCategoryState.loaded && _trashCategoryResponse != null;
-  String? get errorMessage => _errorMessage;
-  TrashCategoryResponse? get trashCategoryResponse => _trashCategoryResponse;
-  List<Category> get categories => _trashCategoryResponse?.categories ?? [];
-
-  void _setState(TrashCategoryState newState) {
-    _state = newState;
-    notifyListeners();
-  }
   
+  TrashState get state => _state;
+  List<TrashCategory> get categories => _categories;
+  String? get errorMessage => _errorMessage;
+  bool get isLoading => _state == TrashState.loading;
+  bool get hasError => _state == TrashState.error;
+  bool get hasData => _categories.isNotEmpty;
 
-  Future<void> loadCategories({bool forceRefresh = false}) async {
-    if (_state == TrashCategoryState.loading) return;
-
-    if (_state == TrashCategoryState.loaded && !forceRefresh) return;
-
-    _setState(TrashCategoryState.loading);
-    _errorMessage = null;
-
+  
+  TrashCategory? getCategoryById(String id) {
     try {
-      _trashCategoryResponse = await _service.getCategories();
-      _setState(TrashCategoryState.loaded);
-    } on TrashCategoryServiceException catch (e) {
-      _errorMessage = e.message;
-      _setState(TrashCategoryState.error);
-    } catch (e) {
-      _errorMessage = "Unexpected error: ${e.toString()}";
-      _setState(TrashCategoryState.error);
-    }
-  }
-
-  void clearError() {
-    if (_state == TrashCategoryState.error) {
-      _errorMessage = null;
-      _setState(TrashCategoryState.initial);
-    }
-  }
-
-  void reset() {
-    _state = TrashCategoryState.initial;
-    _errorMessage = null;
-    _trashCategoryResponse = null;
-    notifyListeners();
-  }
-
-  Category? getCategoryById(String id) {
-    try {
-      return categories.firstWhere((category) => category.id == id);
+      return _categories.firstWhere((category) => category.id == id);
     } catch (e) {
       return null;
     }
   }
 
-  List<Category> searchCategories(String query) {
-    if (query.isEmpty) return categories;
+  
+  Future<void> loadCategories() async {
+    _setState(TrashState.loading);
+    _clearError();
 
-    return categories
-        .where(
-          (category) =>
-              category.name.toLowerCase().contains(query.toLowerCase()),
-        )
-        .toList();
+    try {
+      _categories = await _repository.getTrashCategories();
+      _setState(TrashState.loaded);
+    } catch (e) {
+      _setError(e.toString());
+      _setState(TrashState.error);
+    }
+  }
+
+  
+  Future<void> refresh() async {
+    await loadCategories();
+  }
+
+  
+  void _setState(TrashState state) {
+    _state = state;
+    notifyListeners();
+  }
+
+  void _setError(String error) {
+    _errorMessage = error;
+    notifyListeners();
+  }
+
+  void _clearError() {
+    _errorMessage = null;
+    notifyListeners();
   }
 }

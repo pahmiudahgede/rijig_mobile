@@ -1,52 +1,126 @@
 import 'package:flutter/material.dart';
-import 'package:rijig_mobile/globaldata/about/about_service.dart';
 import 'package:rijig_mobile/globaldata/about/about_model.dart';
+import 'package:rijig_mobile/globaldata/about/about_service.dart';
 
 class AboutViewModel extends ChangeNotifier {
-  final AboutService _aboutService;
+  final AboutService _service;
 
-  AboutViewModel(this._aboutService);
+  AboutViewModel(this._service);
 
-  bool isLoading = false;
-  String? errorMessage;
-  List<AboutModel>? aboutList;
+  List<AboutModel>? _aboutList;
+  bool _isLoading = false;
+  String? _errorMessage;
 
+  // Getters
+  List<AboutModel>? get aboutList => _aboutList;
+  bool get isLoading => _isLoading;
+  String? get errorMessage => _errorMessage;
+  bool get hasData => _aboutList != null && _aboutList!.isNotEmpty;
+
+  // Get about list
   Future<void> getAboutList() async {
-    isLoading = true;
-    errorMessage = null;
-    notifyListeners();
+    _setLoading(true);
+    _clearError();
 
     try {
-      aboutList = await _aboutService.getAboutList();
+      _aboutList = await _service.getAboutList();
     } catch (e) {
-      errorMessage = "Error: ${e.toString()}";
+      _setError(e.toString());
+      _aboutList = null;
+    } finally {
+      _setLoading(false);
     }
+  }
 
-    isLoading = false;
+  // Refresh data
+  Future<void> refresh() async {
+    await getAboutList();
+  }
+
+  // Get about by ID
+  AboutModel? getAboutById(String id) {
+    if (_aboutList == null) return null;
+    try {
+      return _aboutList!.firstWhere((about) => about.id == id);
+    } catch (e) {
+      return null;
+    }
+  }
+
+  // Private methods
+  void _setLoading(bool loading) {
+    _isLoading = loading;
+    notifyListeners();
+  }
+
+  void _setError(String error) {
+    _errorMessage = error;
+    notifyListeners();
+  }
+
+  void _clearError() {
+    _errorMessage = null;
     notifyListeners();
   }
 }
 
+// lib/globaldata/about/about_detail_vmod.dart
 class AboutDetailViewModel extends ChangeNotifier {
-  final AboutService service;
+  final AboutService _service;
 
-  AboutDetailViewModel(this.service);
+  AboutDetailViewModel(this._service);
 
-  bool isLoading = false;
-  String? errorMessage;
-  List<AboutDetailModel> details = [];
+  AboutWithDetailsModel? _aboutWithDetails;
+  bool _isLoading = false;
+  String? _errorMessage;
 
+  // Getters
+  AboutWithDetailsModel? get aboutWithDetails => _aboutWithDetails;
+  List<AboutDetailModel> get details => _aboutWithDetails?.aboutDetails ?? [];
+  bool get isLoading => _isLoading;
+  String? get errorMessage => _errorMessage;
+  bool get hasData => _aboutWithDetails != null;
+
+  // Get about detail
   Future<void> getDetail(String aboutId) async {
-    isLoading = true;
-    notifyListeners();
+    _setLoading(true);
+    _clearError();
 
     try {
-      details = await service.getAboutDetail(aboutId);
+      _aboutWithDetails = await _service.getAboutDetail(aboutId);
     } catch (e) {
-      errorMessage = "Failed to fetch: $e";
+      _setError(e.toString());
+      _aboutWithDetails = null;
+    } finally {
+      _setLoading(false);
     }
+  }
 
-    isLoading = false;
+  // Refresh data
+  Future<void> refresh(String aboutId) async {
+    await getDetail(aboutId);
+  }
+
+  // Clear data
+  void clearData() {
+    _aboutWithDetails = null;
+    _clearError();
+    notifyListeners();
+  }
+
+  // Private methods
+  void _setLoading(bool loading) {
+    _isLoading = loading;
+    notifyListeners();
+  }
+
+  void _setError(String error) {
+    _errorMessage = error;
+    notifyListeners();
+  }
+
+  void _clearError() {
+    _errorMessage = null;
     notifyListeners();
   }
 }

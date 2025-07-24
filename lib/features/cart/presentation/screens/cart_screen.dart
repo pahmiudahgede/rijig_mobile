@@ -1,22 +1,18 @@
-import 'dart:math' as math;
-
-import 'package:custom_refresh_indicator/custom_refresh_indicator.dart';
 import 'package:flutter/material.dart';
-import 'package:provider/provider.dart';
-import 'package:gap/gap.dart';
 import 'package:flutter_slidable/flutter_slidable.dart';
+import 'package:provider/provider.dart';
 import 'package:rijig_mobile/core/router.dart';
-import 'package:rijig_mobile/features/cart/presentation/viewmodel/trashcart_vmod.dart';
 import 'package:rijig_mobile/features/cart/model/trashcart_model.dart';
+import 'package:rijig_mobile/features/cart/presentation/viewmodel/trashcart_vmod.dart';
 
-class OrderSummaryScreen extends StatefulWidget {
-  const OrderSummaryScreen({super.key});
+class CartSummaryScreen extends StatefulWidget {
+  const CartSummaryScreen({super.key});
 
   @override
-  State<OrderSummaryScreen> createState() => _OrderSummaryScreenState();
+  State<CartSummaryScreen> createState() => _CartSummaryScreenState();
 }
 
-class _OrderSummaryScreenState extends State<OrderSummaryScreen>
+class _CartSummaryScreenState extends State<CartSummaryScreen>
     with AutomaticKeepAliveClientMixin, WidgetsBindingObserver {
   late CartViewModel _cartViewModel;
   bool _isInitialized = false;
@@ -83,7 +79,7 @@ class _OrderSummaryScreenState extends State<OrderSummaryScreen>
     if (success) {
       _showSnackbar('$itemName berhasil dihapus');
     } else {
-      _showSnackbar(_cartViewModel.errorMessage);
+      _showSnackbar(_cartViewModel.errorMessage ?? 'Gagal menghapus item');
     }
   }
 
@@ -101,7 +97,9 @@ class _OrderSummaryScreenState extends State<OrderSummaryScreen>
       if (success) {
         _showSnackbar('Semua item berhasil dihapus');
       } else {
-        _showSnackbar(_cartViewModel.errorMessage);
+        _showSnackbar(
+          _cartViewModel.errorMessage ?? 'Gagal menghapus semua item',
+        );
       }
     }
   }
@@ -109,14 +107,14 @@ class _OrderSummaryScreenState extends State<OrderSummaryScreen>
   Future<void> _incrementQuantity(String trashId) async {
     await _cartViewModel.incrementItemAmount(trashId);
     if (_cartViewModel.state == CartState.error) {
-      _showSnackbar(_cartViewModel.errorMessage);
+      _showSnackbar(_cartViewModel.errorMessage ?? 'Gagal menambah jumlah');
     }
   }
 
   Future<void> _decrementQuantity(String trashId) async {
     await _cartViewModel.decrementItemAmount(trashId);
     if (_cartViewModel.state == CartState.error) {
-      _showSnackbar(_cartViewModel.errorMessage);
+      _showSnackbar(_cartViewModel.errorMessage ?? 'Gagal mengurangi jumlah');
     }
   }
 
@@ -133,7 +131,7 @@ class _OrderSummaryScreenState extends State<OrderSummaryScreen>
           content: TextField(
             controller: controller,
             keyboardType: TextInputType.number,
-            decoration: InputDecoration(
+            decoration: const InputDecoration(
               labelText: 'Jumlah',
               border: OutlineInputBorder(),
               suffixText: 'kg',
@@ -142,7 +140,7 @@ class _OrderSummaryScreenState extends State<OrderSummaryScreen>
           actions: [
             TextButton(
               onPressed: () => Navigator.of(context).pop(),
-              child: Text('Batal'),
+              child: const Text('Batal'),
             ),
             ElevatedButton(
               onPressed: () {
@@ -153,7 +151,7 @@ class _OrderSummaryScreenState extends State<OrderSummaryScreen>
                   _showSnackbar('Masukkan angka yang valid (lebih dari 0)');
                 }
               },
-              child: Text('Simpan'),
+              child: const Text('Simpan'),
             ),
           ],
         );
@@ -166,7 +164,7 @@ class _OrderSummaryScreenState extends State<OrderSummaryScreen>
         result,
       );
       if (!success) {
-        _showSnackbar(_cartViewModel.errorMessage);
+        _showSnackbar(_cartViewModel.errorMessage ?? 'Gagal mengubah jumlah');
       }
     }
   }
@@ -185,7 +183,7 @@ class _OrderSummaryScreenState extends State<OrderSummaryScreen>
           actions: [
             TextButton(
               onPressed: () => Navigator.of(context).pop(false),
-              child: Text('Batal'),
+              child: const Text('Batal'),
             ),
             ElevatedButton(
               onPressed: () => Navigator.of(context).pop(true),
@@ -204,7 +202,7 @@ class _OrderSummaryScreenState extends State<OrderSummaryScreen>
   void _showSnackbar(String message) {
     if (!mounted) return;
     ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(content: Text(message), duration: Duration(seconds: 2)),
+      SnackBar(content: Text(message), duration: const Duration(seconds: 2)),
     );
   }
 
@@ -222,17 +220,32 @@ class _OrderSummaryScreenState extends State<OrderSummaryScreen>
         'backgroundColor': Colors.orange.shade100,
         'iconColor': Colors.orange,
       };
-    } else if (name.contains('logam') || name.contains('metal')) {
+    } else if (name.contains('logam') ||
+        name.contains('metal') ||
+        name.contains('besi') ||
+        name.contains('tembaga')) {
       return {
         'icon': Icons.build,
         'backgroundColor': Colors.grey.shade100,
         'iconColor': Colors.grey.shade700,
       };
-    } else if (name.contains('kaca')) {
+    } else if (name.contains('kaca') || name.contains('beling')) {
       return {
         'icon': Icons.wine_bar,
         'backgroundColor': Colors.green.shade100,
         'iconColor': Colors.green,
+      };
+    } else if (name.contains('kardus')) {
+      return {
+        'icon': Icons.inventory_2,
+        'backgroundColor': Colors.brown.shade100,
+        'iconColor': Colors.brown,
+      };
+    } else if (name.contains('kaleng')) {
+      return {
+        'icon': Icons.recycling,
+        'backgroundColor': Colors.teal.shade100,
+        'iconColor': Colors.teal,
       };
     } else {
       return {
@@ -244,7 +257,7 @@ class _OrderSummaryScreenState extends State<OrderSummaryScreen>
   }
 
   double get totalWeight => _cartViewModel.totalItems.toDouble();
-  int get estimatedEarnings => _cartViewModel.totalPrice.round();
+  int get estimatedEarnings => _cartViewModel.totalPrice;
 
   @override
   Widget build(BuildContext context) {
@@ -256,10 +269,10 @@ class _OrderSummaryScreenState extends State<OrderSummaryScreen>
         backgroundColor: Colors.white,
         elevation: 0,
         leading: IconButton(
-          icon: Icon(Icons.arrow_back, color: Colors.black),
+          icon: const Icon(Icons.arrow_back, color: Colors.black),
           onPressed: () => Navigator.of(context).pop(),
         ),
-        title: Text(
+        title: const Text(
           'Detail Pesanan',
           style: TextStyle(
             color: Colors.black,
@@ -276,41 +289,42 @@ class _OrderSummaryScreenState extends State<OrderSummaryScreen>
                   mainAxisSize: MainAxisSize.min,
                   children: [
                     IconButton(
-                      icon: Icon(Icons.refresh, color: Colors.black),
+                      icon: const Icon(Icons.refresh, color: Colors.black),
                       onPressed: () => _refreshCartData(),
                       tooltip: 'Refresh Data',
                     ),
                     PopupMenuButton<String>(
-                      icon: Icon(Icons.more_vert, color: Colors.black),
+                      icon: const Icon(Icons.more_vert, color: Colors.black),
                       onSelected: (value) {
                         if (value == 'clear_all') {
                           _clearAllItems();
                         }
                       },
-                      itemBuilder: (BuildContext context) => [
-                        PopupMenuItem<String>(
-                          value: 'clear_all',
-                          child: Row(
-                            children: [
-                              Icon(
-                                Icons.clear_all,
-                                color: Colors.red,
-                                size: 20,
+                      itemBuilder:
+                          (BuildContext context) => [
+                            const PopupMenuItem<String>(
+                              value: 'clear_all',
+                              child: Row(
+                                children: [
+                                  Icon(
+                                    Icons.clear_all,
+                                    color: Colors.red,
+                                    size: 20,
+                                  ),
+                                  SizedBox(width: 8),
+                                  Text(
+                                    'Hapus Semua',
+                                    style: TextStyle(color: Colors.red),
+                                  ),
+                                ],
                               ),
-                              Gap(8),
-                              Text(
-                                'Hapus Semua',
-                                style: TextStyle(color: Colors.red),
-                              ),
-                            ],
-                          ),
-                        ),
-                      ],
+                            ),
+                          ],
                     ),
                   ],
                 );
               }
-              return SizedBox.shrink();
+              return const SizedBox.shrink();
             },
           ),
         ],
@@ -318,12 +332,12 @@ class _OrderSummaryScreenState extends State<OrderSummaryScreen>
       body: Consumer<CartViewModel>(
         builder: (context, cartVM, child) {
           if (cartVM.state == CartState.loading) {
-            return Center(
+            return const Center(
               child: Column(
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
                   CircularProgressIndicator(),
-                  Gap(16),
+                  SizedBox(height: 16),
                   Text('Memuat keranjang...'),
                 ],
               ),
@@ -335,22 +349,22 @@ class _OrderSummaryScreenState extends State<OrderSummaryScreen>
               child: Column(
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
-                  Icon(Icons.error_outline, size: 48, color: Colors.red),
-                  Gap(16),
-                  Text(
+                  const Icon(Icons.error_outline, size: 48, color: Colors.red),
+                  const SizedBox(height: 16),
+                  const Text(
                     'Terjadi kesalahan',
                     style: TextStyle(fontSize: 18, fontWeight: FontWeight.w500),
                   ),
-                  Gap(8),
+                  const SizedBox(height: 8),
                   Text(
-                    cartVM.errorMessage,
+                    cartVM.errorMessage ?? 'Error tidak diketahui',
                     textAlign: TextAlign.center,
                     style: TextStyle(color: Colors.grey.shade600),
                   ),
-                  Gap(24),
+                  const SizedBox(height: 24),
                   ElevatedButton(
                     onPressed: () => _refreshCartData(),
-                    child: Text('Coba Lagi'),
+                    child: const Text('Coba Lagi'),
                   ),
                 ],
               ),
@@ -361,32 +375,20 @@ class _OrderSummaryScreenState extends State<OrderSummaryScreen>
             return _buildEmptyState();
           }
 
-          return CustomMaterialIndicator(
+          return RefreshIndicator(
             onRefresh: () async {
               await _cartViewModel.loadCartItems(showLoading: false);
             },
-            backgroundColor: Colors.white,
-            indicatorBuilder: (context, controller) {
-              return Padding(
-                padding: const EdgeInsets.all(6.0),
-                child: CircularProgressIndicator(
-                  color: Colors.blue,
-                  value: controller.state.isLoading
-                      ? null
-                      : math.min(controller.value, 1.0),
-                ),
-              );
-            },
             child: SingleChildScrollView(
-              physics: AlwaysScrollableScrollPhysics(),
-              padding: EdgeInsets.all(16),
+              physics: const AlwaysScrollableScrollPhysics(),
+              padding: const EdgeInsets.all(16),
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   _buildItemsSection(cartVM),
-                  Gap(20),
+                  const SizedBox(height: 20),
                   _buildEarningsSection(cartVM),
-                  Gap(20),
+                  const SizedBox(height: 20),
                   _buildBottomButton(cartVM),
                 ],
               ),
@@ -403,7 +405,7 @@ class _OrderSummaryScreenState extends State<OrderSummaryScreen>
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
           Container(
-            padding: EdgeInsets.all(24),
+            padding: const EdgeInsets.all(24),
             decoration: BoxDecoration(
               color: Colors.grey.shade100,
               shape: BoxShape.circle,
@@ -414,7 +416,7 @@ class _OrderSummaryScreenState extends State<OrderSummaryScreen>
               color: Colors.grey.shade400,
             ),
           ),
-          Gap(16),
+          const SizedBox(height: 16),
           Text(
             'Keranjang kosong',
             style: TextStyle(
@@ -423,20 +425,20 @@ class _OrderSummaryScreenState extends State<OrderSummaryScreen>
               color: Colors.grey.shade600,
             ),
           ),
-          Gap(8),
+          const SizedBox(height: 8),
           Text(
             'Tambahkan item sampah untuk melanjutkan',
             style: TextStyle(fontSize: 14, color: Colors.grey.shade500),
           ),
-          Gap(24),
+          const SizedBox(height: 24),
           ElevatedButton.icon(
             onPressed: () => Navigator.of(context).pop(),
-            icon: Icon(Icons.add),
-            label: Text('Tambah Item'),
+            icon: const Icon(Icons.add),
+            label: const Text('Tambah Item'),
             style: ElevatedButton.styleFrom(
               backgroundColor: Colors.blue,
               foregroundColor: Colors.white,
-              padding: EdgeInsets.symmetric(horizontal: 24, vertical: 12),
+              padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 12),
             ),
           ),
         ],
@@ -447,7 +449,7 @@ class _OrderSummaryScreenState extends State<OrderSummaryScreen>
   Widget _buildItemsSection(CartViewModel cartVM) {
     return Container(
       width: double.infinity,
-      padding: EdgeInsets.all(16),
+      padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
         color: Colors.white,
         borderRadius: BorderRadius.circular(12),
@@ -456,16 +458,16 @@ class _OrderSummaryScreenState extends State<OrderSummaryScreen>
             color: Colors.grey.withValues(alpha: 0.1),
             spreadRadius: 1,
             blurRadius: 4,
-            offset: Offset(0, 2),
+            offset: const Offset(0, 2),
           ),
         ],
       ),
       child: Column(
         children: [
           _buildSectionHeader(),
-          Gap(16),
+          const SizedBox(height: 16),
           ...cartVM.cartItems.map((item) => _buildItemCard(item)),
-          Gap(16),
+          const SizedBox(height: 16),
           _buildTotalWeight(cartVM),
         ],
       ),
@@ -476,15 +478,19 @@ class _OrderSummaryScreenState extends State<OrderSummaryScreen>
     return Row(
       children: [
         Container(
-          padding: EdgeInsets.all(8),
+          padding: const EdgeInsets.all(8),
           decoration: BoxDecoration(
             color: Colors.orange.shade100,
             borderRadius: BorderRadius.circular(8),
           ),
-          child: Icon(Icons.delete_outline, color: Colors.orange, size: 20),
+          child: const Icon(
+            Icons.delete_outline,
+            color: Colors.orange,
+            size: 20,
+          ),
         ),
-        Gap(12),
-        Text(
+        const SizedBox(width: 12),
+        const Text(
           'Jenis Sampah',
           style: TextStyle(
             fontSize: 16,
@@ -492,14 +498,14 @@ class _OrderSummaryScreenState extends State<OrderSummaryScreen>
             color: Colors.black,
           ),
         ),
-        Spacer(),
+        const Spacer(),
         TextButton(
           onPressed: () => Navigator.of(context).pop(),
-          child: Row(
+          child: const Row(
             mainAxisSize: MainAxisSize.min,
             children: [
               Icon(Icons.add, color: Colors.blue, size: 16),
-              Gap(4),
+              SizedBox(width: 4),
               Text(
                 'Tambah',
                 style: TextStyle(
@@ -519,16 +525,17 @@ class _OrderSummaryScreenState extends State<OrderSummaryScreen>
     final config = _getTrashTypeConfig(item.trashName);
 
     return Padding(
-      padding: EdgeInsets.only(bottom: 12),
+      padding: const EdgeInsets.only(bottom: 12),
       child: Consumer<CartViewModel>(
         builder: (context, cartVM, child) {
           return Slidable(
             key: ValueKey('${item.trashId}_${item.id}'),
             endActionPane: ActionPane(
-              motion: ScrollMotion(),
+              motion: const ScrollMotion(),
               children: [
                 SlidableAction(
-                  onPressed: (context) => _removeItem(item.trashId, item.trashName),
+                  onPressed:
+                      (context) => _removeItem(item.trashId, item.trashName),
                   backgroundColor: Colors.red,
                   foregroundColor: Colors.white,
                   icon: Icons.delete,
@@ -538,7 +545,7 @@ class _OrderSummaryScreenState extends State<OrderSummaryScreen>
               ],
             ),
             child: Container(
-              padding: EdgeInsets.all(12),
+              padding: const EdgeInsets.all(12),
               decoration: BoxDecoration(
                 color: Colors.grey.shade50,
                 borderRadius: BorderRadius.circular(12),
@@ -547,7 +554,7 @@ class _OrderSummaryScreenState extends State<OrderSummaryScreen>
               child: Row(
                 children: [
                   _buildItemIcon(config),
-                  Gap(12),
+                  const SizedBox(width: 12),
                   _buildItemInfo(item),
                   _buildQuantityControls(item, cartVM),
                 ],
@@ -578,22 +585,22 @@ class _OrderSummaryScreenState extends State<OrderSummaryScreen>
         children: [
           Text(
             item.trashName,
-            style: TextStyle(
+            style: const TextStyle(
               fontSize: 14,
               fontWeight: FontWeight.w600,
               color: Colors.black,
             ),
           ),
-          Gap(4),
+          const SizedBox(height: 4),
           Container(
-            padding: EdgeInsets.symmetric(horizontal: 6, vertical: 2),
+            padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
             decoration: BoxDecoration(
               color: Colors.orange,
               borderRadius: BorderRadius.circular(8),
             ),
             child: Text(
-              'Rp ${_formatCurrency(item.trashPrice.round())}/kg',
-              style: TextStyle(
+              'Rp ${_formatCurrency(item.trashPrice)}/kg',
+              style: const TextStyle(
                 color: Colors.white,
                 fontSize: 10,
                 fontWeight: FontWeight.w500,
@@ -610,19 +617,21 @@ class _OrderSummaryScreenState extends State<OrderSummaryScreen>
       children: [
         _buildQuantityButton(
           icon: Icons.remove,
-          onTap: cartVM.isOperationInProgress
-              ? null
-              : () => _decrementQuantity(item.trashId),
+          onTap:
+              cartVM.isOperationInProgress
+                  ? null
+                  : () => _decrementQuantity(item.trashId),
           backgroundColor: Colors.white,
           iconColor: Colors.grey.shade600,
         ),
-        Gap(8),
+        const SizedBox(width: 8),
         GestureDetector(
-          onTap: cartVM.isOperationInProgress
-              ? null
-              : () => _showQuantityDialog(item),
+          onTap:
+              cartVM.isOperationInProgress
+                  ? null
+                  : () => _showQuantityDialog(item),
           child: Container(
-            padding: EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+            padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
             decoration: BoxDecoration(
               color: Colors.white,
               borderRadius: BorderRadius.circular(6),
@@ -630,16 +639,17 @@ class _OrderSummaryScreenState extends State<OrderSummaryScreen>
             ),
             child: Text(
               '${item.amount} kg',
-              style: TextStyle(fontSize: 12, fontWeight: FontWeight.w500),
+              style: const TextStyle(fontSize: 12, fontWeight: FontWeight.w500),
             ),
           ),
         ),
-        Gap(8),
+        const SizedBox(width: 8),
         _buildQuantityButton(
           icon: Icons.add,
-          onTap: cartVM.isOperationInProgress
-              ? null
-              : () => _incrementQuantity(item.trashId),
+          onTap:
+              cartVM.isOperationInProgress
+                  ? null
+                  : () => _incrementQuantity(item.trashId),
           backgroundColor: Colors.blue,
           iconColor: Colors.white,
         ),
@@ -661,9 +671,10 @@ class _OrderSummaryScreenState extends State<OrderSummaryScreen>
         decoration: BoxDecoration(
           color: onTap == null ? Colors.grey.shade300 : backgroundColor,
           borderRadius: BorderRadius.circular(6),
-          border: backgroundColor == Colors.white
-              ? Border.all(color: Colors.grey.shade300)
-              : null,
+          border:
+              backgroundColor == Colors.white
+                  ? Border.all(color: Colors.grey.shade300)
+                  : null,
         ),
         child: Icon(
           icon,
@@ -676,7 +687,7 @@ class _OrderSummaryScreenState extends State<OrderSummaryScreen>
 
   Widget _buildTotalWeight(CartViewModel cartVM) {
     return Container(
-      padding: EdgeInsets.all(12),
+      padding: const EdgeInsets.all(12),
       decoration: BoxDecoration(
         color: Colors.grey.shade100,
         borderRadius: BorderRadius.circular(8),
@@ -684,14 +695,14 @@ class _OrderSummaryScreenState extends State<OrderSummaryScreen>
       child: Row(
         children: [
           Container(
-            padding: EdgeInsets.all(6),
+            padding: const EdgeInsets.all(6),
             decoration: BoxDecoration(
               color: Colors.grey.shade300,
               borderRadius: BorderRadius.circular(6),
             ),
             child: Icon(Icons.scale, color: Colors.grey.shade700, size: 16),
           ),
-          Gap(12),
+          const SizedBox(width: 12),
           Text(
             'Berat total',
             style: TextStyle(
@@ -700,10 +711,10 @@ class _OrderSummaryScreenState extends State<OrderSummaryScreen>
               color: Colors.grey.shade700,
             ),
           ),
-          Spacer(),
+          const Spacer(),
           Text(
             '${cartVM.totalItems} kg',
-            style: TextStyle(
+            style: const TextStyle(
               fontSize: 14,
               fontWeight: FontWeight.w600,
               color: Colors.black,
@@ -717,7 +728,7 @@ class _OrderSummaryScreenState extends State<OrderSummaryScreen>
   Widget _buildEarningsSection(CartViewModel cartVM) {
     return Container(
       width: double.infinity,
-      padding: EdgeInsets.all(16),
+      padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
         color: Colors.white,
         borderRadius: BorderRadius.circular(12),
@@ -726,7 +737,7 @@ class _OrderSummaryScreenState extends State<OrderSummaryScreen>
             color: Colors.grey.withValues(alpha: 0.1),
             spreadRadius: 1,
             blurRadius: 4,
-            offset: Offset(0, 2),
+            offset: const Offset(0, 2),
           ),
         ],
       ),
@@ -736,15 +747,15 @@ class _OrderSummaryScreenState extends State<OrderSummaryScreen>
           Row(
             children: [
               Container(
-                padding: EdgeInsets.all(8),
+                padding: const EdgeInsets.all(8),
                 decoration: BoxDecoration(
                   color: Colors.orange.shade100,
                   borderRadius: BorderRadius.circular(8),
                 ),
-                child: Icon(Icons.folder, color: Colors.orange, size: 20),
+                child: const Icon(Icons.folder, color: Colors.orange, size: 20),
               ),
-              Gap(12),
-              Text(
+              const SizedBox(width: 12),
+              const Text(
                 'Rincian Perhitungan',
                 style: TextStyle(
                   fontSize: 16,
@@ -754,14 +765,14 @@ class _OrderSummaryScreenState extends State<OrderSummaryScreen>
               ),
             ],
           ),
-          Gap(16),
-          // Detail per item
+          const SizedBox(height: 16),
+
           ...cartVM.cartItems.map((item) => _buildItemCalculation(item)),
-          Gap(12),
-          // Divider
+          const SizedBox(height: 12),
+
           Divider(color: Colors.grey.shade300),
-          Gap(8),
-          // Total
+          const SizedBox(height: 8),
+
           _buildTotalCalculation(cartVM),
         ],
       ),
@@ -769,48 +780,49 @@ class _OrderSummaryScreenState extends State<OrderSummaryScreen>
   }
 
   Widget _buildItemCalculation(CartItem item) {
-    final subtotal = (item.amount * item.trashPrice).round();
-    
+    final subtotal = item.subtotalEstimatedPrice;
+
     return Padding(
-      padding: EdgeInsets.only(bottom: 8),
+      padding: const EdgeInsets.only(bottom: 8),
       child: Row(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Container(
-            padding: EdgeInsets.all(4),
+            padding: const EdgeInsets.all(4),
             decoration: BoxDecoration(
               color: Colors.blue.shade100,
               borderRadius: BorderRadius.circular(8),
             ),
-            child: Icon(Icons.receipt_outlined, color: Colors.blue, size: 12),
+            child: const Icon(
+              Icons.receipt_outlined,
+              color: Colors.blue,
+              size: 12,
+            ),
           ),
-          Gap(8),
+          const SizedBox(width: 8),
           Expanded(
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Text(
                   item.trashName,
-                  style: TextStyle(
+                  style: const TextStyle(
                     fontSize: 13,
                     fontWeight: FontWeight.w500,
                     color: Colors.black,
                   ),
                 ),
-                Gap(2),
+                const SizedBox(height: 2),
                 Text(
-                  '${item.amount} kg × Rp ${_formatCurrency(item.trashPrice.round())}/kg',
-                  style: TextStyle(
-                    fontSize: 11,
-                    color: Colors.grey.shade600,
-                  ),
+                  '${item.amount} kg × Rp ${_formatCurrency(item.trashPrice)}/kg',
+                  style: TextStyle(fontSize: 11, color: Colors.grey.shade600),
                 ),
               ],
             ),
           ),
           Text(
             'Rp ${_formatCurrency(subtotal)}',
-            style: TextStyle(
+            style: const TextStyle(
               fontSize: 13,
               fontWeight: FontWeight.w500,
               color: Colors.black,
@@ -825,15 +837,19 @@ class _OrderSummaryScreenState extends State<OrderSummaryScreen>
     return Row(
       children: [
         Container(
-          padding: EdgeInsets.all(6),
+          padding: const EdgeInsets.all(6),
           decoration: BoxDecoration(
             color: Colors.green.shade100,
             borderRadius: BorderRadius.circular(8),
           ),
-          child: Icon(Icons.account_balance_wallet, color: Colors.green, size: 16),
+          child: const Icon(
+            Icons.account_balance_wallet,
+            color: Colors.green,
+            size: 16,
+          ),
         ),
-        Gap(12),
-        Expanded(
+        const SizedBox(width: 12),
+        const Expanded(
           child: Text(
             'Total Estimasi Pendapatan',
             style: TextStyle(
@@ -864,40 +880,40 @@ class _OrderSummaryScreenState extends State<OrderSummaryScreen>
           final hasItems = cartVM.isNotEmpty;
 
           return ElevatedButton(
-            onPressed: isLoading
-                ? null
-                : hasItems
+            onPressed:
+                isLoading
+                    ? null
+                    : hasItems
                     ? () {
-                        _showSnackbar('Lanjut ke proses selanjutnya');
-                        router.push('/pickupmethod');
-                      }
+                      _showSnackbar('Lanjut ke proses selanjutnya');
+                      router.push("/pickupmethod");
+                    }
                     : () => Navigator.of(context).pop(),
             style: ElevatedButton.styleFrom(
               backgroundColor: hasItems ? Colors.blue : Colors.grey.shade400,
-              padding: EdgeInsets.symmetric(vertical: 16),
+              padding: const EdgeInsets.symmetric(vertical: 16),
               shape: RoundedRectangleBorder(
                 borderRadius: BorderRadius.circular(12),
               ),
             ),
-            child: isLoading
-                ? SizedBox(
-                    width: 20,
-                    height: 20,
-                    child: CircularProgressIndicator(
-                      strokeWidth: 2,
-                      valueColor: AlwaysStoppedAnimation<Color>(
-                        Colors.white,
+            child:
+                isLoading
+                    ? const SizedBox(
+                      width: 20,
+                      height: 20,
+                      child: CircularProgressIndicator(
+                        strokeWidth: 2,
+                        valueColor: AlwaysStoppedAnimation<Color>(Colors.white),
+                      ),
+                    )
+                    : Text(
+                      hasItems ? 'Lanjut' : 'Tambah Item',
+                      style: const TextStyle(
+                        color: Colors.white,
+                        fontSize: 16,
+                        fontWeight: FontWeight.w600,
                       ),
                     ),
-                  )
-                : Text(
-                    hasItems ? 'Lanjut' : 'Tambah Item',
-                    style: TextStyle(
-                      color: Colors.white,
-                      fontSize: 16,
-                      fontWeight: FontWeight.w600,
-                    ),
-                  ),
           );
         },
       ),

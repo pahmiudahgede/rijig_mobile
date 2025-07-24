@@ -12,95 +12,138 @@ class ActivityScreen extends StatefulWidget {
 }
 
 class _ActivityScreenState extends State<ActivityScreen> {
-  // Data contoh untuk timeline
+  // Data contoh untuk timeline pickup sampah
   final List<ActivityItem> processActivities = [
     ActivityItem(
-      title: 'Pesanan Dikonfirmasi',
-      description: 'Pesanan Anda telah dikonfirmasi dan sedang diproses',
-      time: '10:30',
-      date: '15 Juni 2024',
+      title: 'Request Diterima',
+      description: 'Permintaan pickup sampah Anda telah diterima pengepul',
+      time: '09:15',
+      date: '15 Des 2024',
       status: ActivityStatus.completed,
       icon: Icons.check_circle,
     ),
     ActivityItem(
-      title: 'Sedang Disiapkan',
-      description: 'Tim kami sedang menyiapkan pesanan Anda',
-      time: '11:15',
-      date: '15 Juni 2024',
+      title: 'Pengepul Menuju Lokasi',
+      description: 'Pengepul sedang dalam perjalanan ke alamat Anda',
+      time: '09:45',
+      date: '15 Des 2024',
       status: ActivityStatus.inProgress,
-      icon: Icons.timer,
-    ),
-    ActivityItem(
-      title: 'Siap Dikirim',
-      description: 'Pesanan siap untuk dikirim ke alamat tujuan',
-      time: '',
-      date: '',
-      status: ActivityStatus.pending,
-      icon: Icons.local_shipping,
-    ),
-    ActivityItem(
-      title: 'Dalam Perjalanan',
-      description: 'Pesanan sedang dalam perjalanan menuju alamat Anda',
-      time: '',
-      date: '',
-      status: ActivityStatus.pending,
       icon: Icons.directions_car,
     ),
     ActivityItem(
-      title: 'Pesanan Sampai',
-      description: 'Pesanan telah sampai di alamat tujuan',
+      title: 'Sampah Dipickup',
+      description: 'Proses penimbangan dan pengambilan sampah',
       time: '',
       date: '',
       status: ActivityStatus.pending,
-      icon: Icons.home,
+      icon: Icons.scale,
+    ),
+    ActivityItem(
+      title: 'Pembayaran Diproses',
+      description: 'Perhitungan dan transfer pembayaran ke rekening Anda',
+      time: '',
+      date: '',
+      status: ActivityStatus.pending,
+      icon: Icons.payment,
+    ),
+    ActivityItem(
+      title: 'Selesai',
+      description: 'Pickup sampah berhasil diselesaikan',
+      time: '',
+      date: '',
+      status: ActivityStatus.pending,
+      icon: Icons.task_alt,
     ),
   ];
 
-  // Data contoh untuk pesanan selesai
-  final List<CompletedOrder> completedOrders = [
-    CompletedOrder(
-      orderId: '#12340',
-      title: 'Paket Makanan Premium',
-      description: '2x Nasi Gudeg, 1x Es Teh Manis',
-      totalAmount: 'Rp 85.000',
-      completedDate: '12 Juni 2024',
+  // Data contoh untuk pickup selesai
+  final List<CompletedPickup> completedPickups = [
+    CompletedPickup(
+      pickupId: '#WP001',
+      wasteTypes: 'Plastik PET, Kertas, Logam',
+      totalWeight: 12.5,
+      totalAmount: 'Rp 45.000',
+      completedDate: '12 Des 2024',
       completedTime: '14:30',
       rating: 5,
-      customerNote: 'Makanan enak sekali, pengiriman cepat!',
+      collectorNote: 'Sampah sudah dipilah dengan baik, terima kasih!',
+      details: [
+        WasteDetail(
+          type: 'Plastik PET',
+          weight: 6.5,
+          pricePerKg: 4000,
+          amount: 26000,
+        ),
+        WasteDetail(
+          type: 'Kertas',
+          weight: 4.0,
+          pricePerKg: 2500,
+          amount: 10000,
+        ),
+        WasteDetail(
+          type: 'Logam',
+          weight: 2.0,
+          pricePerKg: 15000,
+          amount: 30000,
+        ),
+      ],
     ),
-    CompletedOrder(
-      orderId: '#12339',
-      title: 'Paket Minuman Segar',
-      description: '3x Jus Jeruk, 2x Smoothie Mangga',
-      totalAmount: 'Rp 65.000',
-      completedDate: '10 Juni 2024',
-      completedTime: '16:45',
+    CompletedPickup(
+      pickupId: '#WP002',
+      wasteTypes: 'Plastik, Kaca',
+      totalWeight: 8.2,
+      totalAmount: 'Rp 28.500',
+      completedDate: '10 Des 2024',
+      completedTime: '16:15',
       rating: 4,
-      customerNote: 'Minuman segar, kemasan bagus',
+      collectorNote: 'Pickup berjalan lancar',
+      details: [
+        WasteDetail(
+          type: 'Plastik PET',
+          weight: 5.5,
+          pricePerKg: 4000,
+          amount: 22000,
+        ),
+        WasteDetail(type: 'Kaca', weight: 2.7, pricePerKg: 1500, amount: 4050),
+      ],
     ),
-    CompletedOrder(
-      orderId: '#12338',
-      title: 'Paket Snack Keluarga',
-      description: '1x Risoles, 2x Pastel, 1x Kopi',
-      totalAmount: 'Rp 45.000',
-      completedDate: '8 Juni 2024',
-      completedTime: '10:15',
+    CompletedPickup(
+      pickupId: '#WP003',
+      wasteTypes: 'Kertas, Kardus',
+      totalWeight: 15.8,
+      totalAmount: 'Rp 39.500',
+      completedDate: '8 Des 2024',
+      completedTime: '11:20',
       rating: 5,
-      customerNote: '',
+      collectorNote: '',
+      details: [
+        WasteDetail(
+          type: 'Kertas',
+          weight: 9.3,
+          pricePerKg: 2500,
+          amount: 23250,
+        ),
+        WasteDetail(
+          type: 'Kardus',
+          weight: 6.5,
+          pricePerKg: 2500,
+          amount: 16250,
+        ),
+      ],
     ),
   ];
 
-  // Data contoh untuk pesanan dibatalkan
-  final List<CancelledOrder> cancelledOrders = [
-    CancelledOrder(
-      orderId: '#12337',
-      title: 'Paket Lunch Box',
-      description: '1x Nasi Ayam Geprek, 1x Es Jeruk',
-      totalAmount: 'Rp 35.000',
-      cancelledDate: '7 Juni 2024',
+  // Data contoh untuk pickup dibatalkan
+  final List<CancelledPickup> cancelledPickups = [
+    CancelledPickup(
+      pickupId: '#WP004',
+      wasteTypes: 'Plastik, Kertas',
+      estimatedWeight: 5.0,
+      estimatedAmount: 'Rp 18.000',
+      cancelledDate: '7 Des 2024',
       cancelledTime: '13:20',
-      cancelReason: 'Dibatalkan oleh pelanggan',
-      refundStatus: 'Dikembalikan',
+      cancelReason: 'Pengepul tidak dapat datang karena cuaca buruk',
+      cancelledBy: 'Pengepul',
     ),
   ];
 
@@ -111,7 +154,7 @@ class _ActivityScreenState extends State<ActivityScreen> {
       child: Scaffold(
         backgroundColor: whiteColor,
         appBar: AppBar(
-          title: Text('Aktifitas', style: Tulisan.subheading()),
+          title: Text('Aktivitas Pickup', style: Tulisan.subheading()),
           centerTitle: true,
           bottom: PreferredSize(
             preferredSize: const Size.fromHeight(40),
@@ -134,7 +177,7 @@ class _ActivityScreenState extends State<ActivityScreen> {
                   labelColor: Colors.white,
                   unselectedLabelColor: Colors.black54,
                   tabs: [
-                    TabItem(title: 'Proses', count: 6),
+                    TabItem(title: 'Proses', count: 1),
                     TabItem(title: 'Selesai', count: 3),
                     TabItem(title: 'Dibatalkan', count: 1),
                   ],
@@ -157,20 +200,21 @@ class _ActivityScreenState extends State<ActivityScreen> {
   Widget _buildCompletedTab() {
     return Container(
       color: Colors.grey.shade50,
-      child: completedOrders.isEmpty
-          ? Center(child: InfoStateWidget(type: InfoStateType.emptyData))
-          : ListView.builder(
-              padding: const EdgeInsets.all(16),
-              itemCount: completedOrders.length,
-              itemBuilder: (context, index) {
-                final order = completedOrders[index];
-                return _buildCompletedOrderCard(order);
-              },
-            ),
+      child:
+          completedPickups.isEmpty
+              ? Center(child: InfoStateWidget(type: InfoStateType.emptyData))
+              : ListView.builder(
+                padding: const EdgeInsets.all(16),
+                itemCount: completedPickups.length,
+                itemBuilder: (context, index) {
+                  final pickup = completedPickups[index];
+                  return _buildCompletedPickupCard(pickup);
+                },
+              ),
     );
   }
 
-  Widget _buildCompletedOrderCard(CompletedOrder order) {
+  Widget _buildCompletedPickupCard(CompletedPickup pickup) {
     return Container(
       margin: const EdgeInsets.only(bottom: 12),
       padding: const EdgeInsets.all(16),
@@ -179,7 +223,7 @@ class _ActivityScreenState extends State<ActivityScreen> {
         borderRadius: BorderRadius.circular(12),
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withValues(alpha:0.05),
+            color: Colors.black.withValues(alpha: 0.05),
             blurRadius: 10,
             offset: const Offset(0, 2),
           ),
@@ -193,7 +237,7 @@ class _ActivityScreenState extends State<ActivityScreen> {
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
               Text(
-                order.orderId,
+                pickup.pickupId,
                 style: TextStyle(
                   fontSize: 14,
                   fontWeight: FontWeight.w600,
@@ -228,10 +272,10 @@ class _ActivityScreenState extends State<ActivityScreen> {
               ),
             ],
           ),
-          
+
           const SizedBox(height: 12),
-          
-          // Konten pesanan
+
+          // Konten pickup
           Row(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
@@ -243,7 +287,7 @@ class _ActivityScreenState extends State<ActivityScreen> {
                   borderRadius: BorderRadius.circular(8),
                 ),
                 child: Icon(
-                  Icons.shopping_bag,
+                  Icons.recycling,
                   color: Colors.green.shade600,
                   size: 24,
                 ),
@@ -254,7 +298,7 @@ class _ActivityScreenState extends State<ActivityScreen> {
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     Text(
-                      order.title,
+                      pickup.wasteTypes,
                       style: const TextStyle(
                         fontSize: 16,
                         fontWeight: FontWeight.bold,
@@ -262,7 +306,7 @@ class _ActivityScreenState extends State<ActivityScreen> {
                     ),
                     const SizedBox(height: 4),
                     Text(
-                      order.description,
+                      'Total berat: ${pickup.totalWeight} kg',
                       style: TextStyle(
                         fontSize: 14,
                         color: Colors.grey.shade600,
@@ -270,7 +314,7 @@ class _ActivityScreenState extends State<ActivityScreen> {
                     ),
                     const SizedBox(height: 8),
                     Text(
-                      'Selesai pada ${order.completedDate} • ${order.completedTime}',
+                      'Pickup pada ${pickup.completedDate} • ${pickup.completedTime}',
                       style: TextStyle(
                         fontSize: 12,
                         color: Colors.grey.shade500,
@@ -283,7 +327,7 @@ class _ActivityScreenState extends State<ActivityScreen> {
                 crossAxisAlignment: CrossAxisAlignment.end,
                 children: [
                   Text(
-                    order.totalAmount,
+                    pickup.totalAmount,
                     style: const TextStyle(
                       fontSize: 16,
                       fontWeight: FontWeight.bold,
@@ -291,14 +335,64 @@ class _ActivityScreenState extends State<ActivityScreen> {
                     ),
                   ),
                   const SizedBox(height: 4),
-                  _buildRatingStars(order.rating),
+                  _buildRatingStars(pickup.rating),
                 ],
               ),
             ],
           ),
-          
-          // Customer note jika ada
-          if (order.customerNote.isNotEmpty) ...[
+
+          // Breakdown jenis sampah
+          const SizedBox(height: 12),
+          Container(
+            width: double.infinity,
+            padding: const EdgeInsets.all(12),
+            decoration: BoxDecoration(
+              color: Colors.grey.shade50,
+              borderRadius: BorderRadius.circular(8),
+              border: Border.all(color: Colors.grey.shade200),
+            ),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  'Detail Sampah:',
+                  style: TextStyle(
+                    fontSize: 12,
+                    fontWeight: FontWeight.w600,
+                    color: Colors.grey.shade700,
+                  ),
+                ),
+                const SizedBox(height: 8),
+                ...pickup.details.map(
+                  (detail) => Padding(
+                    padding: const EdgeInsets.only(bottom: 4),
+                    child: Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      children: [
+                        Text(
+                          '${detail.type} (${detail.weight} kg)',
+                          style: TextStyle(
+                            fontSize: 11,
+                            color: Colors.grey.shade600,
+                          ),
+                        ),
+                        Text(
+                          'Rp ${detail.amount.toString().replaceAllMapped(RegExp(r'(\d{1,3})(?=(\d{3})+(?!\d))'), (Match m) => '${m[1]}.')}',
+                          style: TextStyle(
+                            fontSize: 11,
+                            fontWeight: FontWeight.w600,
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                ),
+              ],
+            ),
+          ),
+
+          // Catatan pengepul jika ada
+          if (pickup.collectorNote.isNotEmpty) ...[
             const SizedBox(height: 12),
             Container(
               width: double.infinity,
@@ -320,7 +414,7 @@ class _ActivityScreenState extends State<ActivityScreen> {
                       ),
                       const SizedBox(width: 6),
                       Text(
-                        'Catatan Pelanggan:',
+                        'Catatan Pengepul:',
                         style: TextStyle(
                           fontSize: 12,
                           fontWeight: FontWeight.w600,
@@ -331,7 +425,7 @@ class _ActivityScreenState extends State<ActivityScreen> {
                   ),
                   const SizedBox(height: 4),
                   Text(
-                    order.customerNote,
+                    pickup.collectorNote,
                     style: TextStyle(
                       fontSize: 13,
                       color: Colors.blue.shade700,
@@ -342,9 +436,9 @@ class _ActivityScreenState extends State<ActivityScreen> {
               ),
             ),
           ],
-          
+
           const SizedBox(height: 12),
-          
+
           // Action buttons
           Row(
             children: [
@@ -353,11 +447,7 @@ class _ActivityScreenState extends State<ActivityScreen> {
                   onPressed: () {
                     // Action untuk lihat detail
                   },
-                  icon: Icon(
-                    Icons.visibility,
-                    size: 16,
-                    color: primaryColor,
-                  ),
+                  icon: Icon(Icons.visibility, size: 16, color: primaryColor),
                   label: Text(
                     'Lihat Detail',
                     style: TextStyle(color: primaryColor),
@@ -374,15 +464,15 @@ class _ActivityScreenState extends State<ActivityScreen> {
               Expanded(
                 child: ElevatedButton.icon(
                   onPressed: () {
-                    // Action untuk pesan lagi
+                    // Action untuk request pickup lagi
                   },
                   icon: const Icon(
-                    Icons.refresh,
+                    Icons.add_circle,
                     size: 16,
                     color: Colors.white,
                   ),
                   label: const Text(
-                    'Pesan Lagi',
+                    'Request Lagi',
                     style: TextStyle(color: Colors.white),
                   ),
                   style: ElevatedButton.styleFrom(
@@ -403,20 +493,21 @@ class _ActivityScreenState extends State<ActivityScreen> {
   Widget _buildCancelledTab() {
     return Container(
       color: Colors.grey.shade50,
-      child: cancelledOrders.isEmpty
-          ? Center(child: InfoStateWidget(type: InfoStateType.emptyData))
-          : ListView.builder(
-              padding: const EdgeInsets.all(16),
-              itemCount: cancelledOrders.length,
-              itemBuilder: (context, index) {
-                final order = cancelledOrders[index];
-                return _buildCancelledOrderCard(order);
-              },
-            ),
+      child:
+          cancelledPickups.isEmpty
+              ? Center(child: InfoStateWidget(type: InfoStateType.emptyData))
+              : ListView.builder(
+                padding: const EdgeInsets.all(16),
+                itemCount: cancelledPickups.length,
+                itemBuilder: (context, index) {
+                  final pickup = cancelledPickups[index];
+                  return _buildCancelledPickupCard(pickup);
+                },
+              ),
     );
   }
 
-  Widget _buildCancelledOrderCard(CancelledOrder order) {
+  Widget _buildCancelledPickupCard(CancelledPickup pickup) {
     return Container(
       margin: const EdgeInsets.only(bottom: 12),
       padding: const EdgeInsets.all(16),
@@ -426,7 +517,7 @@ class _ActivityScreenState extends State<ActivityScreen> {
         border: Border.all(color: Colors.red.shade100),
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withValues(alpha:0.05),
+            color: Colors.black.withValues(alpha: 0.05),
             blurRadius: 10,
             offset: const Offset(0, 2),
           ),
@@ -440,7 +531,7 @@ class _ActivityScreenState extends State<ActivityScreen> {
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
               Text(
-                order.orderId,
+                pickup.pickupId,
                 style: TextStyle(
                   fontSize: 14,
                   fontWeight: FontWeight.w600,
@@ -456,11 +547,7 @@ class _ActivityScreenState extends State<ActivityScreen> {
                 child: Row(
                   mainAxisSize: MainAxisSize.min,
                   children: [
-                    Icon(
-                      Icons.cancel,
-                      size: 14,
-                      color: Colors.red.shade700,
-                    ),
+                    Icon(Icons.cancel, size: 14, color: Colors.red.shade700),
                     const SizedBox(width: 4),
                     Text(
                       'Dibatalkan',
@@ -475,10 +562,10 @@ class _ActivityScreenState extends State<ActivityScreen> {
               ),
             ],
           ),
-          
+
           const SizedBox(height: 12),
-          
-          // Konten pesanan
+
+          // Konten pickup
           Row(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
@@ -490,7 +577,7 @@ class _ActivityScreenState extends State<ActivityScreen> {
                   borderRadius: BorderRadius.circular(8),
                 ),
                 child: Icon(
-                  Icons.shopping_bag_outlined,
+                  Icons.recycling_outlined,
                   color: Colors.red.shade600,
                   size: 24,
                 ),
@@ -501,7 +588,7 @@ class _ActivityScreenState extends State<ActivityScreen> {
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     Text(
-                      order.title,
+                      pickup.wasteTypes,
                       style: TextStyle(
                         fontSize: 16,
                         fontWeight: FontWeight.bold,
@@ -510,7 +597,7 @@ class _ActivityScreenState extends State<ActivityScreen> {
                     ),
                     const SizedBox(height: 4),
                     Text(
-                      order.description,
+                      'Estimasi berat: ${pickup.estimatedWeight} kg',
                       style: TextStyle(
                         fontSize: 14,
                         color: Colors.grey.shade600,
@@ -518,7 +605,7 @@ class _ActivityScreenState extends State<ActivityScreen> {
                     ),
                     const SizedBox(height: 8),
                     Text(
-                      'Dibatalkan pada ${order.cancelledDate} • ${order.cancelledTime}',
+                      'Dibatalkan pada ${pickup.cancelledDate} • ${pickup.cancelledTime}',
                       style: TextStyle(
                         fontSize: 12,
                         color: Colors.grey.shade500,
@@ -528,7 +615,7 @@ class _ActivityScreenState extends State<ActivityScreen> {
                 ),
               ),
               Text(
-                order.totalAmount,
+                pickup.estimatedAmount,
                 style: TextStyle(
                   fontSize: 16,
                   fontWeight: FontWeight.bold,
@@ -538,9 +625,9 @@ class _ActivityScreenState extends State<ActivityScreen> {
               ),
             ],
           ),
-          
+
           const SizedBox(height: 12),
-          
+
           // Info pembatalan
           Container(
             width: double.infinity,
@@ -573,27 +660,24 @@ class _ActivityScreenState extends State<ActivityScreen> {
                 ),
                 const SizedBox(height: 4),
                 Text(
-                  order.cancelReason,
-                  style: TextStyle(
-                    fontSize: 13,
-                    color: Colors.orange.shade700,
-                  ),
+                  pickup.cancelReason,
+                  style: TextStyle(fontSize: 13, color: Colors.orange.shade700),
                 ),
                 const SizedBox(height: 8),
                 Row(
                   children: [
                     Icon(
-                      Icons.account_balance_wallet,
+                      Icons.person_outline,
                       size: 16,
-                      color: Colors.green.shade600,
+                      color: Colors.grey.shade600,
                     ),
                     const SizedBox(width: 6),
                     Text(
-                      'Status Refund: ${order.refundStatus}',
+                      'Dibatalkan oleh: ${pickup.cancelledBy}',
                       style: TextStyle(
                         fontSize: 12,
                         fontWeight: FontWeight.w600,
-                        color: Colors.green.shade700,
+                        color: Colors.grey.shade700,
                       ),
                     ),
                   ],
@@ -601,23 +685,19 @@ class _ActivityScreenState extends State<ActivityScreen> {
               ],
             ),
           ),
-          
+
           const SizedBox(height: 12),
-          
+
           // Action button
           SizedBox(
             width: double.infinity,
             child: OutlinedButton.icon(
               onPressed: () {
-                // Action untuk pesan lagi
+                // Action untuk request pickup lagi
               },
-              icon: Icon(
-                Icons.refresh,
-                size: 16,
-                color: primaryColor,
-              ),
+              icon: Icon(Icons.add_circle, size: 16, color: primaryColor),
               label: Text(
-                'Pesan Lagi',
+                'Request Pickup Lagi',
                 style: TextStyle(color: primaryColor),
               ),
               style: OutlinedButton.styleFrom(
@@ -663,7 +743,7 @@ class _ActivityScreenState extends State<ActivityScreen> {
                 borderRadius: BorderRadius.circular(12),
                 boxShadow: [
                   BoxShadow(
-                    color: Colors.black.withValues(alpha:0.05),
+                    color: Colors.black.withValues(alpha: 0.05),
                     blurRadius: 10,
                     offset: const Offset(0, 2),
                   ),
@@ -677,11 +757,11 @@ class _ActivityScreenState extends State<ActivityScreen> {
                       Container(
                         padding: const EdgeInsets.all(8),
                         decoration: BoxDecoration(
-                          color: primaryColor.withValues(alpha:0.1),
+                          color: primaryColor.withValues(alpha: 0.1),
                           borderRadius: BorderRadius.circular(8),
                         ),
                         child: Icon(
-                          Icons.shopping_bag,
+                          Icons.recycling,
                           color: primaryColor,
                           size: 20,
                         ),
@@ -692,7 +772,7 @@ class _ActivityScreenState extends State<ActivityScreen> {
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
                             Text(
-                              'Pesanan #12345',
+                              'Pickup Request #WP005',
                               style: TextStyle(
                                 fontSize: 16,
                                 fontWeight: FontWeight.bold,
@@ -701,7 +781,7 @@ class _ActivityScreenState extends State<ActivityScreen> {
                             ),
                             const SizedBox(height: 4),
                             Text(
-                              'Total: Rp 150.000',
+                              'Estimasi: 8 kg • Rp 30.000',
                               style: TextStyle(
                                 fontSize: 14,
                                 color: Colors.grey.shade600,
@@ -711,7 +791,10 @@ class _ActivityScreenState extends State<ActivityScreen> {
                         ),
                       ),
                       Container(
-                        padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+                        padding: const EdgeInsets.symmetric(
+                          horizontal: 12,
+                          vertical: 6,
+                        ),
                         decoration: BoxDecoration(
                           color: Colors.orange.shade100,
                           borderRadius: BorderRadius.circular(16),
@@ -730,9 +813,9 @@ class _ActivityScreenState extends State<ActivityScreen> {
                 ],
               ),
             ),
-            
+
             const SizedBox(height: 24),
-            
+
             // Timeline Section
             Container(
               padding: const EdgeInsets.all(16),
@@ -741,7 +824,7 @@ class _ActivityScreenState extends State<ActivityScreen> {
                 borderRadius: BorderRadius.circular(12),
                 boxShadow: [
                   BoxShadow(
-                    color: Colors.black.withValues(alpha:0.05),
+                    color: Colors.black.withValues(alpha: 0.05),
                     blurRadius: 10,
                     offset: const Offset(0, 2),
                   ),
@@ -751,7 +834,7 @@ class _ActivityScreenState extends State<ActivityScreen> {
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   Text(
-                    'Status Pesanan',
+                    'Status Pickup Sampah',
                     style: TextStyle(
                       fontSize: 18,
                       fontWeight: FontWeight.bold,
@@ -774,13 +857,8 @@ class _ActivityScreenState extends State<ActivityScreen> {
       theme: TimelineThemeData(
         nodePosition: 0,
         color: Colors.grey.shade300,
-        indicatorTheme: const IndicatorThemeData(
-          position: 0,
-          size: 20.0,
-        ),
-        connectorTheme: const ConnectorThemeData(
-          thickness: 2.0,
-        ),
+        indicatorTheme: const IndicatorThemeData(position: 0, size: 20.0),
+        connectorTheme: const ConnectorThemeData(thickness: 2.0),
       ),
       shrinkWrap: true,
       physics: const NeverScrollableScrollPhysics(),
@@ -795,10 +873,12 @@ class _ActivityScreenState extends State<ActivityScreen> {
         },
         connectorBuilder: (context, index, type) {
           return SolidLineConnector(
-            color: index < processActivities.length - 1 && 
-                   processActivities[index].status == ActivityStatus.completed
-                ? primaryColor
-                : Colors.grey.shade300,
+            color:
+                index < processActivities.length - 1 &&
+                        processActivities[index].status ==
+                            ActivityStatus.completed
+                    ? primaryColor
+                    : Colors.grey.shade300,
           );
         },
       ),
@@ -812,11 +892,7 @@ class _ActivityScreenState extends State<ActivityScreen> {
     switch (item.status) {
       case ActivityStatus.completed:
         indicatorColor = primaryColor;
-        indicatorChild = Icon(
-          Icons.check,
-          color: Colors.white,
-          size: 12,
-        );
+        indicatorChild = Icon(Icons.check, color: Colors.white, size: 12);
         break;
       case ActivityStatus.inProgress:
         indicatorColor = Colors.orange;
@@ -842,11 +918,7 @@ class _ActivityScreenState extends State<ActivityScreen> {
         break;
     }
 
-    return DotIndicator(
-      size: 20,
-      color: indicatorColor,
-      child: indicatorChild,
-    );
+    return DotIndicator(size: 20, color: indicatorColor, child: indicatorChild);
   }
 
   Widget _buildTimelineContent(ActivityItem item) {
@@ -860,9 +932,10 @@ class _ActivityScreenState extends State<ActivityScreen> {
               Icon(
                 item.icon,
                 size: 20,
-                color: item.status == ActivityStatus.completed
-                    ? primaryColor
-                    : item.status == ActivityStatus.inProgress
+                color:
+                    item.status == ActivityStatus.completed
+                        ? primaryColor
+                        : item.status == ActivityStatus.inProgress
                         ? Colors.orange
                         : Colors.grey.shade400,
               ),
@@ -873,9 +946,10 @@ class _ActivityScreenState extends State<ActivityScreen> {
                   style: TextStyle(
                     fontSize: 16,
                     fontWeight: FontWeight.w600,
-                    color: item.status == ActivityStatus.pending
-                        ? Colors.grey.shade500
-                        : Colors.grey.shade800,
+                    color:
+                        item.status == ActivityStatus.pending
+                            ? Colors.grey.shade500
+                            : Colors.grey.shade800,
                   ),
                 ),
               ),
@@ -891,9 +965,10 @@ class _ActivityScreenState extends State<ActivityScreen> {
                   item.description,
                   style: TextStyle(
                     fontSize: 14,
-                    color: item.status == ActivityStatus.pending
-                        ? Colors.grey.shade400
-                        : Colors.grey.shade600,
+                    color:
+                        item.status == ActivityStatus.pending
+                            ? Colors.grey.shade400
+                            : Colors.grey.shade600,
                   ),
                 ),
                 if (item.time.isNotEmpty) ...[
@@ -916,7 +991,7 @@ class _ActivityScreenState extends State<ActivityScreen> {
   }
 }
 
-// Model untuk item aktivitas
+// Model untuk item aktivitas pickup sampah
 class ActivityItem {
   final String title;
   final String description;
@@ -935,55 +1010,68 @@ class ActivityItem {
   });
 }
 
-// Model untuk pesanan selesai
-class CompletedOrder {
-  final String orderId;
-  final String title;
-  final String description;
+// Model untuk detail jenis sampah
+class WasteDetail {
+  final String type;
+  final double weight;
+  final int pricePerKg;
+  final int amount;
+
+  WasteDetail({
+    required this.type,
+    required this.weight,
+    required this.pricePerKg,
+    required this.amount,
+  });
+}
+
+// Model untuk pickup selesai
+class CompletedPickup {
+  final String pickupId;
+  final String wasteTypes;
+  final double totalWeight;
   final String totalAmount;
   final String completedDate;
   final String completedTime;
   final int rating;
-  final String customerNote;
+  final String collectorNote;
+  final List<WasteDetail> details;
 
-  CompletedOrder({
-    required this.orderId,
-    required this.title,
-    required this.description,
+  CompletedPickup({
+    required this.pickupId,
+    required this.wasteTypes,
+    required this.totalWeight,
     required this.totalAmount,
     required this.completedDate,
     required this.completedTime,
     required this.rating,
-    required this.customerNote,
+    required this.collectorNote,
+    required this.details,
   });
 }
 
-// Model untuk pesanan dibatalkan
-class CancelledOrder {
-  final String orderId;
-  final String title;
-  final String description;
-  final String totalAmount;
+// Model untuk pickup dibatalkan
+class CancelledPickup {
+  final String pickupId;
+  final String wasteTypes;
+  final double estimatedWeight;
+  final String estimatedAmount;
   final String cancelledDate;
   final String cancelledTime;
   final String cancelReason;
-  final String refundStatus;
+  final String cancelledBy;
 
-  CancelledOrder({
-    required this.orderId,
-    required this.title,
-    required this.description,
-    required this.totalAmount,
+  CancelledPickup({
+    required this.pickupId,
+    required this.wasteTypes,
+    required this.estimatedWeight,
+    required this.estimatedAmount,
     required this.cancelledDate,
     required this.cancelledTime,
     required this.cancelReason,
-    required this.refundStatus,
+    required this.cancelledBy,
   });
 }
 
 // Enum untuk status aktivitas
-enum ActivityStatus {
-  completed,
-  inProgress,
-  pending,
-}
+enum ActivityStatus { completed, inProgress, pending }

@@ -1,20 +1,24 @@
-import 'package:rijig_mobile/core/api/api_services.dart';
+import 'package:rijig_mobile/core/api/api_client.dart';
+import 'package:rijig_mobile/core/api/api_response.dart';
 import 'package:rijig_mobile/globaldata/trash/trash_model.dart';
 
-abstract class ITrashCategoryRepository {
-  Future<TrashCategoryResponse> fetchCategories();
-}
+class TrashRepository {
+  final ApiClient _apiClient;
 
-class TrashCategoryRepository implements ITrashCategoryRepository {
-  final Https _https = Https();
+  TrashRepository({required ApiClient apiClient}) : _apiClient = apiClient;
 
-  @override
-  Future<TrashCategoryResponse> fetchCategories() async {
+  Future<List<TrashCategory>> getTrashCategories() async {
     try {
-      final response = await _https.get('/trash/categories');
-      return TrashCategoryResponse.fromJson(response);
+      final ApiResponse response = await _apiClient.get('/trash/category');
+      
+      if (response.isSuccess && response.data != null) {
+        final List<dynamic> dataList = response.data['data'] ?? [];
+        return dataList.map((json) => TrashCategory.fromJson(json)).toList();
+      }
+      
+      throw Exception(response.message);
     } catch (e) {
-      rethrow;
+      throw Exception('Failed to get trash categories: $e');
     }
   }
 }

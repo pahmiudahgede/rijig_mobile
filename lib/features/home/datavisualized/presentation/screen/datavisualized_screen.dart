@@ -1,8 +1,8 @@
 import 'package:charts_painter/chart.dart';
+import 'package:el_tooltip/el_tooltip.dart';
 import 'package:flutter/material.dart';
 import 'package:rijig_mobile/core/utils/guide.dart';
 import 'package:rijig_mobile/widget/appbar.dart';
-import 'package:el_tooltip/el_tooltip.dart';
 
 class DatavisualizedScreen extends StatefulWidget {
   const DatavisualizedScreen({super.key});
@@ -73,7 +73,7 @@ class _DatavisualizedScreenState extends State<DatavisualizedScreen> {
 
     // Hide all tooltips first
     _hideAllTooltips();
-    
+
     // Update selection
     setState(() {
       selectedIndex = index;
@@ -152,10 +152,7 @@ class _DatavisualizedScreenState extends State<DatavisualizedScreen> {
               ),
               Text(
                 'Total: ${dataSampahTerjual.reduce((a, b) => a + b).toStringAsFixed(1)} kg',
-                style: TextStyle(
-                  fontSize: 14,
-                  color: Colors.blue.shade600,
-                ),
+                style: TextStyle(fontSize: 14, color: Colors.blue.shade600),
               ),
             ],
           ),
@@ -216,9 +213,11 @@ class _DatavisualizedScreenState extends State<DatavisualizedScreen> {
                   itemOptions: BarItemOptions(
                     padding: const EdgeInsets.symmetric(horizontal: 4),
                     barItemBuilder: (itemBuilderData) {
-                      final isSelected = selectedIndex == itemBuilderData.itemIndex;
+                      final isSelected =
+                          selectedIndex == itemBuilderData.itemIndex;
                       return BarItem(
-                        color: isSelected ? Colors.orange.shade600 : primaryColor,
+                        color:
+                            isSelected ? Colors.orange.shade600 : primaryColor,
                       );
                     },
                   ),
@@ -325,29 +324,40 @@ class _DatavisualizedScreenState extends State<DatavisualizedScreen> {
       padding: const EdgeInsets.symmetric(horizontal: 16),
       child: Row(
         mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-        children: namaHari.asMap().entries.map((entry) {
-          final index = entry.key;
-          final isSelected = selectedIndex == index;
-          
-          return GestureDetector(
-            onTap: () => _handleSelection(index),
-            child: Container(
-              padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
-              decoration: BoxDecoration(
-                color: isSelected ? Colors.orange.shade100 : Colors.transparent,
-                borderRadius: BorderRadius.circular(6),
-              ),
-              child: Text(
-                entry.value,
-                style: TextStyle(
-                  fontSize: 12,
-                  fontWeight: isSelected ? FontWeight.bold : FontWeight.w500,
-                  color: isSelected ? Colors.orange.shade700 : Colors.grey.shade700,
+        children:
+            namaHari.asMap().entries.map((entry) {
+              final index = entry.key;
+              final isSelected = selectedIndex == index;
+
+              return GestureDetector(
+                onTap: () => _handleSelection(index),
+                child: Container(
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: 8,
+                    vertical: 4,
+                  ),
+                  decoration: BoxDecoration(
+                    color:
+                        isSelected
+                            ? Colors.orange.shade100
+                            : Colors.transparent,
+                    borderRadius: BorderRadius.circular(6),
+                  ),
+                  child: Text(
+                    entry.value,
+                    style: TextStyle(
+                      fontSize: 12,
+                      fontWeight:
+                          isSelected ? FontWeight.bold : FontWeight.w500,
+                      color:
+                          isSelected
+                              ? Colors.orange.shade700
+                              : Colors.grey.shade700,
+                    ),
+                  ),
                 ),
-              ),
-            ),
-          );
-        }).toList(),
+              );
+            }).toList(),
       ),
     );
   }
@@ -379,10 +389,7 @@ class _DatavisualizedScreenState extends State<DatavisualizedScreen> {
                 ),
                 Text(
                   'Sampah terjual: ${dataSampahTerjual[selectedIndex!].toStringAsFixed(1)} kg',
-                  style: TextStyle(
-                    color: Colors.orange.shade600,
-                    fontSize: 13,
-                  ),
+                  style: TextStyle(color: Colors.orange.shade600, fontSize: 13),
                 ),
               ],
             ),
@@ -397,11 +404,7 @@ class _DatavisualizedScreenState extends State<DatavisualizedScreen> {
                 color: Colors.orange.shade200,
                 borderRadius: BorderRadius.circular(12),
               ),
-              child: Icon(
-                Icons.close,
-                size: 16,
-                color: Colors.orange.shade700,
-              ),
+              child: Icon(Icons.close, size: 16, color: Colors.orange.shade700),
             ),
           ),
           // Detail button
@@ -479,7 +482,12 @@ class _DatavisualizedScreenState extends State<DatavisualizedScreen> {
     );
   }
 
-  Widget _buildStatCard(String title, String value, IconData icon, Color color) {
+  Widget _buildStatCard(
+    String title,
+    String value,
+    IconData icon,
+    Color color,
+  ) {
     return Container(
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
@@ -517,56 +525,61 @@ class _DatavisualizedScreenState extends State<DatavisualizedScreen> {
   void _showDetailDialog(int index) {
     showDialog(
       context: context,
-      builder: (context) => AlertDialog(
-        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
-        title: Row(
-          children: [
-            Icon(Icons.bar_chart, color: primaryColor),
-            const SizedBox(width: 8),
-            Text('Detail ${namaHari[index]}'),
-          ],
-        ),
-        content: Column(
-          mainAxisSize: MainAxisSize.min,
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            _buildDialogInfoRow('Hari:', namaHari[index]),
-            const SizedBox(height: 8),
-            _buildDialogInfoRow(
-              'Jumlah:',
-              '${dataSampahTerjual[index].toStringAsFixed(1)} kg',
+      builder:
+          (context) => AlertDialog(
+            shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(12),
             ),
-            const SizedBox(height: 8),
-            _buildDialogInfoRow(
-              'Persentase:',
-              '${((dataSampahTerjual[index] / dataSampahTerjual.reduce((a, b) => a + b)) * 100).toStringAsFixed(1)}%',
+            title: Row(
+              children: [
+                Icon(Icons.bar_chart, color: primaryColor),
+                const SizedBox(width: 8),
+                Text('Detail ${namaHari[index]}'),
+              ],
             ),
-            const SizedBox(height: 8),
-            _buildDialogInfoRow(
-              'Ranking:',
-              '#${_getRanking(index)} dari ${dataSampahTerjual.length} hari',
+            content: Column(
+              mainAxisSize: MainAxisSize.min,
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                _buildDialogInfoRow('Hari:', namaHari[index]),
+                const SizedBox(height: 8),
+                _buildDialogInfoRow(
+                  'Jumlah:',
+                  '${dataSampahTerjual[index].toStringAsFixed(1)} kg',
+                ),
+                const SizedBox(height: 8),
+                _buildDialogInfoRow(
+                  'Persentase:',
+                  '${((dataSampahTerjual[index] / dataSampahTerjual.reduce((a, b) => a + b)) * 100).toStringAsFixed(1)}%',
+                ),
+                const SizedBox(height: 8),
+                _buildDialogInfoRow(
+                  'Ranking:',
+                  '#${_getRanking(index)} dari ${dataSampahTerjual.length} hari',
+                ),
+              ],
             ),
-          ],
-        ),
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.pop(context),
-            child: const Text('Tutup'),
+            actions: [
+              TextButton(
+                onPressed: () => Navigator.pop(context),
+                child: const Text('Tutup'),
+              ),
+              ElevatedButton(
+                onPressed: () {
+                  Navigator.pop(context);
+                  _navigateToDetailPage(index);
+                },
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: primaryColor,
+                  foregroundColor: Colors.white,
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(8),
+                  ),
+                ),
+                child: const Text('Lihat Detail'),
+              ),
+            ],
           ),
-          ElevatedButton(
-            onPressed: () {
-              Navigator.pop(context);
-              _navigateToDetailPage(index);
-            },
-            style: ElevatedButton.styleFrom(
-              backgroundColor: primaryColor,
-              foregroundColor: Colors.white,
-              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
-            ),
-            child: const Text('Lihat Detail'),
-          ),
-        ],
-      ),
     );
   }
 
@@ -595,11 +608,9 @@ class _DatavisualizedScreenState extends State<DatavisualizedScreen> {
   }
 
   int _getRanking(int index) {
-    final sortedData = dataSampahTerjual
-        .asMap()
-        .entries
-        .toList()
-      ..sort((a, b) => b.value.compareTo(a.value));
+    final sortedData =
+        dataSampahTerjual.asMap().entries.toList()
+          ..sort((a, b) => b.value.compareTo(a.value));
     return sortedData.indexWhere((entry) => entry.key == index) + 1;
   }
 
@@ -608,13 +619,14 @@ class _DatavisualizedScreenState extends State<DatavisualizedScreen> {
     Navigator.push(
       context,
       MaterialPageRoute(
-        builder: (context) => DetailHariScreen(
-          hari: namaHari[index],
-          jumlahSampah: dataSampahTerjual[index],
-          index: index,
-          allData: dataSampahTerjual,
-          allDays: namaHari,
-        ),
+        builder:
+            (context) => DetailHariScreen(
+              hari: namaHari[index],
+              jumlahSampah: dataSampahTerjual[index],
+              index: index,
+              allData: dataSampahTerjual,
+              allDays: namaHari,
+            ),
       ),
     ).then((_) {
       if (mounted) {
@@ -659,7 +671,9 @@ class DetailHariScreen extends StatelessWidget {
           children: [
             Card(
               elevation: 4,
-              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(12),
+              ),
               child: Container(
                 width: double.infinity,
                 padding: const EdgeInsets.all(20),
@@ -745,11 +759,9 @@ class DetailHariScreen extends StatelessWidget {
   }
 
   int _getRanking() {
-    final sortedData = allData
-        .asMap()
-        .entries
-        .toList()
-      ..sort((a, b) => b.value.compareTo(a.value));
+    final sortedData =
+        allData.asMap().entries.toList()
+          ..sort((a, b) => b.value.compareTo(a.value));
     return sortedData.indexWhere((entry) => entry.key == index) + 1;
   }
 }

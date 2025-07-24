@@ -1,4 +1,5 @@
 import 'dart:io';
+import 'dart:math' as math;
 
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
@@ -14,20 +15,54 @@ enum ProcessingStatus { idle, preprocessing, extracting, validating, completed }
 class ImageProcessingData {
   final Uint8List imageBytes;
   final String imagePath;
+  final String processingType;
 
-  ImageProcessingData(this.imageBytes, this.imagePath);
+  ImageProcessingData(this.imageBytes, this.imagePath, this.processingType);
 }
 
 class ProcessedImageResult {
   final String processedPath;
   final bool success;
   final String? error;
+  final double quality;
+  final String processingType;
 
   ProcessedImageResult({
     required this.processedPath,
     required this.success,
     this.error,
+    this.quality = 0.0,
+    required this.processingType,
   });
+}
+
+class NIKCandidate {
+  final String nik;
+  final double confidence;
+  final String source;
+  final Map<String, dynamic> metadata;
+
+  NIKCandidate({
+    required this.nik,
+    required this.confidence,
+    required this.source,
+    this.metadata = const {},
+  });
+}
+
+class OCRCache {
+  final Map<String, List<NIKCandidate>> _cache = {};
+  final int _maxCacheSize = 10;
+
+  void put(String key, List<NIKCandidate> candidates) {
+    if (_cache.length >= _maxCacheSize) {
+      _cache.remove(_cache.keys.first);
+    }
+    _cache[key] = candidates;
+  }
+
+  List<NIKCandidate>? get(String key) => _cache[key];
+  void clear() => _cache.clear();
 }
 
 class KtpData {
@@ -118,13 +153,15 @@ class KtpData {
   }
 }
 
-class KtpValidatorController extends ChangeNotifier {
+class OptimizedKtpValidatorController extends ChangeNotifier {
   static const int _maxImageSize = 2048;
   static const int _imageQuality = 85;
+  static const double _minConfidenceThreshold = 0.6;
 
   final ImagePicker _picker = ImagePicker();
   final KtpData _ktpData = KtpData();
   final Map<String, TextEditingController> _controllers = {};
+  final OCRCache _ocrCache = OCRCache();
 
   File? _selectedImage;
   File? _processedImage;
@@ -134,7 +171,12 @@ class KtpValidatorController extends ChangeNotifier {
   String _successMessage = '';
   TextRecognizer? _textRecognizer;
 
-  // Getters tetap sama
+  List<NIKCandidate> _nikCandidates = [];
+  String _selectedNik = '';
+  String? _currentImageHash;
+
+  final Stopwatch _processingStopwatch = Stopwatch();
+
   KtpValidationState get state => _state;
   ProcessingStatus get processingStatus => _processingStatus;
   String get errorMessage => _errorMessage;
@@ -145,6 +187,7 @@ class KtpValidatorController extends ChangeNotifier {
   bool get isProcessing => _state == KtpValidationState.processing;
   bool get hasData => _ktpData.hasData;
   bool get canProcessImage => _selectedImage != null && !isProcessing;
+  List<String> get nikCandidates => _nikCandidates.map((c) => c.nik).toList();
 
   void initialize() {
     _initializeControllers();
@@ -197,14 +240,17 @@ class KtpValidatorController extends ChangeNotifier {
         imageQuality: _imageQuality,
         maxWidth: _maxImageSize.toDouble(),
         maxHeight: _maxImageSize.toDouble(),
+        preferredCameraDevice: CameraDevice.rear,
       );
 
       if (image != null) {
-        _cleanupTempFiles();
+        await _cleanupTempFiles();
         _selectedImage = File(image.path);
         _processedImage = null;
         _ktpData.clear();
         _clearControllers();
+        _nikCandidates.clear();
+        _currentImageHash = await _calculateImageHash(image.path);
 
         _updateState(KtpValidationState.imageSelected);
         _clearMessages();
@@ -214,295 +260,537 @@ class KtpValidatorController extends ChangeNotifier {
     }
   }
 
+  Future<String> _calculateImageHash(String imagePath) async {
+    final bytes = await File(imagePath).readAsBytes();
+    return bytes.length.toString() +
+        bytes.first.toString() +
+        bytes.last.toString();
+  }
+
   Future<void> processImage() async {
     if (_selectedImage == null || _textRecognizer == null) return;
+
+    _processingStopwatch.reset();
+    _processingStopwatch.start();
 
     _updateState(KtpValidationState.processing);
     _updateProcessingStatus(ProcessingStatus.preprocessing);
     _ktpData.clear();
     _clearControllers();
+    _nikCandidates.clear();
 
     try {
-      // Improved image processing
-      final ProcessedImageResult result = await _processImageOptimized(
-        _selectedImage!,
-      );
-
-      if (!result.success) {
-        throw Exception(result.error ?? 'Image processing failed');
+      if (_currentImageHash != null) {
+        final cachedCandidates = _ocrCache.get(_currentImageHash!);
+        if (cachedCandidates != null && cachedCandidates.isNotEmpty) {
+          _nikCandidates = cachedCandidates;
+          await _processBestCandidate();
+          return;
+        }
       }
 
-      _processedImage = File(result.processedPath);
+      final List<ProcessedImageResult> processedVersions =
+          await _createOptimizedProcessedVersions(_selectedImage!);
+
       _updateProcessingStatus(ProcessingStatus.extracting);
 
-      // Enhanced OCR with multiple attempts
-      final String extractedNIK = await _performMultipleOCRAttempts(
-        _processedImage!,
-      );
+      final List<NIKCandidate> allCandidates = [];
 
-      if (extractedNIK.isEmpty) {
-        throw Exception(
-          'NIK tidak ditemukan. Pastikan foto KTP jelas dan tidak buram.',
-        );
+      final originalCandidates = await _extractNIKCandidatesWithConfidence(
+        _selectedImage!,
+      );
+      allCandidates.addAll(originalCandidates);
+
+      for (final result in processedVersions) {
+        if (result.success) {
+          final candidates = await _extractNIKCandidatesWithConfidence(
+            File(result.processedPath),
+            sourceWeight: result.quality,
+          );
+          allCandidates.addAll(candidates);
+        }
       }
 
       _updateProcessingStatus(ProcessingStatus.validating);
 
-      await _parseNIK(extractedNIK);
+      _nikCandidates = _rankAndFilterCandidates(allCandidates);
 
-      _updateProcessingStatus(ProcessingStatus.completed);
-      _updateControllers();
-      _updateState(KtpValidationState.success);
-      _setSuccessMessage('NIK berhasil terdeteksi: $extractedNIK');
+      if (_nikCandidates.isEmpty) {
+        throw Exception(
+          'NIK tidak ditemukan. Pastikan foto KTP jelas dan seluruh area KTP terlihat.',
+        );
+      }
+
+      if (_currentImageHash != null) {
+        _ocrCache.put(_currentImageHash!, _nikCandidates);
+      }
+
+      await _processBestCandidate();
     } catch (e) {
       _handleError('Error saat memproses gambar: $e');
-    }
-  }
-
-  Future<String> _performMultipleOCRAttempts(File processedImage) async {
-    try {
-      // Attempt 1: Original processed image
-      String nik = await _performEnhancedOCR(processedImage);
-      if (nik.isNotEmpty) {
-        debugPrint('NIK found in attempt 1: $nik');
-        return nik;
-      }
-
-      // Attempt 2: Try with different image processing
-      final File alternativeProcessed = await _createAlternativeProcessedImage(
-        processedImage,
+    } finally {
+      _processingStopwatch.stop();
+      debugPrint(
+        'Processing time: ${_processingStopwatch.elapsedMilliseconds}ms',
       );
-      nik = await _performEnhancedOCR(alternativeProcessed);
-      if (nik.isNotEmpty) {
-        debugPrint('NIK found in attempt 2: $nik');
-        return nik;
-      }
-
-      // Attempt 3: Try with original image (no processing)
-      nik = await _performEnhancedOCR(_selectedImage!);
-      if (nik.isNotEmpty) {
-        debugPrint('NIK found in attempt 3 (original): $nik');
-        return nik;
-      }
-
-      debugPrint('NIK not found in any attempt');
-      return '';
-    } catch (e) {
-      debugPrint('Multiple OCR attempts error: $e');
-      return '';
     }
   }
 
-  Future<File> _createAlternativeProcessedImage(File originalProcessed) async {
-    try {
-      final Uint8List imageBytes = await originalProcessed.readAsBytes();
-      final img.Image? image = img.decodeImage(imageBytes);
+  Future<void> _processBestCandidate() async {
+    _selectedNik = _nikCandidates.first.nik;
+    await _parseNIK(_selectedNik);
 
-      if (image == null) return originalProcessed;
+    _updateProcessingStatus(ProcessingStatus.completed);
+    _updateControllers();
+    _updateState(KtpValidationState.success);
 
-      img.Image processed = image;
-
-      // Different processing approach
-      processed = img.adjustColor(processed, contrast: 1.6, brightness: 1.2);
-      processed = img.gaussianBlur(processed, radius: 1);
-      processed = img.adjustColor(processed, contrast: 1.3);
-
-      // Apply threshold for better text recognition
-      processed = _applyThreshold(processed, 128);
-
-      final String altProcessedPath = originalProcessed.path.replaceAll(
-        '_processed.jpg',
-        '_alt_processed.jpg',
-      );
-      final File altProcessedFile = File(altProcessedPath);
-      await altProcessedFile.writeAsBytes(
-        img.encodeJpg(processed, quality: 95),
-      );
-
-      return altProcessedFile;
-    } catch (e) {
-      debugPrint('Alternative processing error: $e');
-      return originalProcessed;
-    }
+    final confidence = (_nikCandidates.first.confidence * 100).toInt();
+    _setSuccessMessage(
+      'NIK terdeteksi: $_selectedNik (akurasi: $confidence%)'
+      '${_nikCandidates.length > 1 ? ' - ${_nikCandidates.length} kandidat' : ''}',
+    );
   }
 
-  img.Image _applyThreshold(img.Image image, int threshold) {
-    for (int y = 0; y < image.height; y++) {
-      for (int x = 0; x < image.width; x++) {
-        final pixel = image.getPixel(x, y);
-        final gray = img.getLuminance(pixel);
-        final newPixel =
-            gray > threshold
-                ? img.ColorRgb8(255, 255, 255)
-                : img.ColorRgb8(0, 0, 0);
-        image.setPixel(x, y, newPixel);
-      }
-    }
-    return image;
-  }
+  Future<List<ProcessedImageResult>> _createOptimizedProcessedVersions(
+    File imageFile,
+  ) async {
+    final List<ProcessedImageResult> results = [];
 
-  Future<ProcessedImageResult> _processImageOptimized(File imageFile) async {
     try {
       final Uint8List imageBytes = await imageFile.readAsBytes();
-      return await compute(
-        _processImageInIsolate,
-        ImageProcessingData(imageBytes, imageFile.path),
+
+      final result1 = await compute(
+        _processImageEnhanced,
+        ImageProcessingData(imageBytes, imageFile.path, 'enhanced'),
       );
+      results.add(result1);
+
+      final result2 = await compute(
+        _processImageAdaptive,
+        ImageProcessingData(imageBytes, imageFile.path, 'adaptive'),
+      );
+      results.add(result2);
     } catch (e) {
-      return ProcessedImageResult(
-        processedPath: imageFile.path,
-        success: false,
-        error: e.toString(),
-      );
+      debugPrint('Error creating processed versions: $e');
     }
+
+    return results;
   }
 
-  Future<String> _performEnhancedOCR(File imageFile) async {
+  Future<List<NIKCandidate>> _extractNIKCandidatesWithConfidence(
+    File imageFile, {
+    double sourceWeight = 1.0,
+  }) async {
+    final List<NIKCandidate> candidates = [];
+
     try {
       final InputImage inputImage = InputImage.fromFile(imageFile);
       final RecognizedText recognizedText = await _textRecognizer!.processImage(
         inputImage,
       );
 
-      // Debug: Print all detected text
-      debugPrint('OCR Raw Text: ${recognizedText.text}');
+      candidates.addAll(
+        _extractCandidatesFromText(
+          recognizedText.text,
+          'full_text',
+          sourceWeight,
+        ),
+      );
 
-      // Print each text block for debugging
-      for (TextBlock block in recognizedText.blocks) {
-        debugPrint('Text Block: ${block.text}');
-        for (TextLine line in block.lines) {
-          debugPrint('Text Line: ${line.text}');
+      for (int i = 0; i < recognizedText.blocks.length; i++) {
+        final block = recognizedText.blocks[i];
+        candidates.addAll(
+          _extractCandidatesFromText(
+            block.text,
+            'block_$i',
+            sourceWeight * 0.9,
+          ),
+        );
+
+        for (int j = 0; j < block.lines.length; j++) {
+          final line = block.lines[j];
+          candidates.addAll(
+            _extractCandidatesFromText(
+              line.text,
+              'line_${i}_$j',
+              sourceWeight * 0.8,
+            ),
+          );
         }
       }
 
-      // Try multiple extraction methods
-      String nik = _extractNIKEnhanced(recognizedText.text);
-      if (nik.isNotEmpty) return nik;
-
-      nik = _extractNIKFromBlocks(recognizedText.blocks);
-      if (nik.isNotEmpty) return nik;
-
-      nik = _extractNIKFallback(recognizedText.text);
-      return nik;
+      candidates.addAll(
+        _extractNIKWithContext(recognizedText.blocks, sourceWeight),
+      );
     } catch (e) {
       debugPrint('OCR Error: $e');
-      return '';
     }
+
+    return candidates;
   }
 
-  // IMPROVED: Enhanced NIK extraction with better patterns
-  String _extractNIKEnhanced(String ocrText) {
-    final List<RegExp> nikPatterns = [
-      // Standard 16 digits
-      RegExp(r'\b(\d{16})\b'),
-      // With spaces or separators
-      RegExp(r'(\d{2}[\s\-_]?\d{2}[\s\-_]?\d{2}[\s\-_]?\d{6}[\s\-_]?\d{4})'),
-      RegExp(r'(\d{4}[\s\-_]?\d{4}[\s\-_]?\d{4}[\s\-_]?\d{4})'),
-      // More flexible patterns
-      RegExp(r'(\d{2}\s*\d{2}\s*\d{2}\s*\d{6}\s*\d{4})'),
-      RegExp(r'(\d{6}\s*\d{6}\s*\d{4})'),
-      // Looking for NIK label followed by numbers
-      RegExp(r'(?:NIK|No\.?\s*KTP)[\s:]*(\d{16})', caseSensitive: false),
-      RegExp(
-        r'(?:NIK|No\.?\s*KTP)[\s:]*(\d{2}[\s\-_]?\d{2}[\s\-_]?\d{2}[\s\-_]?\d{6}[\s\-_]?\d{4})',
-        caseSensitive: false,
-      ),
+  List<NIKCandidate> _extractCandidatesFromText(
+    String text,
+    String source,
+    double sourceWeight,
+  ) {
+    final List<NIKCandidate> candidates = [];
+    final String cleanedText = _cleanOCRErrors(text);
+
+    final List<Map<String, dynamic>> patterns = [
+      {
+        'pattern': RegExp(r'\b(\d{16})\b'),
+        'confidence': 1.0,
+        'name': 'exact_16_digits',
+      },
+      {
+        'pattern': RegExp(
+          r'(\d{2}[\s\-\.]{0,2}\d{2}[\s\-\.]{0,2}\d{2}[\s\-\.]{0,2}\d{6}[\s\-\.]{0,2}\d{4})',
+        ),
+        'confidence': 0.9,
+        'name': 'formatted_nik',
+      },
+      {
+        'pattern': RegExp(
+          r'(?:NIK|No\.?\s*KTP|Nomor|No)[\s:]*(\d{16})',
+          caseSensitive: false,
+        ),
+        'confidence': 1.0,
+        'name': 'labeled_nik',
+      },
+      {
+        'pattern': RegExp(r'([0-9oOlI]{16})'),
+        'confidence': 0.7,
+        'name': 'ocr_errors',
+      },
     ];
 
-    // Clean text for better matching
-    String cleanText =
-        ocrText
-            .replaceAll(RegExp(r'[^\d\s\-_:]'), ' ')
-            .replaceAll(RegExp(r'\s+'), ' ')
-            .trim();
+    for (final patternInfo in patterns) {
+      final RegExp pattern = patternInfo['pattern'];
+      final double baseConfidence = patternInfo['confidence'];
+      final String patternName = patternInfo['name'];
 
-    debugPrint('Clean text for NIK extraction: $cleanText');
-
-    for (RegExp pattern in nikPatterns) {
-      final Match? match = pattern.firstMatch(ocrText);
-      if (match != null) {
+      final matches = pattern.allMatches(cleanedText);
+      for (final match in matches) {
         String candidate = match.group(1) ?? match.group(0)!;
-        candidate = candidate.replaceAll(RegExp(r'[\s\-_]+'), '');
+        candidate = _normalizeNIK(candidate);
 
-        debugPrint('Pattern matched candidate: $candidate');
-
-        if (candidate.length == 16 && _isValidNIKFormat(candidate)) {
-          debugPrint('Valid NIK found: $candidate');
-          return candidate;
+        if (candidate.length == 16 && _isValidNIKStructure(candidate)) {
+          final confidence = _calculateNIKConfidence(
+            candidate,
+            cleanedText,
+            patternName,
+          );
+          candidates.add(
+            NIKCandidate(
+              nik: candidate,
+              confidence: confidence * baseConfidence * sourceWeight,
+              source: '$source-$patternName',
+              metadata: {
+                'pattern': patternName,
+                'match_position': match.start,
+                'context': _getContext(cleanedText, match.start, match.end),
+              },
+            ),
+          );
         }
       }
     }
 
-    return '';
+    return candidates;
   }
 
-  String _extractNIKFromBlocks(List<TextBlock> blocks) {
-    for (TextBlock block in blocks) {
-      for (TextLine line in block.lines) {
-        String lineText = line.text;
-        debugPrint('Checking line: $lineText');
+  List<NIKCandidate> _extractNIKWithContext(
+    List<TextBlock> blocks,
+    double sourceWeight,
+  ) {
+    final List<NIKCandidate> candidates = [];
 
-        // Look for lines that might contain NIK
-        if (lineText.toLowerCase().contains('nik') ||
-            lineText.toLowerCase().contains('ktp') ||
-            RegExp(r'\d{12,}').hasMatch(lineText)) {
-          String nik = _extractNIKEnhanced(lineText);
-          if (nik.isNotEmpty) {
-            debugPrint('NIK found in line: $lineText -> $nik');
-            return nik;
+    for (int i = 0; i < blocks.length; i++) {
+      final block = blocks[i];
+      final lines = block.lines;
+
+      for (int j = 0; j < lines.length - 1; j++) {
+        final currentLine = lines[j].text.toLowerCase();
+        final nextLine = lines[j + 1].text;
+
+        if (_containsNIKIndicator(currentLine)) {
+          final numbers = _extractNumbersOnly(nextLine);
+          if (numbers.length >= 16) {
+            final candidate = numbers.substring(0, 16);
+            if (_isValidNIKStructure(candidate)) {
+              final confidence = _calculateNIKConfidence(
+                candidate,
+                nextLine,
+                'context_based',
+              );
+              candidates.add(
+                NIKCandidate(
+                  nik: candidate,
+                  confidence: confidence * sourceWeight * 1.1,
+                  source: 'context_block_$i',
+                  metadata: {
+                    'indicator_line': currentLine,
+                    'data_line': nextLine,
+                    'context_boost': true,
+                  },
+                ),
+              );
+            }
           }
         }
       }
     }
-    return '';
+
+    return candidates;
   }
 
-  String _extractNIKFallback(String ocrText) {
-    final RegExp numberPattern = RegExp(r'\d+');
-    final Iterable<Match> matches = numberPattern.allMatches(ocrText);
+  bool _containsNIKIndicator(String text) {
+    final indicators = ['nik', 'ktp', 'nomor', 'no.', 'identitas'];
+    return indicators.any((indicator) => text.contains(indicator));
+  }
 
-    for (Match match in matches) {
-      String candidate = match.group(0)!;
+  String _getContext(String text, int start, int end) {
+    final contextStart = math.max(0, start - 10);
+    final contextEnd = math.min(text.length, end + 10);
+    return text.substring(contextStart, contextEnd);
+  }
 
-      if (candidate.length == 16 && _isValidNIKFormat(candidate)) {
-        return candidate;
-      }
+  double _calculateNIKConfidence(
+    String nik,
+    String context,
+    String patternType,
+  ) {
+    double confidence = 0.0;
 
-      if (candidate.length > 16) {
-        for (int i = 0; i <= candidate.length - 16; i++) {
-          String subCandidate = candidate.substring(i, i + 16);
-          if (_isValidNIKFormat(subCandidate)) {
-            return subCandidate;
-          }
+    if (_isValidNIKStructure(nik)) confidence += 0.3;
+
+    confidence += _calculateDateConfidence(nik) * 0.2;
+    confidence += _calculateProvinceConfidence(nik) * 0.15;
+    confidence += _calculateSequenceConfidence(nik) * 0.1;
+
+    confidence += _calculateContextConfidence(context, patternType) * 0.15;
+
+    switch (patternType) {
+      case 'labeled_nik':
+        confidence += 0.1;
+        break;
+      case 'exact_16_digits':
+        confidence += 0.05;
+        break;
+      case 'context_based':
+        confidence += 0.08;
+        break;
+    }
+
+    return math.min(1.0, confidence);
+  }
+
+  double _calculateDateConfidence(String nik) {
+    try {
+      final birthDateStr = nik.substring(6, 12);
+      int day = int.parse(birthDateStr.substring(0, 2));
+      final month = int.parse(birthDateStr.substring(2, 4));
+      final year = int.parse(birthDateStr.substring(4, 6));
+
+      if (day > 40) day -= 40;
+
+      if (day < 1 || day > 31) return 0.0;
+      if (month < 1 || month > 12) return 0.5;
+
+      final fullYear = year < 50 ? 2000 + year : 1900 + year;
+      final age = DateTime.now().year - fullYear;
+      if (age < 17 || age > 80) return 0.3;
+
+      return 1.0;
+    } catch (e) {
+      return 0.0;
+    }
+  }
+
+  double _calculateProvinceConfidence(String nik) {
+    final provinceCode = int.tryParse(nik.substring(0, 2)) ?? 0;
+
+    final validProvinceCodes = [
+      11,
+      12,
+      13,
+      14,
+      15,
+      16,
+      17,
+      18,
+      19,
+      21,
+      31,
+      32,
+      33,
+      34,
+      35,
+      36,
+      51,
+      52,
+      53,
+      61,
+      62,
+      63,
+      64,
+      65,
+      71,
+      72,
+      73,
+      74,
+      75,
+      76,
+      81,
+      82,
+      91,
+      94,
+    ];
+
+    return validProvinceCodes.contains(provinceCode) ? 1.0 : 0.0;
+  }
+
+  double _calculateSequenceConfidence(String nik) {
+    final sequence = nik.substring(12, 16);
+
+    if (sequence == "0000" || sequence == "9999") return 0.3;
+    if (RegExp(r'^(\d)\1{3}$').hasMatch(sequence)) return 0.5;
+
+    return 1.0;
+  }
+
+  double _calculateContextConfidence(String context, String patternType) {
+    double confidence = 0.5;
+
+    final lowerContext = context.toLowerCase();
+
+    if (lowerContext.contains('nik')) confidence += 0.3;
+    if (lowerContext.contains('ktp')) confidence += 0.2;
+    if (lowerContext.contains('nomor')) confidence += 0.1;
+
+    if (lowerContext.contains('telepon') || lowerContext.contains('hp')) {
+      confidence -= 0.3;
+    }
+    if (lowerContext.contains('rekening') || lowerContext.contains('bank')) {
+      confidence -= 0.3;
+    }
+
+    return math.max(0.0, math.min(1.0, confidence));
+  }
+
+  List<NIKCandidate> _rankAndFilterCandidates(List<NIKCandidate> candidates) {
+    final Map<String, NIKCandidate> uniqueCandidates = {};
+
+    for (final candidate in candidates) {
+      if (uniqueCandidates.containsKey(candidate.nik)) {
+        final existing = uniqueCandidates[candidate.nik]!;
+        if (candidate.confidence > existing.confidence) {
+          uniqueCandidates[candidate.nik] = candidate;
         }
+      } else {
+        uniqueCandidates[candidate.nik] = candidate;
       }
     }
 
-    return '';
+    final filtered =
+        uniqueCandidates.values
+            .where(
+              (c) =>
+                  c.confidence >= _minConfidenceThreshold &&
+                  _isValidNIKStructure(c.nik),
+            )
+            .toList();
+
+    filtered.sort((a, b) => b.confidence.compareTo(a.confidence));
+
+    return filtered.take(5).toList();
   }
 
-  bool _isValidNIKFormat(String nik) {
+  String _cleanOCRErrors(String text) {
+    final corrections = {
+      'O': '0',
+      'o': '0',
+      'Q': '0',
+      'D': '0',
+      'l': '1',
+      'I': '1',
+      '|': '1',
+      'i': '1',
+      'S': '5',
+      's': '5',
+      'Z': '2',
+      'z': '2',
+      'G': '6',
+      'g': '9',
+      'B': '8',
+      'b': '6',
+      'A': '4',
+      'T': '7',
+      'h': '4',
+    };
+
+    String cleaned = text;
+    corrections.forEach((key, value) {
+      cleaned = cleaned.replaceAll(key, value);
+    });
+
+    return cleaned.replaceAll(RegExp(r'[^\d\s\-\.]'), '');
+  }
+
+  String _normalizeNIK(String text) {
+    return text
+        .replaceAll(RegExp(r'[^0-9oOlIqQbBgGsSzZdD]'), '')
+        .replaceAll('O', '0')
+        .replaceAll('o', '0')
+        .replaceAll('Q', '0')
+        .replaceAll('l', '1')
+        .replaceAll('I', '1')
+        .replaceAll('q', '9')
+        .replaceAll('b', '6')
+        .replaceAll('B', '8')
+        .replaceAll('g', '9')
+        .replaceAll('G', '6')
+        .replaceAll('s', '5')
+        .replaceAll('S', '5')
+        .replaceAll('z', '2')
+        .replaceAll('Z', '2')
+        .replaceAll('d', '0')
+        .replaceAll('D', '0');
+  }
+
+  String _extractNumbersOnly(String text) {
+    return _cleanOCRErrors(text).replaceAll(RegExp(r'[^0-9]'), '');
+  }
+
+  bool _isValidNIKStructure(String nik) {
     if (nik.length != 16) return false;
+    if (!RegExp(r'^\d{16}$').hasMatch(nik)) return false;
 
-    int provinceCode = int.tryParse(nik.substring(0, 2)) ?? 0;
-    if (provinceCode < 11 || provinceCode > 94) return false;
+    final provinceCode = int.tryParse(nik.substring(0, 2)) ?? 0;
+    final regencyCode = int.tryParse(nik.substring(2, 4)) ?? 0;
+    final districtCode = int.tryParse(nik.substring(4, 6)) ?? 0;
 
-    int regencyCode = int.tryParse(nik.substring(2, 4)) ?? 0;
-    if (regencyCode < 1 || regencyCode > 99) return false;
+    return provinceCode >= 11 &&
+        provinceCode <= 94 &&
+        regencyCode >= 1 &&
+        regencyCode <= 99 &&
+        districtCode >= 1 &&
+        districtCode <= 99;
+  }
 
-    int districtCode = int.tryParse(nik.substring(4, 6)) ?? 0;
-    if (districtCode < 1 || districtCode > 99) return false;
+  Future<void> selectNIKCandidate(String nik) async {
+    final candidate = _nikCandidates.firstWhere(
+      (c) => c.nik == nik,
+      orElse: () => NIKCandidate(nik: nik, confidence: 0.0, source: 'manual'),
+    );
 
-    String birthDate = nik.substring(6, 12);
-    int day = int.tryParse(birthDate.substring(0, 2)) ?? 0;
-    int month = int.tryParse(birthDate.substring(2, 4)) ?? 0;
-
-    if (day > 40) day -= 40;
-
-    if (day < 1 || day > 31) return false;
-    if (month < 1 || month > 12) return false;
-
-    return true;
+    if (candidate.nik.isNotEmpty) {
+      _selectedNik = candidate.nik;
+      await _parseNIK(candidate.nik);
+      _updateControllers();
+      notifyListeners();
+    }
   }
 
   Future<void> _parseNIK(String nik) async {
@@ -526,30 +814,34 @@ class KtpValidatorController extends ChangeNotifier {
   }
 
   void updateControllerValue(String key, String value) {
-    if (_controllers.containsKey(key)) {
-      _controllers[key]?.text = value;
-    }
+    _controllers[key]?.text = value;
   }
 
   void _updateControllers() {
-    _controllers['nik']?.text = _ktpData.identificationNumber;
-    _controllers['name']?.text = _ktpData.fullName;
-    _controllers['placeOfBirth']?.text = _ktpData.placeOfBirth;
-    _controllers['dateOfBirth']?.text = _ktpData.dateOfBirth;
-    _controllers['gender']?.text = _ktpData.gender;
-    _controllers['bloodType']?.text = _ktpData.bloodType;
-    _controllers['hamlet']?.text = _ktpData.hamlet;
-    _controllers['village']?.text = _ktpData.village;
-    _controllers['neighbourhood']?.text = _ktpData.neighbourhood;
-    _controllers['religion']?.text = _ktpData.religion;
-    _controllers['maritalStatus']?.text = _ktpData.maritalStatus;
-    _controllers['job']?.text = _ktpData.job;
-    _controllers['citizenship']?.text = _ktpData.citizenship;
-    _controllers['validUntil']?.text = _ktpData.validUntil;
-    _controllers['province']?.text = _ktpData.province;
-    _controllers['district']?.text = _ktpData.district;
-    _controllers['subDistrict']?.text = _ktpData.subDistrict;
-    _controllers['postalCode']?.text = _ktpData.postalCode;
+    final mappings = {
+      'nik': _ktpData.identificationNumber,
+      'name': _ktpData.fullName,
+      'placeOfBirth': _ktpData.placeOfBirth,
+      'dateOfBirth': _ktpData.dateOfBirth,
+      'gender': _ktpData.gender,
+      'bloodType': _ktpData.bloodType,
+      'hamlet': _ktpData.hamlet,
+      'village': _ktpData.village,
+      'neighbourhood': _ktpData.neighbourhood,
+      'religion': _ktpData.religion,
+      'maritalStatus': _ktpData.maritalStatus,
+      'job': _ktpData.job,
+      'citizenship': _ktpData.citizenship,
+      'validUntil': _ktpData.validUntil,
+      'province': _ktpData.province,
+      'district': _ktpData.district,
+      'subDistrict': _ktpData.subDistrict,
+      'postalCode': _ktpData.postalCode,
+    };
+
+    mappings.forEach((key, value) {
+      _controllers[key]?.text = value;
+    });
   }
 
   void _clearControllers() {
@@ -593,7 +885,7 @@ class KtpValidatorController extends ChangeNotifier {
       _ktpData.citizenship = _controllers['citizenship']?.text ?? '';
       _ktpData.validUntil = _controllers['validUntil']?.text ?? '';
 
-      await Future.delayed(const Duration(milliseconds: 500));
+      await Future.delayed(const Duration(milliseconds: 300));
 
       _setSuccessMessage('Data KTP berhasil disimpan!');
       debugPrint('KTP Data saved: ${_ktpData.toJson()}');
@@ -643,9 +935,11 @@ class KtpValidatorController extends ChangeNotifier {
     }
   }
 
-  void _cleanupTempFiles() {
+  Future<void> _cleanupTempFiles() async {
     try {
-      _processedImage?.deleteSync();
+      if (_processedImage?.existsSync() == true) {
+        await _processedImage!.delete();
+      }
     } catch (e) {
       debugPrint('Error cleaning temp files: $e');
     }
@@ -658,11 +952,12 @@ class KtpValidatorController extends ChangeNotifier {
       controller.dispose();
     }
     _cleanupTempFiles();
+    _ocrCache.clear();
     super.dispose();
   }
 }
 
-Future<ProcessedImageResult> _processImageInIsolate(
+Future<ProcessedImageResult> _processImageEnhanced(
   ImageProcessingData data,
 ) async {
   try {
@@ -672,45 +967,156 @@ Future<ProcessedImageResult> _processImageInIsolate(
         processedPath: data.imagePath,
         success: false,
         error: 'Failed to decode image',
+        processingType: data.processingType,
       );
     }
 
-    img.Image processed = image;
+    if (image.width > 1200 || image.height > 1200) {
+      final scale = 1200 / math.max(image.width, image.height);
+      image = img.copyResize(
+        image,
+        width: (image.width * scale).round(),
+        height: (image.height * scale).round(),
+        interpolation: img.Interpolation.cubic,
+      );
+    }
 
-    processed = img.grayscale(processed);
+    img.Image processed = img.grayscale(image);
 
-    processed = img.adjustColor(processed, contrast: 1.4, brightness: 1.1);
+    processed = img.normalize(processed, min: 0, max: 255);
+    processed = img.adjustColor(processed, contrast: 1.4, brightness: 1.05);
 
     processed = img.convolution(
       processed,
       filter: [0, -1, 0, -1, 5, -1, 0, -1, 0],
     );
 
-    if (processed.width < 1200) {
-      processed = img.copyResize(processed, width: 1200);
-    } else if (processed.width > 1600) {
-      processed = img.copyResize(processed, width: 1600);
-    }
-
-    processed = img.gaussianBlur(processed, radius: 1);
-
-    processed = img.adjustColor(processed, contrast: 1.2);
-
-    processed = img.normalize(processed, min: 0, max: 255);
-
     final String processedPath = data.imagePath.replaceAll(
       '.jpg',
-      '_processed.jpg',
+      '_enhanced.jpg',
     );
     final File processedFile = File(processedPath);
-    await processedFile.writeAsBytes(img.encodeJpg(processed, quality: 95));
+    await processedFile.writeAsBytes(img.encodeJpg(processed, quality: 90));
 
-    return ProcessedImageResult(processedPath: processedPath, success: true);
+    return ProcessedImageResult(
+      processedPath: processedPath,
+      success: true,
+      quality: 0.9,
+      processingType: data.processingType,
+    );
   } catch (e) {
     return ProcessedImageResult(
       processedPath: data.imagePath,
       success: false,
       error: e.toString(),
+      processingType: data.processingType,
     );
   }
+}
+
+Future<ProcessedImageResult> _processImageAdaptive(
+  ImageProcessingData data,
+) async {
+  try {
+    img.Image? image = img.decodeImage(data.imageBytes);
+    if (image == null) {
+      return ProcessedImageResult(
+        processedPath: data.imagePath,
+        success: false,
+        error: 'Failed to decode image',
+        processingType: data.processingType,
+      );
+    }
+
+    if (image.width > 1200 || image.height > 1200) {
+      final scale = 1200 / math.max(image.width, image.height);
+      image = img.copyResize(
+        image,
+        width: (image.width * scale).round(),
+        height: (image.height * scale).round(),
+        interpolation: img.Interpolation.cubic,
+      );
+    }
+
+    img.Image processed = img.grayscale(image);
+
+    final threshold = _calculateOtsuThreshold(processed);
+
+    for (int y = 0; y < processed.height; y++) {
+      for (int x = 0; x < processed.width; x++) {
+        final pixel = processed.getPixel(x, y);
+        final gray = img.getLuminance(pixel);
+        final newPixel =
+            gray > threshold
+                ? img.ColorRgb8(255, 255, 255)
+                : img.ColorRgb8(0, 0, 0);
+        processed.setPixel(x, y, newPixel);
+      }
+    }
+
+    final String processedPath = data.imagePath.replaceAll(
+      '.jpg',
+      '_adaptive.jpg',
+    );
+    final File processedFile = File(processedPath);
+    await processedFile.writeAsBytes(img.encodeJpg(processed, quality: 90));
+
+    return ProcessedImageResult(
+      processedPath: processedPath,
+      success: true,
+      quality: 0.8,
+      processingType: data.processingType,
+    );
+  } catch (e) {
+    return ProcessedImageResult(
+      processedPath: data.imagePath,
+      success: false,
+      error: e.toString(),
+      processingType: data.processingType,
+    );
+  }
+}
+
+int _calculateOtsuThreshold(img.Image image) {
+  final histogram = List<int>.filled(256, 0);
+
+  for (int y = 0; y < image.height; y++) {
+    for (int x = 0; x < image.width; x++) {
+      final pixel = image.getPixel(x, y);
+      final gray = img.getLuminance(pixel).toInt().clamp(0, 255);
+      histogram[gray]++;
+    }
+  }
+
+  final total = image.width * image.height;
+  double sum = 0;
+  for (int i = 0; i < 256; i++) {
+    sum += i * histogram[i];
+  }
+
+  double sumB = 0;
+  int wB = 0;
+  double maxVariance = 0;
+  int threshold = 0;
+
+  for (int i = 0; i < 256; i++) {
+    wB += histogram[i];
+    if (wB == 0) continue;
+
+    final wF = total - wB;
+    if (wF == 0) break;
+
+    sumB += i * histogram[i];
+    final mB = sumB / wB;
+    final mF = (sum - sumB) / wF;
+
+    final variance = wB * wF * (mB - mF) * (mB - mF);
+
+    if (variance > maxVariance) {
+      maxVariance = variance;
+      threshold = i;
+    }
+  }
+
+  return threshold;
 }

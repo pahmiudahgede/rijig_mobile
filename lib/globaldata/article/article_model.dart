@@ -21,14 +21,27 @@ class ArticleModel {
 
   factory ArticleModel.fromJson(Map<String, dynamic> json) {
     return ArticleModel(
-      articleId: json['article_id'],
-      title: json['title'],
-      coverImage: json['coverImage'],
-      author: json['author'],
-      heading: json['heading'],
-      content: json['content'],
-      publishedAt: json['publishedAt'],
-      updatedAt: json['updatedAt'],
+      articleId: json['article_id'] ?? '',
+      title: json['title'] ?? '',
+      coverImage: json['coverImage'] ?? '',
+      author: json['author'] ?? '',
+      heading: json['heading'] ?? '',
+      content: json['content'] ?? '',
+      publishedAt: json['publishedAt'] ?? '',
+      updatedAt: json['updatedAt'] ?? '',
     );
+  }
+
+  Map<String, dynamic> toJson() {
+    return {
+      'article_id': articleId,
+      'title': title,
+      'coverImage': coverImage,
+      'author': author,
+      'heading': heading,
+      'content': content,
+      'publishedAt': publishedAt,
+      'updatedAt': updatedAt,
+    };
   }
 }

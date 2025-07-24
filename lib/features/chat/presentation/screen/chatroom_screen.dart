@@ -299,19 +299,16 @@ class _ChatRoomScreenState extends State<ChatRoomScreen> {
 
   void _takePhoto() {
     debugPrint('Take photo from camera');
-    // TODO: Implement camera functionality
     // Example: ImagePicker.pickImage(source: ImageSource.camera)
   }
 
   void _pickFromGallery() {
     debugPrint('Pick image from gallery');
-    // TODO: Implement gallery picker
     // Example: ImagePicker.pickImage(source: ImageSource.gallery)
   }
 
   void _pickVideo() {
     debugPrint('Pick video from gallery');
-    // TODO: Implement video picker
     // Example: ImagePicker.pickVideo(source: ImageSource.gallery)
   }
 

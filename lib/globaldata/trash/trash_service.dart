@@ -1,37 +1,41 @@
 import 'package:rijig_mobile/globaldata/trash/trash_model.dart';
 import 'package:rijig_mobile/globaldata/trash/trash_repository.dart';
 
-abstract class ITrashCategoryService {
-  Future<TrashCategoryResponse> getCategories();
-}
+class TrashService {
+  final TrashRepository _repository;
 
-class TrashCategoryService implements ITrashCategoryService {
-  final ITrashCategoryRepository _repository;
+  TrashService(this._repository);
 
-  TrashCategoryService(this._repository);
-
-  @override
-  Future<TrashCategoryResponse> getCategories() async {
+  Future<List<TrashCategory>> getTrashCategories() async {
     try {
-      final response = await _repository.fetchCategories();
-
-      return response;
+      final categories = await _repository.getTrashCategories();
+      
+      
+      categories.sort((a, b) => a.name.compareTo(b.name));
+      
+      return categories;
     } catch (e) {
-      throw TrashCategoryServiceException(
-        'Service Error: Failed to load categories - $e',
-        500,
-      );
+      throw Exception('Failed to load trash categories: $e');
     }
   }
-}
 
-class TrashCategoryServiceException implements Exception {
-  final String message;
-  final int statusCode;
+  
+  bool isValidCategory(TrashCategory category) {
+    return category.id.isNotEmpty && 
+           category.name.isNotEmpty && 
+           category.price > 0;
+  }
 
-  TrashCategoryServiceException(this.message, this.statusCode);
-
-  @override
-  String toString() =>
-      'TrashCategoryServiceException: $message (Status: $statusCode)';
+  
+  Map<String, int> getPriceRange(List<TrashCategory> categories) {
+    if (categories.isEmpty) {
+      return {'min': 0, 'max': 0};
+    }
+    
+    final prices = categories.map((c) => c.price).toList();
+    return {
+      'min': prices.reduce((a, b) => a < b ? a : b),
+      'max': prices.reduce((a, b) => a > b ? a : b),
+    };
+  }
 }

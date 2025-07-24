@@ -1,3 +1,5 @@
+// ignore_for_file: use_build_context_synchronously
+
 import 'package:flutter/material.dart';
 import 'package:rijig_mobile/core/utils/guide.dart';
 import 'package:rijig_mobile/widget/buttoncard.dart';
@@ -232,7 +234,6 @@ class _AccountScreenState extends State<AccountScreen>
       );
 
       debugPrint('Send OTP to: ${_phoneController.text}');
-      // TODO: Navigate to OTP verification screen
       // Navigator.pushNamed(context, '/otp-verification');
     });
   }

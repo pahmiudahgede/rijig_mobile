@@ -22,26 +22,6 @@ Future<bool> isTokenExpired() async {
     return true;
   }
 }
-// Future<bool> isTokenExpired() async {
-//   String? token = await _secureStorage.readSecureData('token');
-
-//   if (token == null || token.isEmpty) {
-//     return true;
-//   }
-
-//   // Decode the token to get the payload
-//   Map<String, dynamic> decodedToken = JwtDecoder.decode(token);
-
-//   // Retrieve the expiration time in seconds
-//   int expirationTime = decodedToken['exp'];
-
-//   // Get current time in seconds
-//   int currentTime = DateTime.now().millisecondsSinceEpoch ~/ 1000;
-
-//   // Check if token is expired
-//   return expirationTime < currentTime;
-// }
-
 
 Future<void> storeSessionData(
   String token,

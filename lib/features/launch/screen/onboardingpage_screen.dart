@@ -42,26 +42,37 @@ class OnboardingPageScreenState extends State<OnboardingPageScreen> {
         nextButtonBuilder: (context) {
           if (_currentIndex == OnboardingData.items.length - 1) {
             return InkWell(
-              onTap: () => router.go('/login'),
-              child: Center(
-                child: Text(
-                  "Go to Login",
-                  style: TextStyle(
-                    fontSize: screenWidth * 0.04,
-                    color: whiteColor,
+              onTap: () {
+                router.go('/welcome');
+              },
+              child: Row(
+                mainAxisSize: MainAxisSize.min,
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  Text(
+                    "Lets Go",
+                    style: TextStyle(
+                      fontSize: screenWidth * 0.04,
+                      color: whiteColor,
+                      fontWeight: FontWeight.w600,
+                    ),
                   ),
-                ),
+                ],
               ),
             );
           }
-          return Padding(
-            padding: const EdgeInsets.only(left: 3),
-            child: Icon(Icons.navigate_next, size: screenWidth * 0.08),
+          return Container(
+            padding: EdgeInsets.all(screenWidth * 0.03),
+            child: Icon(
+              Icons.arrow_forward,
+              size: screenWidth * 0.06,
+              color: whiteColor,
+            ),
           );
         },
         itemCount: OnboardingData.items.length,
         scaleFactor: 2,
-        duration: Duration(milliseconds: 500),
+        duration: const Duration(milliseconds: 500),
         itemBuilder: (index) {
           final page = OnboardingData.items[index];
           return SafeArea(child: OnboardingView(data: page));

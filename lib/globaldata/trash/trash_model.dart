@@ -1,95 +1,43 @@
-class Category {
+class TrashCategory {
   final String id;
   final String name;
-  final dynamic price; // Consider using num or double instead of dynamic
   final String icon;
+  final int price;
+  final String variety;
   final DateTime createdAt;
   final DateTime updatedAt;
 
-  Category({
+  TrashCategory({
     required this.id,
     required this.name,
-    required this.price,
     required this.icon,
+    required this.price,
+    required this.variety,
     required this.createdAt,
     required this.updatedAt,
   });
 
-  factory Category.fromJson(Map<String, dynamic> json) {
-    return Category(
+  factory TrashCategory.fromJson(Map<String, dynamic> json) {
+    return TrashCategory(
       id: json['id'] ?? '',
-      name: json['name'] ?? '',
-      price: json['estimatedprice'] ?? 0,
-      icon: json['icon'] ?? '',
-      createdAt: DateTime.tryParse(json['createdAt'] ?? '') ?? DateTime.now(),
-      updatedAt: DateTime.tryParse(json['updatedAt'] ?? '') ?? DateTime.now(),
+      name: json['trash_name'] ?? '',
+      icon: json['trash_icon'] ?? '',
+      price: json['estimated_price'] ?? 0,
+      variety: json['variety'] ?? '',
+      createdAt: DateTime.parse(json['created_at']),
+      updatedAt: DateTime.parse(json['updated_at']),
     );
   }
 
   Map<String, dynamic> toJson() {
     return {
       'id': id,
-      'name': name,
-      'estimatedprice': price,
-      'icon': icon,
-      'createdAt': createdAt.toIso8601String(),
-      'updatedAt': updatedAt.toIso8601String(),
+      'trash_name': name,
+      'trash_icon': icon,
+      'estimated_price': price,
+      'variety': variety,
+      'created_at': createdAt.toIso8601String(),
+      'updated_at': updatedAt.toIso8601String(),
     };
-  }
-
-  @override
-  String toString() {
-    return 'Category(id: $id, name: $name, price: $price, icon: $icon)';
-  }
-
-  @override
-  bool operator ==(Object other) {
-    if (identical(this, other)) return true;
-    return other is Category && other.id == id;
-  }
-
-  @override
-  int get hashCode => id.hashCode;
-}
-
-class TrashCategoryResponse {
-  final List<Category> categories;
-  final String message;
-  final int total;
-
-  TrashCategoryResponse({
-    required this.categories,
-    required this.message,
-    required this.total,
-  });
-
-  factory TrashCategoryResponse.fromJson(Map<String, dynamic> json) {
-    try {
-      final dataList = json['data'] as List? ?? [];
-      final meta = json['meta'] as Map<String, dynamic>? ?? {};
-
-      return TrashCategoryResponse(
-        categories:
-            dataList
-                .map((e) => Category.fromJson(e as Map<String, dynamic>))
-                .toList(),
-        message: meta['message'] as String? ?? '',
-        total: meta['total'] as int? ?? 0,
-      );
-    } catch (e) {
-      throw FormatException('Failed to parse TrashCategoryResponse: $e');
-    }
-  }
-
-  Map<String, dynamic> toJson() {
-    return {
-      'data': categories.map((e) => e.toJson()).toList(),
-      'meta': {'message': message, 'total': total},
-    };
-  }
-
-  @override
-  String toString() {
-    return 'TrashCategoryResponse(categories: ${categories.length}, message: $message, total: $total)';
   }
 }

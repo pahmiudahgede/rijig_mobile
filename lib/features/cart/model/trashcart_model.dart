@@ -3,9 +3,9 @@ class CartItem {
   final String trashId;
   final String trashName;
   final String trashIcon;
-  final double trashPrice;
+  final int trashPrice;
   final int amount;
-  final double subtotalEstimatedPrice;
+  final int subtotalEstimatedPrice;
 
   CartItem({
     required this.id,
@@ -23,23 +23,10 @@ class CartItem {
       trashId: json['trash_id'] ?? '',
       trashName: json['trash_name'] ?? '',
       trashIcon: json['trash_icon'] ?? '',
-      trashPrice: (json['trash_price'] ?? 0).toDouble(),
+      trashPrice: json['trash_price'] ?? 0,
       amount: json['amount'] ?? 0,
-      subtotalEstimatedPrice:
-          (json['subtotal_estimated_price'] ?? 0).toDouble(),
+      subtotalEstimatedPrice: json['subtotal_estimated_price'] ?? 0,
     );
-  }
-
-  Map<String, dynamic> toJson() {
-    return {
-      'id': id,
-      'trash_id': trashId,
-      'trash_name': trashName,
-      'trash_icon': trashIcon,
-      'trash_price': trashPrice,
-      'amount': amount,
-      'subtotal_estimated_price': subtotalEstimatedPrice,
-    };
   }
 
   CartItem copyWith({
@@ -47,9 +34,9 @@ class CartItem {
     String? trashId,
     String? trashName,
     String? trashIcon,
-    double? trashPrice,
+    int? trashPrice,
     int? amount,
-    double? subtotalEstimatedPrice,
+    int? subtotalEstimatedPrice,
   }) {
     return CartItem(
       id: id ?? this.id,
@@ -62,27 +49,13 @@ class CartItem {
           subtotalEstimatedPrice ?? this.subtotalEstimatedPrice,
     );
   }
-
-  @override
-  String toString() {
-    return 'CartItem(id: $id, trashId: $trashId, trashName: $trashName, amount: $amount, subtotalEstimatedPrice: $subtotalEstimatedPrice)';
-  }
-
-  @override
-  bool operator ==(Object other) {
-    if (identical(this, other)) return true;
-    return other is CartItem && other.trashId == trashId;
-  }
-
-  @override
-  int get hashCode => trashId.hashCode;
 }
 
 class Cart {
   final String id;
   final String userId;
   final int totalAmount;
-  final double estimatedTotalPrice;
+  final int estimatedTotalPrice;
   final List<CartItem> cartItems;
 
   Cart({
@@ -94,37 +67,24 @@ class Cart {
   });
 
   factory Cart.fromJson(Map<String, dynamic> json) {
-    final data = json['data'] ?? {};
     return Cart(
-      id: data['id'] ?? '',
-      userId: data['user_id'] ?? '',
-      totalAmount: data['total_amount'] ?? 0,
-      estimatedTotalPrice: (data['estimated_total_price'] ?? 0).toDouble(),
+      id: json['id'] ?? '',
+      userId: json['user_id'] ?? '',
+      totalAmount: json['total_amount'] ?? 0,
+      estimatedTotalPrice: json['estimated_total_price'] ?? 0,
       cartItems:
-          (data['cart_items'] as List<dynamic>?)
+          (json['cart_items'] as List<dynamic>?)
               ?.map((item) => CartItem.fromJson(item))
               .toList() ??
           [],
     );
   }
 
-  Map<String, dynamic> toJson() {
-    return {
-      'data': {
-        'id': id,
-        'user_id': userId,
-        'total_amount': totalAmount,
-        'estimated_total_price': estimatedTotalPrice,
-        'cart_items': cartItems.map((item) => item.toJson()).toList(),
-      },
-    };
-  }
-
   Cart copyWith({
     String? id,
     String? userId,
     int? totalAmount,
-    double? estimatedTotalPrice,
+    int? estimatedTotalPrice,
     List<CartItem>? cartItems,
   }) {
     return Cart(
@@ -135,49 +95,15 @@ class Cart {
       cartItems: cartItems ?? this.cartItems,
     );
   }
-
-  bool get isEmpty => cartItems.isEmpty;
-  bool get isNotEmpty => cartItems.isNotEmpty;
-
-  @override
-  String toString() {
-    return 'Cart(id: $id, userId: $userId, totalAmount: $totalAmount, estimatedTotalPrice: $estimatedTotalPrice, cartItems: ${cartItems.length})';
-  }
 }
 
-class AddOrUpdateCartRequest {
+class AddCartRequest {
   final String trashId;
   final int amount;
 
-  AddOrUpdateCartRequest({required this.trashId, required this.amount});
+  AddCartRequest({required this.trashId, required this.amount});
 
   Map<String, dynamic> toJson() {
     return {'trash_id': trashId, 'amount': amount};
   }
-
-  @override
-  String toString() {
-    return 'AddOrUpdateCartRequest(trashId: $trashId, amount: $amount)';
-  }
-}
-
-class CartApiResponse<T> {
-  final int status;
-  final String message;
-  final T? data;
-
-  CartApiResponse({required this.status, required this.message, this.data});
-
-  factory CartApiResponse.fromJson(
-    Map<String, dynamic> json,
-    T Function(Map<String, dynamic>)? fromJsonT,
-  ) {
-    return CartApiResponse<T>(
-      status: json['meta']?['status'] ?? 0,
-      message: json['meta']?['message'] ?? '',
-      data: json['data'] != null && fromJsonT != null ? fromJsonT(json) : null,
-    );
-  }
-
-  bool get isSuccess => status >= 200 && status < 300;
 }

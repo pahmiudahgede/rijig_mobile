@@ -1,5 +1,3 @@
-// ignore_for_file: unrelated_type_equality_checks
-
 import 'dart:async';
 import 'dart:io';
 import 'package:connectivity_plus/connectivity_plus.dart';
@@ -10,6 +8,7 @@ class NetworkInfo {
   Future<bool> checkConnection() async {
     try {
       var connectivityResult = await Connectivity().checkConnectivity();
+      // ignore: unrelated_type_equality_checks
       if (connectivityResult == ConnectivityResult.none) {
         return false;
       }

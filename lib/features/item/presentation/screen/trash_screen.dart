@@ -1,34 +1,24 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_dotenv/flutter_dotenv.dart';
-import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:provider/provider.dart';
-import 'package:gap/gap.dart';
-import 'package:go_router/go_router.dart';
-import 'package:rijig_mobile/core/router.dart';
-import 'package:rijig_mobile/core/utils/guide.dart';
+import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:rijig_mobile/features/cart/presentation/viewmodel/trashcart_vmod.dart';
+import 'package:rijig_mobile/globaldata/trash/trash_model.dart';
 import 'package:rijig_mobile/globaldata/trash/trash_viewmodel.dart';
-import 'package:rijig_mobile/widget/appbar.dart';
-import 'package:rijig_mobile/widget/buttoncard.dart';
-import 'package:rijig_mobile/widget/formfiled.dart';
-import 'package:rijig_mobile/widget/showmodal.dart';
-import 'package:rijig_mobile/widget/skeletonize.dart';
-import 'package:rijig_mobile/widget/unhope_handler.dart';
-import 'package:toastification/toastification.dart';
 
-class TestRequestPickScreen extends StatefulWidget {
-  const TestRequestPickScreen({super.key});
+class TrashPickScreen extends StatefulWidget {
+  const TrashPickScreen({super.key});
 
   @override
-  State<TestRequestPickScreen> createState() => _TestRequestPickScreenState();
+  State<TrashPickScreen> createState() => _TrashPickScreenState();
 }
 
-class _TestRequestPickScreenState extends State<TestRequestPickScreen>
+class _TrashPickScreenState extends State<TrashPickScreen>
     with SingleTickerProviderStateMixin {
   late AnimationController _animationController;
   late Animation<double> _slideAnimation;
   bool _isInitialized = false;
 
+  // Track loading states per item
   final Map<String, bool> _itemLoadingStates = {};
 
   @override
@@ -88,6 +78,7 @@ class _TestRequestPickScreenState extends State<TestRequestPickScreen>
     String categoryId,
     double newQuantity,
   ) async {
+    // Set loading state
     setState(() {
       _itemLoadingStates[categoryId] = true;
     });
@@ -109,6 +100,7 @@ class _TestRequestPickScreenState extends State<TestRequestPickScreen>
         _updateBottomSheetVisibility();
       }
     } finally {
+      // Clear loading state
       if (mounted) {
         setState(() {
           _itemLoadingStates[categoryId] = false;
@@ -120,14 +112,14 @@ class _TestRequestPickScreenState extends State<TestRequestPickScreen>
   Future<void> _incrementQuantity(String categoryId) async {
     final cartViewModel = Provider.of<CartViewModel>(context, listen: false);
     final currentAmount = cartViewModel.getItemAmount(categoryId);
-    await _handleQuantityChange(categoryId, (currentAmount + 2.5));
+    await _handleQuantityChange(categoryId, (currentAmount + 1).toDouble());
   }
 
   Future<void> _decrementQuantity(String categoryId) async {
     final cartViewModel = Provider.of<CartViewModel>(context, listen: false);
     final currentAmount = cartViewModel.getItemAmount(categoryId);
-    final newAmount = (currentAmount - 2.5).clamp(0.0, double.infinity);
-    await _handleQuantityChange(categoryId, newAmount);
+    final newAmount = (currentAmount - 1).clamp(0, double.infinity);
+    await _handleQuantityChange(categoryId, newAmount.toDouble());
   }
 
   Future<void> _resetQuantity(String categoryId) async {
@@ -139,62 +131,49 @@ class _TestRequestPickScreenState extends State<TestRequestPickScreen>
     final currentAmount = cartViewModel.getItemAmount(categoryId);
 
     TextEditingController controller = TextEditingController(
-      text: currentAmount.toString().replaceAll('.0', ''),
+      text: currentAmount.toString(),
     );
 
-    CustomModalDialog.showWidget(
-      customWidget: FormFieldOne(
-        controllers: controller,
-        hintText: 'masukkan berat dengan benar ya..',
-        isRequired: true,
-        textInputAction: TextInputAction.done,
-        keyboardType: const TextInputType.numberWithOptions(decimal: true),
-        onTap: () {},
-        onChanged: (value) {},
-        fontSize: 14.sp,
-        fontSizeField: 16.sp,
-        onFieldSubmitted: (value) {},
-        readOnly: false,
-        enabled: true,
-      ),
+    showDialog(
       context: context,
-      buttonCount: 2,
-      button1: CardButtonOne(
-        textButton: "Simpan",
-        onTap: () async {
-          double? newQuantity = double.tryParse(controller.text);
-          if (newQuantity != null && newQuantity >= 0) {
-            Navigator.pop(context);
-            await _handleQuantityChange(categoryId, newQuantity);
-          } else {
-            toastification.show(
-              type: ToastificationType.warning,
-              title: const Text("Masukkan angka yang valid"),
-              autoCloseDuration: const Duration(seconds: 3),
-            );
-          }
-        },
-        fontSized: 14.sp,
-        colorText: whiteColor,
-        color: primaryColor,
-        borderRadius: 10.sp,
-        horizontal: double.infinity,
-        vertical: 50,
-        loadingTrue: false,
-        usingRow: false,
-      ),
-      button2: CardButtonOne(
-        textButton: "Batal",
-        onTap: () => router.pop(),
-        fontSized: 14.sp,
-        colorText: primaryColor,
-        color: Colors.transparent,
-        borderRadius: 10,
-        horizontal: double.infinity,
-        vertical: 50,
-        loadingTrue: false,
-        usingRow: false,
-      ),
+      builder:
+          (context) => AlertDialog(
+            title: Text('Input Jumlah $itemName'),
+            content: TextField(
+              controller: controller,
+              keyboardType: TextInputType.number,
+              decoration: const InputDecoration(
+                labelText: 'Jumlah (kg)',
+                border: OutlineInputBorder(),
+              ),
+            ),
+            actions: [
+              TextButton(
+                onPressed: () => Navigator.pop(context),
+                child: const Text('Batal'),
+              ),
+              ElevatedButton(
+                onPressed: () async {
+                  int? newQuantity = int.tryParse(controller.text);
+                  if (newQuantity != null && newQuantity >= 0) {
+                    Navigator.pop(context);
+                    await _handleQuantityChange(
+                      categoryId,
+                      newQuantity.toDouble(),
+                    );
+                  } else {
+                    ScaffoldMessenger.of(context).showSnackBar(
+                      const SnackBar(
+                        content: Text("Masukkan angka yang valid"),
+                        backgroundColor: Colors.orange,
+                      ),
+                    );
+                  }
+                },
+                child: const Text('Simpan'),
+              ),
+            ],
+          ),
     );
   }
 
@@ -215,16 +194,16 @@ class _TestRequestPickScreenState extends State<TestRequestPickScreen>
                     isItemLoading ? null : () => _decrementQuantity(categoryId),
                 isLoading: isItemLoading,
               ),
-              const Gap(12),
+              const SizedBox(width: 12),
               _buildQuantityDisplay(
                 categoryId,
                 amount.toDouble(),
                 isItemLoading,
               ),
-              const Gap(12),
+              const SizedBox(width: 12),
               _buildControlButton(
                 icon: Icons.add,
-                color: primaryColor,
+                color: Colors.blue,
                 onTap:
                     isItemLoading ? null : () => _incrementQuantity(categoryId),
                 isLoading: isItemLoading,
@@ -235,25 +214,27 @@ class _TestRequestPickScreenState extends State<TestRequestPickScreen>
           return GestureDetector(
             onTap: isItemLoading ? null : () => _incrementQuantity(categoryId),
             child: Container(
-              padding: PaddingCustom().paddingHorizontalVertical(16, 8),
+              padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
               decoration: BoxDecoration(
-                color: isItemLoading ? Colors.grey : primaryColor,
+                color: isItemLoading ? Colors.grey : Colors.blue,
                 borderRadius: BorderRadius.circular(8),
               ),
               child:
                   isItemLoading
-                      ? SizedBox(
+                      ? const SizedBox(
                         width: 16,
                         height: 16,
                         child: CircularProgressIndicator(
                           strokeWidth: 2,
-                          valueColor: AlwaysStoppedAnimation<Color>(whiteColor),
+                          valueColor: AlwaysStoppedAnimation<Color>(
+                            Colors.white,
+                          ),
                         ),
                       )
-                      : Text(
+                      : const Text(
                         'Tambah',
                         style: TextStyle(
-                          color: whiteColor,
+                          color: Colors.white,
                           fontSize: 14,
                           fontWeight: FontWeight.w500,
                         ),
@@ -343,7 +324,7 @@ class _TestRequestPickScreenState extends State<TestRequestPickScreen>
                 ),
               ),
             Text(
-              '${quantity.toString().replaceAll('.0', '')} kg',
+              '${quantity.toInt()} kg',
               style: TextStyle(
                 fontSize: 14,
                 fontWeight: FontWeight.w500,
@@ -356,28 +337,24 @@ class _TestRequestPickScreenState extends State<TestRequestPickScreen>
     );
   }
 
-  Widget _buildTrashItem(dynamic category) {
+  Widget _buildTrashItem(TrashCategory category) {
     final String? baseUrl = dotenv.env["BASE_URL"];
 
     return Consumer<CartViewModel>(
       builder: (context, cartViewModel, child) {
         final amount = cartViewModel.getItemAmount(category.id);
-        num price =
-            (category.price is String)
-                ? int.tryParse(category.price) ?? 0
-                : category.price ?? 0;
 
         return AnimatedContainer(
           duration: const Duration(milliseconds: 300),
           margin: const EdgeInsets.only(bottom: 12),
-          padding: PaddingCustom().paddingAll(16),
+          padding: const EdgeInsets.all(16),
           decoration: BoxDecoration(
-            color: whiteColor,
+            color: Colors.white,
             borderRadius: BorderRadius.circular(12),
             border:
                 amount > 0
                     ? Border.all(
-                      color: primaryColor.withValues(alpha: 0.3),
+                      color: Colors.blue.withValues(alpha: 0.3),
                       width: 1.5,
                     )
                     : null,
@@ -385,7 +362,7 @@ class _TestRequestPickScreenState extends State<TestRequestPickScreen>
               BoxShadow(
                 color:
                     amount > 0
-                        ? primaryColor.withValues(alpha: 0.1)
+                        ? Colors.blue.withValues(alpha: 0.1)
                         : Colors.grey.withValues(alpha: 0.1),
                 spreadRadius: amount > 0 ? 2 : 1,
                 blurRadius: amount > 0 ? 6 : 4,
@@ -396,10 +373,8 @@ class _TestRequestPickScreenState extends State<TestRequestPickScreen>
           child: Row(
             children: [
               _buildCategoryIcon(baseUrl, category),
-              const Gap(16),
-              Expanded(
-                child: _buildCategoryInfo(category, price, amount.toDouble()),
-              ),
+              const SizedBox(width: 16),
+              Expanded(child: _buildCategoryInfo(category, amount)),
               _buildQuantityControls(category.id),
             ],
           ),
@@ -408,7 +383,7 @@ class _TestRequestPickScreenState extends State<TestRequestPickScreen>
     );
   }
 
-  Widget _buildCategoryIcon(String? baseUrl, dynamic category) {
+  Widget _buildCategoryIcon(String? baseUrl, TrashCategory category) {
     return Container(
       width: 50,
       height: 50,
@@ -444,7 +419,7 @@ class _TestRequestPickScreenState extends State<TestRequestPickScreen>
     );
   }
 
-  Widget _buildCategoryInfo(dynamic category, num price, double quantity) {
+  Widget _buildCategoryInfo(TrashCategory category, int quantity) {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       mainAxisAlignment: MainAxisAlignment.center,
@@ -457,7 +432,7 @@ class _TestRequestPickScreenState extends State<TestRequestPickScreen>
             color: Colors.black,
           ),
         ),
-        const Gap(4),
+        const SizedBox(height: 4),
         Container(
           padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
           decoration: BoxDecoration(
@@ -465,15 +440,15 @@ class _TestRequestPickScreenState extends State<TestRequestPickScreen>
             borderRadius: BorderRadius.circular(10),
           ),
           child: Text(
-            'Rp ${price.toString()}/kg',
-            style: TextStyle(
-              color: whiteColor,
+            'Rp ${category.price}/kg',
+            style: const TextStyle(
+              color: Colors.white,
               fontSize: 12,
               fontWeight: FontWeight.w500,
             ),
           ),
         ),
-        const Gap(4),
+        const SizedBox(height: 4),
         SizedBox(
           height: 24,
           child:
@@ -482,7 +457,7 @@ class _TestRequestPickScreenState extends State<TestRequestPickScreen>
                     onTap: () => _resetQuantity(category.id),
                     child: AnimatedContainer(
                       duration: const Duration(milliseconds: 200),
-                      padding: PaddingCustom().paddingAll(4),
+                      padding: const EdgeInsets.all(4),
                       decoration: BoxDecoration(
                         color: Colors.red.shade50,
                         borderRadius: BorderRadius.circular(4),
@@ -505,9 +480,9 @@ class _TestRequestPickScreenState extends State<TestRequestPickScreen>
       builder: (context, cartViewModel, child) {
         return AnimatedContainer(
           duration: const Duration(milliseconds: 300),
-          padding: PaddingCustom().paddingAll(16),
+          padding: const EdgeInsets.all(16),
           decoration: BoxDecoration(
-            color: whiteColor,
+            color: Colors.white,
             borderRadius: const BorderRadius.vertical(top: Radius.circular(20)),
             boxShadow: [
               BoxShadow(
@@ -521,7 +496,7 @@ class _TestRequestPickScreenState extends State<TestRequestPickScreen>
           child: Row(
             children: [
               Expanded(child: _buildOrderSummary(cartViewModel)),
-              const Gap(16),
+              const SizedBox(width: 16),
               _buildContinueButton(cartViewModel),
             ],
           ),
@@ -540,10 +515,10 @@ class _TestRequestPickScreenState extends State<TestRequestPickScreen>
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Text(
-            '${cartViewModel.cartItems.length} jenis    ${cartViewModel.totalItems.toString()} kg',
+            '${cartViewModel.cartItems.length} jenis    ${cartViewModel.totalItems} kg',
             style: TextStyle(fontSize: 14, color: Colors.grey.shade700),
           ),
-          const Gap(10),
+          const SizedBox(height: 10),
           Row(
             children: [
               Text(
@@ -559,8 +534,8 @@ class _TestRequestPickScreenState extends State<TestRequestPickScreen>
                 ),
                 child: Text(
                   cartViewModel.formattedTotalPrice,
-                  style: TextStyle(
-                    color: whiteColor,
+                  style: const TextStyle(
+                    color: Colors.white,
                     fontSize: 12,
                     fontWeight: FontWeight.w500,
                   ),
@@ -569,7 +544,7 @@ class _TestRequestPickScreenState extends State<TestRequestPickScreen>
             ],
           ),
           if (!meetsMinimumWeight) ...[
-            const Gap(10),
+            const SizedBox(height: 10),
             AnimatedOpacity(
               duration: const Duration(milliseconds: 300),
               opacity: meetsMinimumWeight ? 0.0 : 1.0,
@@ -597,10 +572,10 @@ class _TestRequestPickScreenState extends State<TestRequestPickScreen>
           padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 12),
           shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
         ),
-        child: Text(
+        child: const Text(
           'Lanjut',
           style: TextStyle(
-            color: whiteColor,
+            color: Colors.white,
             fontSize: 16,
             fontWeight: FontWeight.w600,
           ),
@@ -610,40 +585,35 @@ class _TestRequestPickScreenState extends State<TestRequestPickScreen>
   }
 
   void _handleContinue(CartViewModel cartViewModel) {
-    final trashViewModel = Provider.of<TrashViewModel>(context, listen: false);
-
-    Map<String, dynamic> orderData = {
-      'selectedItems':
-          cartViewModel.cartItems.map((cartItem) {
-            trashViewModel.getCategoryById(cartItem.trashId);
-            return {
-              'id': cartItem.trashId,
-              'name': cartItem.trashName,
-              'quantity': cartItem.amount.toDouble(),
-              'pricePerKg': cartItem.trashPrice,
-              'totalPrice': cartItem.subtotalEstimatedPrice.round(),
-            };
-          }).toList(),
-      'totalWeight': cartViewModel.totalItems.toDouble(),
-      'totalPrice': cartViewModel.totalPrice.round(),
-      'totalItems': cartViewModel.cartItems.length,
-    };
-
-    context.push('/ordersumary', extra: orderData);
+    // Navigate to cart summary or next step
+    Navigator.pushNamed(context, '/cart-summary');
   }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: whiteColor,
-      appBar: const CustomAppBar(judul: "Pilih Sampah"),
+      backgroundColor: Colors.white,
+      appBar: AppBar(
+        title: const Text("Pilih Sampah"),
+        backgroundColor: Colors.white,
+        foregroundColor: Colors.black,
+        elevation: 0,
+      ),
       body: Consumer2<TrashViewModel, CartViewModel>(
         builder: (context, trashViewModel, cartViewModel, child) {
           if (trashViewModel.isLoading) {
             return ListView.builder(
               shrinkWrap: true,
               itemCount: 5,
-              itemBuilder: (context, index) => SkeletonCard(),
+              itemBuilder:
+                  (context, index) => Container(
+                    margin: const EdgeInsets.all(16),
+                    height: 80,
+                    decoration: BoxDecoration(
+                      color: Colors.grey.shade200,
+                      borderRadius: BorderRadius.circular(12),
+                    ),
+                  ),
             );
           }
 
@@ -653,21 +623,21 @@ class _TestRequestPickScreenState extends State<TestRequestPickScreen>
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
                   const Icon(Icons.error_outline, size: 64, color: Colors.red),
-                  const Gap(16),
+                  const SizedBox(height: 16),
                   const Text(
                     'Terjadi kesalahan',
                     style: TextStyle(fontSize: 18, fontWeight: FontWeight.w600),
                   ),
-                  const Gap(8),
+                  const SizedBox(height: 8),
                   Padding(
-                    padding: PaddingCustom().paddingHorizontal(32),
+                    padding: const EdgeInsets.symmetric(horizontal: 32),
                     child: Text(
                       trashViewModel.errorMessage ?? 'Error tidak diketahui',
                       textAlign: TextAlign.center,
                       style: TextStyle(color: Colors.grey.shade600),
                     ),
                   ),
-                  const Gap(24),
+                  const SizedBox(height: 24),
                   ElevatedButton(
                     onPressed: () => _initializeData(),
                     child: const Text('Coba Lagi'),
@@ -678,13 +648,13 @@ class _TestRequestPickScreenState extends State<TestRequestPickScreen>
           }
 
           if (!trashViewModel.hasData || trashViewModel.categories.isEmpty) {
-            return InfoStateWidget(type: InfoStateType.emptyData);
+            return const Center(child: Text('Tidak ada data kategori sampah'));
           }
 
           return Stack(
             children: [
               ListView.builder(
-                padding: PaddingCustom().paddingOnly(
+                padding: EdgeInsets.only(
                   top: 16,
                   right: 16,
                   bottom: cartViewModel.isNotEmpty ? 120 : 16,
@@ -696,7 +666,7 @@ class _TestRequestPickScreenState extends State<TestRequestPickScreen>
                   return _buildTrashItem(category);
                 },
               ),
-
+              // Bottom Sheet with Animation
               AnimatedBuilder(
                 animation: _slideAnimation,
                 builder: (context, child) {

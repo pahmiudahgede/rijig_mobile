@@ -8,6 +8,8 @@ import 'package:provider/provider.dart';
 import 'package:rijig_mobile/core/container/injection_container.dart';
 import 'package:rijig_mobile/core/router.dart';
 import 'package:rijig_mobile/core/container/export_vmod.dart';
+import 'package:rijig_mobile/features/auth/presentation/viewmodel/auth_viewmodel.dart';
+import 'package:rijig_mobile/features/pengepul/auth/presentation/viewmodel/pengepul_auth_viewmodel.dart';
 
 void main() async {
   await dotenv.load(fileName: "server/.env.dev");
@@ -26,6 +28,8 @@ class MyApp extends StatelessWidget {
   Widget build(BuildContext context) {
     return MultiProvider(
       providers: [
+        ChangeNotifierProvider(create: (_) => sl<AuthViewModel>()),
+        ChangeNotifierProvider(create: (_) => sl<PengepulAuthViewModel>()),
         ChangeNotifierProvider(create: (_) => sl<LoginViewModel>()),
         ChangeNotifierProvider(create: (_) => sl<OtpViewModel>()),
         ChangeNotifierProvider(create: (_) => sl<LogoutViewModel>()),

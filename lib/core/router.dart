@@ -1,20 +1,117 @@
 import 'package:rijig_mobile/core/utils/exportimportview.dart';
-import 'package:rijig_mobile/features/chat/presentation/screen/chatroom_screen.dart';
+import 'package:rijig_mobile/features/launch/screen/auth_checker_screen.dart';
+import 'package:rijig_mobile/features/launch/screen/welcome_role_selection_screen.dart';
+import 'package:rijig_mobile/features/pengepul/auth/presentation/screens/approval_waiting_screen.dart';
+import 'package:rijig_mobile/features/pengepul/auth/presentation/screens/ktp_form_screen.dart';
+import 'package:rijig_mobile/features/pengepul/auth/presentation/screens/pengepul_otp_verification_screen.dart';
+import 'package:rijig_mobile/features/pengepul/auth/presentation/screens/pengepul_phone_input_screen.dart';
+import 'package:rijig_mobile/features/pengepul/auth/presentation/screens/pengepul_pin_input_screen.dart';
 
 final router = GoRouter(
   routes: [
-    GoRoute(path: '/', builder: (context, state) => SplashScreen()),
-    // GoRoute(
-    //   path: '/',
-    //   builder: (context, state) => UploadKtpScreen(),
-    // ),
     GoRoute(
-      path: '/trashview',
-      builder: (context, state) => TestRequestPickScreen(),
+      path: '/auth-check',
+      builder: (context, state) => const AuthCheckerScreen(),
     ),
+
+    // Phone input for login
+    GoRoute(
+      path: '/xlogin',
+      builder: (context, state) => const PhoneInputScreen(isLogin: true),
+    ),
+
+    // Phone input for register
+    GoRoute(
+      path: '/xregister',
+      builder: (context, state) => const PhoneInputScreen(isLogin: false),
+    ),
+
+    // OTP verification with phone data
+    GoRoute(
+      path: '/xotp-verification',
+      builder: (context, state) {
+        final isLogin = state.uri.queryParameters['isLogin'] == 'true';
+        return OtpVerificationScreen(isLogin: isLogin);
+      },
+    ),
+
+    // Profile form (only for register)
+    GoRoute(
+      path: '/xprofile-form',
+      builder: (context, state) => const ProfileFormScreen(),
+    ),
+
+    // PIN input
+    GoRoute(
+      path: '/xpin-input',
+      builder: (context, state) {
+        final isLogin = state.uri.queryParameters['isLogin'] == 'true';
+        return PinInputScreen(isLogin: isLogin);
+      },
+    ),
+
+    // Home screen (dashboard)
+    // GoRoute(path: '/xhome', builder: (context, state) => const HomeScreen()),
+
+    GoRoute(
+      path: '/pengepul-login',
+      builder:
+          (context, state) => const PengepulPhoneInputScreen(isLogin: true),
+    ),
+
+    GoRoute(
+      path: '/pengepul-register',
+      builder:
+          (context, state) => const PengepulPhoneInputScreen(isLogin: false),
+    ),
+
+    // OTP Verification
+    GoRoute(
+      path: '/pengepul-otp-verification',
+      builder: (context, state) {
+        final isLogin = state.uri.queryParameters['isLogin'] == 'true';
+        return PengepulOtpVerificationScreen(isLogin: isLogin);
+      },
+    ),
+
+    // KTP Form
+    GoRoute(
+      path: '/pengepul-ktp-form',
+      builder: (context, state) => const KtpFormScreen(),
+    ),
+
+    // Approval Waiting
+    GoRoute(
+      path: '/pengepul-approval-waiting',
+      builder: (context, state) => const ApprovalWaitingScreen(),
+    ),
+
+    // PIN Input
+    GoRoute(
+      path: '/pengepul-pin-input',
+      builder: (context, state) {
+        final isLogin = state.uri.queryParameters['isLogin'] == 'true';
+        return PengepulPinInputScreen(isLogin: isLogin);
+      },
+    ),
+    GoRoute(path: '/', builder: (context, state) => SplashScreen()),
+    GoRoute(
+      path: '/welcome',
+      builder: (context, state) => const WelcomeRoleSelectionScreen(),
+    ),
+    // GoRoute(path: '/', builder: (context, state) => ChomeCollectorScreen()),
+    GoRoute(
+      path: '/deteksiwajah',
+      builder: (context, state) => FaceDetectionView(),
+    ),
+    /* GoRoute(
+      path: '/',
+      builder: (context, state) => UploadKtpScreen(),
+    ), */
+    GoRoute(path: '/trashview', builder: (context, state) => TrashPickScreen()),
     GoRoute(
       path: '/ordersumary',
-      builder: (context, state) => OrderSummaryScreen(),
+      builder: (context, state) => CartSummaryScreen(),
     ),
     GoRoute(
       path: '/pinsecureinput',
@@ -149,6 +246,26 @@ final router = GoRouter(
       path: '/pilihpengepul',
       builder: (context, state) {
         return SelectCollectorScreen();
+      },
+    ),
+
+    // ==============================pengepul==============================
+    GoRoute(
+      path: '/stoksampahpengepul',
+      builder: (context, state) {
+        return StokSampahScreen();
+      },
+    ),
+    GoRoute(
+      path: '/riwayatpembelian',
+      builder: (context, state) {
+        return RiwayatPembelianScreen();
+      },
+    ),
+    GoRoute(
+      path: '/setor',
+      builder: (context, state) {
+        return PenyetoranScreen();
       },
     ),
   ],

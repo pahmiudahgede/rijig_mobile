@@ -1,16 +1,14 @@
 import 'package:rijig_mobile/core/storage/secure_storage.dart';
-import 'package:rijig_mobile/core/utils/getinfodevice.dart';
 import 'package:rijig_mobile/features/auth/model/otp_model.dart';
 import 'package:rijig_mobile/features/auth/repositories/otp_repository.dart';
 
 class OtpService {
   final OtpRepository _otpRepository;
-  // final SecureStorage _secureStorage = SecureStorage();
 
   OtpService(this._otpRepository);
 
   Future<String> getDeviceInfo() async {
-    return await getDeviceId();
+    return await getDeviceInfo();
   }
 
   Future<void> storeSessionData(

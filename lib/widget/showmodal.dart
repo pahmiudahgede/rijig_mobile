@@ -1,4 +1,3 @@
-// ===lib/widget/showmodal.dart===
 import 'package:flutter/material.dart';
 import 'package:gap/gap.dart';
 import 'package:rijig_mobile/core/router.dart';
@@ -9,12 +8,10 @@ enum ModalVariant { textVersion, imageVersion, widgetSupportVersion }
 class CustomModalDialog extends StatelessWidget {
   final ModalVariant variant;
 
-  // Text and Image version properties
   final String? title;
   final String? content;
   final String? imageAsset;
 
-  // Widget support version properties
   final Widget? customWidget;
 
   final int buttonCount;
@@ -42,7 +39,6 @@ class CustomModalDialog extends StatelessWidget {
          'For other variants, title and content must be provided.',
        );
 
-  // Static method for text version
   static void showText({
     required BuildContext context,
     required String title,
@@ -64,7 +60,6 @@ class CustomModalDialog extends StatelessWidget {
     );
   }
 
-  // Static method for image version
   static void showImage({
     required BuildContext context,
     required String title,
@@ -88,7 +83,6 @@ class CustomModalDialog extends StatelessWidget {
     );
   }
 
-  // Static method for widget support version
   static void showWidget({
     required BuildContext context,
     required Widget customWidget,
@@ -108,7 +102,6 @@ class CustomModalDialog extends StatelessWidget {
     );
   }
 
-  // Private method to handle the modal display
   static void _showModal({
     required BuildContext context,
     required ModalVariant variant,

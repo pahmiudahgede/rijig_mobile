@@ -1,67 +1,61 @@
 import 'package:flutter/material.dart';
 import 'package:rijig_mobile/features/cart/model/trashcart_model.dart';
-import 'package:rijig_mobile/features/cart/service/trashcart_service.dart';
+import 'package:rijig_mobile/features/cart/repositories/trashcart_repo.dart';
 
-enum CartState { initial, loading, loaded, error, empty, updating }
+enum CartState { initial, loading, loaded, error, updating }
 
 class CartViewModel extends ChangeNotifier {
-  final CartService _cartService;
+  final CartRepository _repository;
 
-  CartViewModel({CartService? cartService})
-    : _cartService = cartService ?? CartServiceProvider.instance;
+  CartViewModel(this._repository);
 
   CartState _state = CartState.initial;
   Cart? _cart;
-  String _errorMessage = '';
+  String? _errorMessage;
+  String? _successMessage;
   bool _isOperationInProgress = false;
 
   CartState get state => _state;
   Cart? get cart => _cart;
-  String get errorMessage => _errorMessage;
-  bool get isOperationInProgress => _isOperationInProgress;
-
   List<CartItem> get cartItems => _cart?.cartItems ?? [];
-  int get totalItems => _cart?.totalAmount ?? 0;
-  double get totalPrice => _cart?.estimatedTotalPrice ?? 0.0;
+  String? get errorMessage => _errorMessage;
+  String? get successMessage => _successMessage;
+  bool get isLoading => _state == CartState.loading;
+  bool get isUpdating => _state == CartState.updating;
+  bool get hasError => _state == CartState.error;
   bool get isEmpty => cartItems.isEmpty;
   bool get isNotEmpty => cartItems.isNotEmpty;
+  bool get isOperationInProgress => _isOperationInProgress;
 
-  void _setState(CartState newState) {
-    if (_state != newState) {
-      _state = newState;
-      notifyListeners();
+  int get totalItems => _cart?.totalAmount ?? 0;
+
+  int get totalPrice => _cart?.estimatedTotalPrice ?? 0;
+
+  String get formattedTotalPrice {
+    return 'Rp ${_formatCurrency(totalPrice)}';
+  }
+
+  int getItemAmount(String trashId) {
+    try {
+      final item = cartItems.firstWhere((item) => item.trashId == trashId);
+      return item.amount;
+    } catch (e) {
+      return 0;
     }
-  }
-
-  void _setError(String message) {
-    _errorMessage = message;
-    _setState(CartState.error);
-  }
-
-  void _setOperationInProgress(bool inProgress) {
-    _isOperationInProgress = inProgress;
-    notifyListeners();
   }
 
   Future<void> loadCartItems({bool showLoading = true}) async {
     if (showLoading) {
       _setState(CartState.loading);
     }
+    _clearMessages();
 
     try {
-      final response = await _cartService.getCartItems();
-
-      if (response.isSuccess && response.data != null) {
-        _cart = response.data as Cart;
-        _setState(_cart!.isEmpty ? CartState.empty : CartState.loaded);
-      } else if (response.isUnauthorized) {
-        _setError('Sesi Anda telah berakhir, silakan login kembali');
-      } else {
-        _setError(response.message);
-      }
+      _cart = await _repository.getCartItems();
+      _setState(CartState.loaded);
     } catch (e) {
-      debugPrint('CartViewModel - loadCartItems error: $e');
-      _setError('Terjadi kesalahan tidak terduga');
+      _setError(e.toString());
+      _setState(CartState.error);
     }
   }
 
@@ -71,208 +65,135 @@ class CartViewModel extends ChangeNotifier {
     bool showUpdating = true,
   }) async {
     if (showUpdating) {
-      _setOperationInProgress(true);
+      _setState(CartState.updating);
     }
+    _setOperationInProgress(true);
+    _clearMessages();
 
     try {
-      final response = await _cartService.addOrUpdateItem(trashId, amount);
-
-      if (response.isSuccess) {
-        await loadCartItems(showLoading: false);
-        return true;
-      } else {
-        if (response.isUnauthorized) {
-          _setError('Sesi Anda telah berakhir, silakan login kembali');
-        } else {
-          _setError(response.message);
-        }
-        return false;
+      if (amount <= 0) {
+        throw Exception('Amount must be greater than 0');
       }
+
+      await _repository.addOrUpdateCartItem(trashId: trashId, amount: amount);
+      _setSuccess('Item berhasil ditambahkan ke keranjang');
+
+      await loadCartItems(showLoading: false);
+      return true;
     } catch (e) {
-      debugPrint('CartViewModel - addOrUpdateItem error: $e');
-      _setError('Terjadi kesalahan tidak terduga');
+      _setError(e.toString());
+      if (showUpdating) {
+        _setState(CartState.error);
+      }
       return false;
     } finally {
-      if (showUpdating) {
-        _setOperationInProgress(false);
-      }
+      _setOperationInProgress(false);
     }
   }
 
   Future<bool> deleteItem(String trashId, {bool showUpdating = true}) async {
     if (showUpdating) {
-      _setOperationInProgress(true);
+      _setState(CartState.updating);
     }
+    _setOperationInProgress(true);
+    _clearMessages();
 
     try {
-      final response = await _cartService.deleteItem(trashId);
+      await _repository.deleteCartItem(trashId);
+      _setSuccess('Item berhasil dihapus dari keranjang');
 
-      if (response.isSuccess) {
-        await loadCartItems(showLoading: false);
-        return true;
-      } else {
-        if (response.isUnauthorized) {
-          _setError('Sesi Anda telah berakhir, silakan login kembali');
-        } else {
-          _setError(response.message);
-        }
-        return false;
-      }
+      await loadCartItems(showLoading: false);
+      return true;
     } catch (e) {
-      debugPrint('CartViewModel - deleteItem error: $e');
-      _setError('Terjadi kesalahan tidak terduga');
+      _setError(e.toString());
+      if (showUpdating) {
+        _setState(CartState.error);
+      }
       return false;
     } finally {
-      if (showUpdating) {
-        _setOperationInProgress(false);
-      }
+      _setOperationInProgress(false);
     }
   }
 
-  Future<bool> clearCart({bool showUpdating = true}) async {
-    if (showUpdating) {
-      _setOperationInProgress(true);
-    }
+  Future<bool> clearCart() async {
+    _setState(CartState.updating);
+    _setOperationInProgress(true);
+    _clearMessages();
 
     try {
-      final response = await _cartService.clearCart();
-
-      if (response.isSuccess) {
-        await loadCartItems(showLoading: false);
-        return true;
-      } else {
-        if (response.isUnauthorized) {
-          _setError('Sesi Anda telah berakhir, silakan login kembali');
-        } else {
-          _setError(response.message);
-        }
-        return false;
-      }
+      await _repository.clearCart();
+      _setSuccess('Keranjang berhasil dikosongkan');
+      _cart = null;
+      _setState(CartState.loaded);
+      return true;
     } catch (e) {
-      debugPrint('CartViewModel - clearCart error: $e');
-      _setError('Terjadi kesalahan tidak terduga');
+      _setError(e.toString());
+      _setState(CartState.error);
       return false;
     } finally {
-      if (showUpdating) {
-        _setOperationInProgress(false);
-      }
+      _setOperationInProgress(false);
     }
   }
 
   Future<bool> incrementItemAmount(String trashId) async {
-    _setOperationInProgress(true);
-
-    try {
-      final response = await _cartService.incrementItemAmount(trashId);
-
-      if (response.isSuccess) {
-        await loadCartItems(showLoading: false);
-        return true;
-      } else {
-        if (response.isUnauthorized) {
-          _setError('Sesi Anda telah berakhir, silakan login kembali');
-        } else {
-          _setError(response.message);
-        }
-        return false;
-      }
-    } catch (e) {
-      debugPrint('CartViewModel - incrementItemAmount error: $e');
-      _setError('Terjadi kesalahan tidak terduga');
-      return false;
-    } finally {
-      _setOperationInProgress(false);
-    }
+    final currentAmount = getItemAmount(trashId);
+    return await addOrUpdateItem(
+      trashId,
+      currentAmount + 1,
+      showUpdating: false,
+    );
   }
 
   Future<bool> decrementItemAmount(String trashId) async {
-    _setOperationInProgress(true);
-
-    try {
-      final response = await _cartService.decrementItemAmount(trashId);
-
-      if (response.isSuccess) {
-        await loadCartItems(showLoading: false);
-        return true;
-      } else {
-        if (response.isUnauthorized) {
-          _setError('Sesi Anda telah berakhir, silakan login kembali');
-        } else {
-          _setError(response.message);
-        }
-        return false;
-      }
-    } catch (e) {
-      debugPrint('CartViewModel - decrementItemAmount error: $e');
-      _setError('Terjadi kesalahan tidak terduga');
-      return false;
-    } finally {
-      _setOperationInProgress(false);
+    final currentAmount = getItemAmount(trashId);
+    if (currentAmount <= 1) {
+      return await deleteItem(trashId, showUpdating: false);
     }
-  }
-
-  CartItem? getItemByTrashId(String trashId) {
-    try {
-      return cartItems.firstWhere((item) => item.trashId == trashId);
-    } catch (e) {
-      return null;
-    }
-  }
-
-  bool isItemInCart(String trashId) {
-    return getItemByTrashId(trashId) != null;
-  }
-
-  int getItemAmount(String trashId) {
-    final item = getItemByTrashId(trashId);
-    return item?.amount ?? 0;
-  }
-
-  double getItemSubtotal(String trashId) {
-    final item = getItemByTrashId(trashId);
-    return item?.subtotalEstimatedPrice ?? 0.0;
-  }
-
-  void clearError() {
-    if (_state == CartState.error) {
-      _errorMessage = '';
-      _setState(
-        _cart == null || _cart!.isEmpty ? CartState.empty : CartState.loaded,
-      );
-    }
+    return await addOrUpdateItem(
+      trashId,
+      currentAmount - 1,
+      showUpdating: false,
+    );
   }
 
   Future<void> refresh() async {
-    await loadCartItems(showLoading: true);
+    await loadCartItems();
   }
 
-//   Future<void> refresh() async {
-//   await loadCartItems(showLoading: false);
-//   notifyListeners();
-// }
-
-  // @override
-  // void dispose() {
-  //   super.dispose();
-  // }
-}
-
-extension CartViewModelExtension on CartViewModel {
-  String get formattedTotalPrice {
-    return 'Rp ${totalPrice.toStringAsFixed(0).replaceAllMapped(RegExp(r'(\d{1,3})(?=(\d{3})+(?!\d))'), (Match m) => '${m[1]}.')}';
+  void clearMessages() {
+    _clearMessages();
   }
 
-  String getFormattedItemPrice(String trashId) {
-    final item = getItemByTrashId(trashId);
-    if (item == null) return 'Rp 0';
-
-    return 'Rp ${item.trashPrice.toStringAsFixed(0).replaceAllMapped(RegExp(r'(\d{1,3})(?=(\d{3})+(?!\d))'), (Match m) => '${m[1]}.')}';
+  void _setState(CartState state) {
+    _state = state;
+    notifyListeners();
   }
 
-  String getFormattedItemSubtotal(String trashId) {
-    final item = getItemByTrashId(trashId);
-    if (item == null) return 'Rp 0';
+  void _setError(String error) {
+    _errorMessage = error;
+    notifyListeners();
+  }
 
-    return 'Rp ${item.subtotalEstimatedPrice.toStringAsFixed(0).replaceAllMapped(RegExp(r'(\d{1,3})(?=(\d{3})+(?!\d))'), (Match m) => '${m[1]}.')}';
+  void _setSuccess(String message) {
+    _successMessage = message;
+    notifyListeners();
+  }
+
+  void _clearMessages() {
+    _errorMessage = null;
+    _successMessage = null;
+    notifyListeners();
+  }
+
+  void _setOperationInProgress(bool inProgress) {
+    _isOperationInProgress = inProgress;
+    notifyListeners();
+  }
+
+  String _formatCurrency(int amount) {
+    return amount.toString().replaceAllMapped(
+      RegExp(r'(\d{1,3})(?=(\d{3})+(?!\d))'),
+      (Match m) => '${m[1]}.',
+    );
   }
 }

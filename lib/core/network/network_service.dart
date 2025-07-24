@@ -9,42 +9,79 @@ enum NetworkQuality { excellent, good, fair, poor, none }
 
 class NetworkService {
   static final NetworkService _instance = NetworkService._internal();
-  NetworkService._internal();
   factory NetworkService() => _instance;
+  NetworkService._internal();
 
   final Connectivity _connectivity = Connectivity();
-  final StreamController<NetworkStatus> _networkStatusController =
+  final StreamController<NetworkStatus> _statusController =
       StreamController<NetworkStatus>.broadcast();
+  final StreamController<NetworkQuality> _qualityController =
+      StreamController<NetworkQuality>.broadcast();
 
   NetworkStatus _currentStatus = NetworkStatus.checking;
   NetworkQuality _currentQuality = NetworkQuality.none;
-  Timer? _connectionTimer;
+
   Timer? _qualityTimer;
+  StreamSubscription<List<ConnectivityResult>>? _connectivitySubscription;
   bool _isInitialized = false;
 
-  Stream<NetworkStatus> get networkStatusStream =>
-      _networkStatusController.stream;
+  static const int _timeoutSeconds = 10;
+  static const Duration _qualityCheckInterval = Duration(minutes: 2);
+  static const List<String> _testHosts = [
+    'google.com',
+    'cloudflare.com',
+    '8.8.8.8',
+  ];
+
+  Stream<NetworkStatus> get networkStatusStream => _statusController.stream;
+  Stream<NetworkQuality> get networkQualityStream => _qualityController.stream;
   NetworkStatus get currentStatus => _currentStatus;
   NetworkQuality get currentQuality => _currentQuality;
   bool get isConnected => _currentStatus == NetworkStatus.connected;
 
   Future<void> initialize() async {
     if (_isInitialized) return;
+
     _isInitialized = true;
-    await _checkConnection();
-    _connectivity.onConnectivityChanged.listen(_handleConnectivityChange);
+    await _performInitialCheck();
+    _startConnectivityListener();
     _startQualityMonitoring();
   }
 
-  Future<bool> checkConnection({int timeoutSeconds = 10}) async {
+  Future<void> _performInitialCheck() async {
+    await checkConnection();
+  }
+
+  void _startConnectivityListener() {
+    _connectivitySubscription = _connectivity.onConnectivityChanged.listen(
+      _handleConnectivityChange,
+      onError: (error) {
+        debugPrint('Connectivity listener error: $error');
+      },
+    );
+  }
+
+  void _handleConnectivityChange(List<ConnectivityResult> results) {
+    if (results.contains(ConnectivityResult.none) || results.isEmpty) {
+      _updateStatus(NetworkStatus.disconnected);
+      _updateQuality(NetworkQuality.none);
+    } else {
+      Timer(const Duration(milliseconds: 500), () async {
+        await checkConnection();
+      });
+    }
+  }
+
+  Future<bool> checkConnection({int timeoutSeconds = _timeoutSeconds}) async {
     _updateStatus(NetworkStatus.checking);
 
     try {
-      final connectivityResult = await _connectivity.checkConnectivity();
+      final connectivityResults = await _connectivity.checkConnectivity();
 
-      if (connectivityResult.contains(ConnectivityResult.none) ||
-          connectivityResult.isEmpty) {
+      if (connectivityResults.contains(ConnectivityResult.none) ||
+          connectivityResults.isEmpty) {
         _updateStatus(NetworkStatus.disconnected);
+        _updateQuality(NetworkQuality.none);
         return false;
       }
 
@@ -56,38 +93,24 @@ class NetworkService {
         return true;
       } else {
         _updateStatus(NetworkStatus.disconnected);
+        _updateQuality(NetworkQuality.none);
         return false;
       }
     } catch (e) {
       debugPrint('Network check error: $e');
       _updateStatus(NetworkStatus.disconnected);
+      _updateQuality(NetworkQuality.none);
       return false;
     }
   }
 
-  Future<void> _checkConnection() async {
-    await checkConnection();
-  }
-
-  void _handleConnectivityChange(List<ConnectivityResult> results) {
-    if (results.contains(ConnectivityResult.none) || results.isEmpty) {
-      _updateStatus(NetworkStatus.disconnected);
-      _currentQuality = NetworkQuality.none;
-    } else {
-      Timer(const Duration(seconds: 1), () async {
-        await _checkConnection();
-      });
-    }
-  }
-
   Future<bool> _canReachInternet(int timeoutSeconds) async {
-    final List<String> testHosts = ['google.com', 'cloudflare.com', '8.8.8.8'];
-
-    for (String host in testHosts) {
+    for (final host in _testHosts) {
       try {
         final result = await InternetAddress.lookup(
           host,
         ).timeout(Duration(seconds: timeoutSeconds));
+
         if (result.isNotEmpty && result[0].rawAddress.isNotEmpty) {
           return true;
         }
@@ -100,6 +123,8 @@ class NetworkService {
   }
 
   Future<void> _checkNetworkQuality() async {
+    if (_currentStatus != NetworkStatus.connected) return;
+
     try {
       final stopwatch = Stopwatch()..start();
 
@@ -110,22 +135,32 @@ class NetworkService {
       stopwatch.stop();
       final responseTime = stopwatch.elapsedMilliseconds;
 
-      if (responseTime < 200) {
-        _currentQuality = NetworkQuality.excellent;
-      } else if (responseTime < 500) {
-        _currentQuality = NetworkQuality.good;
-      } else if (responseTime < 1000) {
-        _currentQuality = NetworkQuality.fair;
-      } else {
-        _currentQuality = NetworkQuality.poor;
+      final quality = _calculateQuality(responseTime);
+      _updateQuality(quality);
+
+      if (quality == NetworkQuality.poor) {
+        _updateStatus(NetworkStatus.poor);
       }
     } catch (e) {
-      _currentQuality = NetworkQuality.none;
+      debugPrint('Network quality check error: $e');
+      _updateQuality(NetworkQuality.none);
+    }
+  }
+
+  NetworkQuality _calculateQuality(int responseTime) {
+    if (responseTime < 200) {
+      return NetworkQuality.excellent;
+    } else if (responseTime < 500) {
+      return NetworkQuality.good;
+    } else if (responseTime < 1000) {
+      return NetworkQuality.fair;
+    } else {
+      return NetworkQuality.poor;
     }
   }
 
   void _startQualityMonitoring() {
-    _qualityTimer = Timer.periodic(const Duration(minutes: 2), (_) async {
+    _qualityTimer = Timer.periodic(_qualityCheckInterval, (_) async {
       if (_currentStatus == NetworkStatus.connected) {
         await _checkNetworkQuality();
       }
@@ -135,8 +170,16 @@ class NetworkService {
   void _updateStatus(NetworkStatus status) {
     if (_currentStatus != status) {
       _currentStatus = status;
-      _networkStatusController.add(status);
+      _statusController.add(status);
       debugPrint('Network status changed to: $status');
+    }
+  }
+
+  void _updateQuality(NetworkQuality quality) {
+    if (_currentQuality != quality) {
+      _currentQuality = quality;
+      _qualityController.add(quality);
+      debugPrint('Network quality changed to: $quality');
     }
   }
 
@@ -156,8 +199,9 @@ class NetworkService {
   }
 
   void dispose() {
-    _connectionTimer?.cancel();
     _qualityTimer?.cancel();
-    _networkStatusController.close();
+    _connectivitySubscription?.cancel();
+    _statusController.close();
+    _qualityController.close();
   }
 }
